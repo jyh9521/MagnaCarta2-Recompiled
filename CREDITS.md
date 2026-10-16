@@ -11,3 +11,9 @@ XenonRecomp、ReXGlue、XenonRecomp 相关分支、Xenia、Xenia Canary 与 UE V
 - libmspack，Stuart Caie 与贡献者，commit 55d501976171397ccd5d5a7a1ca7da065b1d9a06，LGPL-2.1；[作者仓库](https://github.com/kyz/libmspack)。本地编译解码库，仓库仅保存自编桥接和构建脚本。
 - coalesced-inifier，ripdajacker，commit 1d0c0cabc9623b003a766a1c56592273a4b9ad77，GPL-3.0；用于独立格式交叉核对，没有复制/集成其代码。
 - UEViewer，Konstantin Nosov / Gildor 与贡献者，固定 commit a0bfb468d42be831b126632fd8a0ae6b3614f981；包结构参考归属与许可见路线 B，本项目解析器为独立实现。
+
+## 第三阶段参考与依赖
+- EliotVU / Unreal-Library，commit d13f344007396620bdfc922db1790ff338045804，MIT；[作者源码](https://github.com/EliotVU/Unreal-Library/tree/d13f344007396620bdfc922db1790ff338045804)，用于UFunction/token版本门槛独立交叉核对，没有复制商业UE3源码。
+- LLVM Project，LLVM 20.1.8，官方Windows包/Clang身份沿用路线A记录；[上游许可](https://github.com/llvm/llvm-project/blob/llvmorg-20.1.8/LICENSE.TXT)，Apache-2.0 WITH LLVM-exception；工具仅留local使用，不分发工具二进制。
+- PyCA cryptography 46.0.3，用于独立XEX映像证据复核，顶层版本锁于requirements-research.txt；第三方包不随仓库复制。
+Xenia/ReXGlue/UEViewer与libmspack的作者、版本和许可记录继续保留。生成的游戏C++/完整映像/COFF对象不进入公开仓库。

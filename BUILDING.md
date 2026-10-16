@@ -51,3 +51,18 @@ python scripts/verify_stage.py --baseline-dir local/analysis/phase2/baseline --b
 输出目录必须尚不存在；脚本只复制 Git 管理/未忽略的小型源码，拒绝大文件，隔离运行基线、修改、回退三组测试。
 该命令需要本轮真实修改前快照，不能用空目录代替。对未来阶段应先建立对应基线，不复用本轮私有目录作为构建依赖。
 回退脚本按全体哈希预检后恢复，测试只对隔离副本执行；主工作树和游戏输入保持原状态。
+
+## 第三阶段：边界修复、全模块编译与UFunction
+只有独立原映像证据复核需要 `python -m pip install -r requirements-research.txt`；普通CI合成测试仍仅依赖标准库。
+固定版本/输入与本地上游准备见 RESEARCH_BRANCH_FIXES；工作入口：
+```powershell
+python tools/research/probe_branch_codegen.py --help
+python -m tools.research.audit_generated_control_flow local/analysis/phase3/branches-bounded/project/generated/default-disc1 --output local/analysis/phase3/control-flow-modified.json
+python -m tools.research.compile_module --generated local/analysis/phase3/branches-bounded/project/generated/default-disc1 --sdk local/upstream/rexglue/sdk/win-amd64 --compiler local/upstream/llvm/unpacked/bin/clang-cl.exe --vcvars 'C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Auxiliary/Build/vcvars64.bat' --output local/analysis/phase3/module-reproduction --jobs 4
+python tools/formats/ufunction.py 'MagnaCarta II (Korea) (Disc 1).iso' local/analysis/phase1/disc1.json --lzx-library local/analysis/phase2/ue3_lzx.dll --output local/analysis/phase3/native-gap-disc1.json
+```
+全模块编译必须对稳定生成树执行，输出用新目录；sources.cmake清单、生成树、SDK include、Clang及resource headers受哈希保护。
+系统MSVC/WindowsSDK头仅登记搜索路径和环境版本，未对其全部头树做逐文件哈希；不承诺跨机器/跨路径位级相同。
+`audit_generated_control_flow`限定ReXGlue v0.10模板；报告197源文件中195个函数TU、2个元数据TU，不把元数据跳过当丢失编译。
+UFunction仅支持已实测的Xbox大端446/25；未知token/字段边界失败不会跳过成成功，声明解析不执行脚本或实现native。
+源码回退继续使用verify_stage.py，把baseline与output换成本轮phase3路径，并以--modified-file tools/formats/ufunction.py留修改副本。

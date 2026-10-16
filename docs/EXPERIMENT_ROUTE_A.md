@@ -183,3 +183,10 @@ python tools/research/probe_route_a.py --iso 'MagnaCarta II (Korea) (Disc 1).iso
 - 上游原包、release API 元数据、许可证、参考源码仅在忽略目录 `local/upstream/rexglue`；原 XEX、manifest、生成代码仅在 `local/analysis/phase2`。
 - REA 对同一 XEX 的 `open_binary` 返回 `target_unavailable / unsupported binary format`；因此没有把 REA 结果写成 PPC 反编译成功，核心实验改用上游明确支持 XEX 的工具。
 - 本轮不是模拟器打包；尚未发生游戏逻辑、画面、存档、换盘或中文显示验收。
+
+
+## 阶段 3：真实 PPC 分支与整模块构建
+
+阶段 2 的三条致命条件分支现已由真实 PPC 完整范围证据修复：配置显式函数范围 `82CE6748+0x38`、`82DA3488+0x38`，原游戏/SDK 字节不变，严格重生后得到原条件下的共享标签 goto，不再生成 `REX_FATAL`。阶段 2 的生成树、失败日志与假设未被覆盖。
+
+首轮严格重生 `exit=0 / 337.8s / 397 written`；全量编译随后暴露另一类 SEH funclet 合并问题，保留为独立迭代。具体 PPC 位段、PDATA、校验工具、27 组内存夹具和最终状态见 [分支边界研究](RESEARCH_BRANCH_FIXES.md)；197 TU 构建验收见 [整模块构建](EXPERIMENT_MODULE_BUILD.md)。编译、链接、游戏启动与画面验收仍为不同层次。

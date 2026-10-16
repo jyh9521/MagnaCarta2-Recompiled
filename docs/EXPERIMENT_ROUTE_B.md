@@ -19,3 +19,9 @@
 下一实验固定MC2Game.xxx和Core.xxx身份，恢复一个UFunction字段边界、native index/字节码，再建立调用缺口。只有可使用兼容运行时上的真实游戏调用闭环才验收B3；synthetic宿主加法不能代替游戏语义。
 
 复现见RESEARCH_UE3.md。工具不写ISO，输出在忽略目录；统一第二阶段transaction在隔离副本验证源码回退。正式语言库未填入臆造译文。
+
+## B2 第三阶段实测补充
+
+双盘七个定义包各 12,901 个 UFunction 已完成字段与 bytecode token framing，逐函数报告一致。Native 声明 3,056，其中非零 native index 203、按名称注册候选 2,853；MC2Game 的 1,651 个 native 全部 index=0，仍是原生语义缺口。直接 native 调用点 26,117，全部匹配索引声明但没有恢复兼容实现。FinalFunction 8,375 个调用点中 6,345 指向 native 声明、2,030 指向脚本声明；virtual/global/delegate 共 13,731 个调用点保留动态绑定状态。序列化/调用识别不是 VM 运行验收。
+
+两次失败（ArrayFind 旧版本无追加参数终止；delegate comparison 需要独立参数终止）均保留报告并加入回归。完整格式、固定 MIT 开源对照、证据等级和复现见 [RESEARCH_UFUNCTION.md](RESEARCH_UFUNCTION.md)。原版字段/字节码和上游源码不提交。B3/B4 的真实兼容调用闭环、首帧/地图仍未完成。

@@ -1,0 +1,48 @@
+# Experimental branch targets reported by ReXGlue v0.10.0 strict validation.
+# Apply only after matching XEX SHA-256:
+# 26146f0ceaeb1945bc8e0031d31bfd7fe929c85a6e9e0992aeaa823968c0750f
+# These are entry hypotheses, not verified semantic function boundaries.
+[functions.0x82A39628]
+name = "branch_target_82A39628"
+[functions.0x828E0E68]
+name = "branch_target_828E0E68"
+
+# Verified contiguous PPC ranges; both contain early returns and later branches
+# back into the same shared return blocks. See docs/RESEARCH_BRANCH_FIXES.md.
+[functions.0x82CE6748]
+size = 0x38
+[functions.0x82DA3488]
+size = 0x38
+
+# PDATA-exact SEH funclet boundaries; prevent EH descriptor words and
+# the next funclet from being merged into the preceding function.
+[functions.0x829335B4]
+size = 0x94
+share_registers = true
+[functions.0x82933650]
+size = 0x54
+share_registers = true
+[functions.0x82934134]
+size = 0x94
+share_registers = true
+[functions.0x829341D0]
+size = 0x54
+share_registers = true
+[functions.0x82927154]
+size = 0x94
+share_registers = true
+[functions.0x829271F0]
+size = 0x54
+share_registers = true
+[functions.0x829183A8]
+size = 0x94
+share_registers = true
+[functions.0x82918444]
+size = 0x54
+share_registers = true
+[functions.0x82938758]
+size = 0x94
+share_registers = true
+[functions.0x829387F4]
+size = 0x54
+share_registers = true

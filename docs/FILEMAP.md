@@ -23,3 +23,9 @@
 - scripts/verify_stage.py：源码哈希守卫、隔离测试及回退证据生成。
 - research/xex：与原版SHA绑定的少量分析入口hint，不含游戏代码。
 - local/analysis/phase2：真实原文、包引用、第三方编译、生成C++、实验日志、隔离副本与验证；一律不提交。
+
+## 第三阶段新增
+- tools/formats/ufunction.py：严格大端446/25字段/表达式framing及native调用候选。
+- research/xex/disc1-control-flow.toml：与原版SHA绑定的完整函数/SEH范围元数据，不修改游戏字节。
+- tools/research/{probe_branch_codegen,verify_branch_ranges,audit_generated_control_flow,compile_module,probe_generated_branches}.py：重生、独立核验、模板静态审计、全量编译与隔离叶函数实验。
+- local/analysis/phase3：修改前源码、失败/成功生成树、197TU逐个对象/日志、UFunction报告、隔离回退和远端证据；不提交。

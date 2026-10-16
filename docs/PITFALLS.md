@@ -13,3 +13,10 @@
 10. Verified：对既有 JSON 输出直接 write_text 会跟随硬/软链接并污染输入；本轮格式工具采用随机临时文件+原子替换，硬链接回归测试通过。
 11. Verified：UE3 的 inventory、成员范围与哈希必须在 summary-only 分支也先校验；非空表不得覆盖 summary，避免接受恶形表。
 12. Verified：路线 A 首轮严格分析在两条分支目标上失败；保留首轮日志，不能 force 或静默 stub 掩盖未解决调用。后续 hint 实验的结论单列。
+
+13. Verified：仅增入口hint可生成但仍产生三条致命条件分支；原PPC证明根因是early-return切分，应该给真实完整范围，不能删REX_FATAL。
+14. Verified：单TU成功掩盖5个SEH函数误合并；全模块首次真实192/197，PDATA边界修复后197/197。修复不能靠补空label。
+15. Verified：CookedXenon仍可保留UFunction的ScriptText/CppText/Line/TextPos/FriendlyName，不按路径假定字段剥离。
+16. Verified：446的ArrayFind无追加参数终止符，delegate comparison反而需要独立EndFunctionParms；两次真实失败报告保留。
+17. Verified：顶层参数终止token误接受、UFunction小端profile未拒绝，均经独立审查修复并加实际入口链回归；不能以当前原版全通过替代坏输入测试。
+18. Verified：全模块的inputs_unchanged涵盖明确已哈希输入，不涵盖未逐文件哈希的系统头与所有机器状态；隔离夹具成功不外推完整游戏。

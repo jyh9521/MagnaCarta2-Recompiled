@@ -28,3 +28,9 @@ errors 保存扫描异常，任何异常都令 CLI 非零退出；部分清单�
 - Coalesced：大端字符串计数/长度、UTF-16LE 宽文本、路径/内容对，详见 RESEARCH_COALESCED；8 容器内存往返逐字节一致。
 - UE3 446/25：包 summary、name/import/export 表及表引用、LZX 容器块和 FName Unicode 特例，详见 RESEARCH_UE3。
 第一阶段 magic-only 描述保留为历史：当前专用解析器已推进到表级验证，但仍不等于对象载荷、脚本执行或资源回写。
+
+## 第三阶段细化
+- PPC/PDATA：early-return共享块不能由每条blr切断；SEH描述字不能当正常指令；精确范围与share_registers证据见RESEARCH_BRANCH_FIXES。
+- UFunction大端446/25：44字节头、ScriptSize字节脚本、native index/precedence/flags、可选repOffset和FriendlyName，精确大小59+ScriptSize（network多2），见RESEARCH_UFUNCTION。
+- Bytecode：只验证token/表达式参数framing与静态引用，不宣称验证跳转目标、栈类型或执行语义。token0x15/0x16在顶层必须拒绝。
+- 静态native index非零只建立声明索引；零index的FUNC_Native仍需查注册，不得归为已实现脚本。
