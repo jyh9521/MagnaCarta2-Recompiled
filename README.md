@@ -1,9 +1,10 @@
-# MagnaCarta 2 CN
+# MagnaCarta2-Recompiled
 
-Xbox 360《MagnaCarta 2》原生 Windows x64 移植研究与简体中文本地化工程。
+Xbox 360《MagnaCarta 2》原生重编译、Windows x64 移植研究与可复用本地化工程。
+原名 `Magna-Carta-2-CN`；简体中文本地化保留为子项目，不改变现有 locale/数据格式。
 目标是用户自备原版数据 + 本项目工具/兼容运行时；不是 Xenia 启动器。
 
-## 当前状态（2026-10-17，第十五阶段）
+## 当前状态（2026-10-17，第十六阶段）
 - 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
 - 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
 - 已勘测：用户提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
@@ -43,7 +44,7 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 ## 开发入口
 [构建](BUILDING.md) · [翻译](TRANSLATING.md) · [技术记录](TECHNICAL.md) · [许可边界](LICENSING.md)
 [Coalesced](docs/RESEARCH_COALESCED.md) · [阶段二](docs/PHASE2_RESULTS.md) · [阶段三](docs/PHASE3_RESULTS.md) · [阶段四](docs/PHASE4_RESULTS.md) · [阶段五](docs/PHASE5_RESULTS.md) · [可行性](docs/PORTING_FEASIBILITY.md) · [架构](docs/PORTING_ARCHITECTURE.md) · [下一步](docs/NEXT_STEPS.md)
-[仓库](https://github.com/jyh9521/Magna-Carta-2-CN) · [问题反馈](https://github.com/jyh9521/Magna-Carta-2-CN/issues)
+[仓库](https://github.com/jyh9521/MagnaCarta2-Recompiled) · [问题反馈](https://github.com/jyh9521/MagnaCarta2-Recompiled/issues)
 
 ## 贡献与发布
 提交只包含自编工具、文档和经授权的数据；原版资源不进入仓库。
@@ -54,3 +55,7 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 
 原82A3DEA0完整索引尾分派恢复，旧DEC4合并，197TU严格重建实际推进82B7CCD0原fatal；fixture合法路径只证明tail ABI，不证明原callee/首帧。
 [阶段16结果](docs/PHASE16_RESULTS.md)。
+
+## 项目名称与路径迁移
+
+新仓库和本地目录统一为 `MagnaCarta2-Recompiled`。旧路径兼容、历史证据保护与复现见[迁移记录](docs/PROJECT_RENAME.md)。

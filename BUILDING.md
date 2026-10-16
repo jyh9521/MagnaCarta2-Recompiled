@@ -177,3 +177,7 @@ conditional-tail只追加原32-byte入口，保留store/beqlr/nonlink tail，继
 
 新增indexed-tail固定profile，完整72-byte恢复并将旧DEC4内部块合并；严格FP197对象全量编译链接。
 [阶段16结果](docs/PHASE16_RESULTS.md)。
+
+## 工作目录更名兼容
+
+项目使用 MagnaCarta2-Recompiled；旧本地绝对路径通过 junction 保持有效。原构建和研究记录不批量改写，详见[更名与复现](docs/PROJECT_RENAME.md)。

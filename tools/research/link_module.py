@@ -27,6 +27,24 @@ def validate_native_profile(generated_identity):
         raise ValueError('native probe requires the verified generated game profile')
 
 
+def same_inventory(current, recorded):
+    """Allow an existing filesystem alias, never a copied tree or changed hashes.
+
+    Historical manifests remain byte-identical. Only the root spelling may differ;
+    all content hashes and all other metadata must still compare exactly.
+    """
+    if current == recorded:
+        return True
+    if not isinstance(current, dict) or not isinstance(recorded, dict):
+        return False
+    try:
+        same_root = Path(current['root']).samefile(Path(recorded['root']))
+    except (KeyError, OSError, ValueError, TypeError):
+        return False
+    return same_root and {k: v for k, v in current.items() if k != 'root'} == {
+        k: v for k, v in recorded.items() if k != 'root'}
+
+
 def verified_objects(build_dir, generated):
     build_dir, generated = Path(build_dir).resolve(), Path(generated).resolve()
     report = json.loads((build_dir / 'module-build.json').read_text(encoding='utf-8'))
@@ -34,7 +52,7 @@ def verified_objects(build_dir, generated):
     records = report.get('records', [])
     if not report.get('success') or not report.get('inputs_unchanged') or len(records) != 197:
         raise ValueError('expected complete successful 197-object build')
-    if inventory(generated) != inputs['generated']:
+    if not same_inventory(inventory(generated), inputs['generated']):
         raise ValueError('generated tree differs from successful build')
     if len({r['source'] for r in records}) != 197:
         raise ValueError('duplicate generated source records')
@@ -114,12 +132,12 @@ def build(build_dir, generated, sdk, compiler, linker, source, output, env, prob
             raise ValueError('output must be outside input trees')
     objects, previous = verified_objects(build_dir, generated)
     if probe_source: validate_native_profile(previous['generated'])
-    if inventory(sdk / 'include') != previous['sdk_include']:
+    if not same_inventory(inventory(sdk / 'include'), previous['sdk_include']):
         raise ValueError('SDK headers differ from object build')
     sdk_before = inventory(sdk)
     resource = compiler.parent.parent / 'lib/clang/20/include'
     resource_before = inventory(resource) if resource.is_dir() else None
-    if previous.get('compiler_resource_headers') != resource_before:
+    if not same_inventory(previous.get('compiler_resource_headers'), resource_before):
         raise ValueError('Clang resource headers differ from object build')
     source_paths = [source] + ([Path(probe_source).resolve()] if probe_source else [])
     if len(set(source_paths)) != len(source_paths):
@@ -168,7 +186,7 @@ def build(build_dir, generated, sdk, compiler, linker, source, output, env, prob
             if run_environment:
                 execution_environment.update(run_environment)
             records.append(run_record([str(output/'module_probe.exe')],output,'run',runtime_path(execution_environment,sdk),run_timeout))
-    stable = before == {p:digest(p) for p in before} and sdk_before == inventory(sdk) and previous['generated'] == inventory(generated)
+    stable = before == {p:digest(p) for p in before} and sdk_before == inventory(sdk) and same_inventory(previous['generated'], inventory(generated))
     if resource_before is not None: stable = stable and resource_before == inventory(resource)
     run_text = (output/'run.txt').read_text(encoding='utf-8') if (output/'run.txt').is_file() else ''
     expected = len(re.findall(r'^\s*registrar->SetFunction\(', (generated/'mc2_probe_register.cpp').read_text(encoding='utf-8'),re.M))

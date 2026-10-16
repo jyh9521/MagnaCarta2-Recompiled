@@ -36,5 +36,5 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 
 ## Git 与云端证据
 首个工程提交 `ffc55593be69d096965789be870877c32dcc73f8` 已推送 main，远端 SHA 与本地一致。
-[GitHub Actions 运行记录](https://github.com/jyh9521/Magna-Carta-2-CN/actions/runs/38904741377)：Windows/Ubuntu、Python 3.12/3.14 四项组合全部成功。
+[GitHub Actions 运行记录](https://github.com/jyh9521/MagnaCarta2-Recompiled/actions/runs/38904741377)：Windows/Ubuntu、Python 3.12/3.14 四项组合全部成功。
 该云端结果只验证工具，不代表本游戏编译、启动或中文显示。

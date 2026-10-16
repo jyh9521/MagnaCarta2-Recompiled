@@ -27,6 +27,36 @@ class HostLinkTests(unittest.TestCase):
     def save(self):
         (self.build/'module-build.json').write_text(json.dumps(self.report))
         (self.build/'inputs.json').write_text(json.dumps(self.inputs))
+    def test_same_directory_spelling_accepted(self):
+        self.inputs['generated']['root'] = str(self.gen / '..' / self.gen.name)
+        self.save()
+        before = json.dumps(self.inputs, sort_keys=True)
+        self.assertEqual(len(lm.verified_objects(self.build, self.gen)[0]), 197)
+        self.assertEqual(before, json.dumps(self.inputs, sort_keys=True))
+
+    def test_identical_copied_tree_not_alias(self):
+        other = self.root / 'copy'; other.mkdir()
+        current = dict(self.inputs['generated'], root=str(other))
+        self.assertFalse(lm.same_inventory(current, self.inputs['generated']))
+
+    def test_missing_recorded_root_rejected(self):
+        recorded = dict(self.inputs['generated'], root=str(self.root / 'missing'))
+        self.assertFalse(lm.same_inventory(inventory(self.gen), recorded))
+
+    def test_alias_does_not_relax_hash_guard(self):
+        recorded = dict(self.inputs['generated'], root=str(self.gen / '..' / self.gen.name), tree_sha256='bad')
+        self.assertFalse(lm.same_inventory(inventory(self.gen), recorded))
+        recorded = dict(self.inputs['generated'], root=str(self.gen / '..' / self.gen.name), files={})
+        self.assertFalse(lm.same_inventory(inventory(self.gen), recorded))
+
+    def test_optional_inventory_none(self):
+        self.assertTrue(lm.same_inventory(None, None))
+        self.assertFalse(lm.same_inventory(None, self.inputs['generated']))
+
+    def test_alias_unknown_metadata_still_guarded(self):
+        recorded = dict(self.inputs['generated'], root=str(self.gen / '..' / self.gen.name), contract='changed')
+        self.assertFalse(lm.same_inventory(inventory(self.gen), recorded))
+
     def test_explicit_source_headers_are_guarded(self):
         source=self.root/'host.cpp';source.write_text('')
         header=self.root/'host.h';header.write_text('')
