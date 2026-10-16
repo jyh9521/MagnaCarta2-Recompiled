@@ -66,3 +66,11 @@
 - 19根缺TitleMap_MSPT导致AV guest3，保留部署失败；只追加hash验证原包到20根，不创建空map。
 - 01模板遗漏是寄存器分配变体而非未生成；52/61旧entry筛选缺口与之不同。静态300/runtime302不意味着兼容实现完成。
 - 61入口查找失败不等于它已消费下一byte；必须区分caller消费的61和handler将读取的新byte。
+
+## 第十阶段：观测窗口不是故障证明
+
+- 原61fatal消失后20秒仍运行，子进程诊断exit26，不是游戏正常退出，也不是父进程timeout124。
+- 旧report曾因可选文件探测失败误称precede fault，但该run无exception/fatal；首次report/exit1保留。新增bounded_observation独立字段与负例，diagnostic_success/boot仍false，不吞fatal或改游戏。
+- 三个相同等待采样与持续GPU日志并不证明死锁；无限timeout原静态链也不证明实际等待对象种类或生产者。
+- 256后缀完全覆盖单字节输入，但仅在全合成16KB页执行原体并record尾目标；不是原游戏GNatives夹具或真实下游验收。
+- unittest点名tests模块与直接执行local私有脚本分别遇ModuleNotFoundError；改用discover及根runpy入口，失败与修复命令保留。

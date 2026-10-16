@@ -64,3 +64,9 @@
 - `tools/research/verify_native_gateway.py`：原范围/注册/caller守卫和稀疏合成内存分派差分。
 - `tools/research/reconcile_native_slots.py`：静态/实际快照显式身份对账，不自动hint。
 - [阶段9](PHASE9_RESULTS.md)、[网关实验](EXPERIMENT_NATIVE_GATEWAY.md)、[网关研究](RESEARCH_NATIVE_GATEWAY.md)、[槽缺口](RESEARCH_NATIVE_SLOT_GAPS.md)。
+
+## 第十阶段补充
+
+- `research/xex/disc1-extended-native.toml`：实际61扩展原入口的0x2C发现元数据。
+- `tools/research/verify_extended_native.py`：原44-byte/注册/caller守卫与256后缀原生成体差分。
+- [阶段10](PHASE10_RESULTS.md)、[严格实验](EXPERIMENT_EXTENDED_NATIVE.md)、[原体研究](RESEARCH_EXTENDED_NATIVE.md)。

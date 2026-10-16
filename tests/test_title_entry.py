@@ -24,6 +24,34 @@ TITLE_NATIVES guard=1 bound=4096 fallback=3794 int_const=82508E60 add=8250BAF0
 
 
 class TitleEntryTests(unittest.TestCase):
+    def test_extended_native_profile(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.EXTENDED_NATIVE_GENERATED_TREE}),'extended-native-82517D70')
+
+    def observation(self,exit=26,sdk=''):
+        text='TITLE_LOAD status=00000000\nTITLE_RESUMED status=00000000\nTITLE_WAIT result=2 running=1\n'
+        for i in range(3):
+            text+=f'TITLE_SAMPLE sample={i} pc=140002004 lr=82869BC0 ctr=8248B100\n'
+            text+=f'TITLE_SAMPLE_STACK sample={i} index=0 address=140002004 rva=2004 module=C:\\probe\\module_probe.exe\n'
+        return p.analyze(text,sdk,p.map_symbols(MAP),exit)
+
+    def test_bounded_observation_is_not_located_blocker_or_boot(self):
+        r=self.observation(sdk='IssueSwap: presenter is null\n'*2)
+        self.assertTrue(r['bounded_observation']);self.assertFalse(r['diagnostic_success'])
+        self.assertFalse(r['game_boot_success']);self.assertFalse(r['shutdown_verified'])
+        self.assertEqual(r['presenter_null_reports'],2)
+        self.assertIn('not proof of deadlock',r['blocker_classification'])
+
+    def test_missing_probe_without_fault_does_not_claim_fault(self):
+        r=self.observation(sdk="[NtCreateFile] FAILED: path='optional' -> 0xc000000f")
+        self.assertTrue(r['bounded_observation'])
+        self.assertNotIn('precede fault',r['blocker_classification'])
+        r=p.analyze('',"[NtCreateFile] FAILED: path='optional' -> 0xc000000f",[],1)
+        self.assertFalse(r['bounded_observation']);self.assertEqual(r['blocker_classification'],'no positively located blocker')
+
+    def test_process_timeout_cannot_be_bounded_observation(self):
+        r=self.observation(exit=124);self.assertFalse(r['bounded_observation'])
+        self.assertTrue(r['timed_out'])
+
     def test_native_gateway_profile(self):
         self.assertEqual(p.validate_title_profile({'tree_sha256':p.NATIVE_GATEWAY_GENERATED_TREE}),'native-gateway-82509380')
 

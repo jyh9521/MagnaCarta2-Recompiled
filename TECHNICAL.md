@@ -80,3 +80,12 @@ strict恢复C1A0完整0x88范围，原C214内部tail不再单独作为函数；5
 原生成体4组分派差分保留SDK宏，32GPR64/CTR/LR/20KB合成页不变；只record未知callee，与原标题实验分开。
 01旧模板漏寄存器变体；新mapping让旧模板恢复数仅+52至300，运行期302不变。
 追加原TitleMap后真实到达82517D70，caller82508228/LR8250822C；61将消费下一byte，但本体/下游尚未执行。
+
+## 第十阶段：61扩展入口和真实等待链
+
+原61完整44-byte范围/原注册/调用点均锁hash；仅新增82517D70发现元数据，58165共同正文无变化，197TU/58412映射通过。
+原生成体256后缀差分验证32GPR64/CTR/LR/CR/XER及仅cursor4B写回；合成未加载游戏，只record外部目标。
+固定真实GNatives快照302非fallback目标均有mapping；这不证明逐handler执行或实现兼容。
+同一20成员根两次不再触发61fatal，原主线程在20秒边界仍运行；LR82869BC0对应原82869BBC调用NtWaitForSingleObjectEx。
+发行SDK导出表独立对应native等待栈；静态wrapper非alertable、上游-1 timeout转NULL，实际对象类型/唤醒生产者未知。
+headless持续IssueSwap presenter=null，仅证明缺呈现器日志，未建立其与等待因果关系；无首帧或游戏启动成功验收。

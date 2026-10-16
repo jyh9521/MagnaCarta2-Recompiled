@@ -123,8 +123,11 @@ def analyze(run_text, sdk_text, symbols, exit_status):
                                 'guest_offset':offset if offset<=0xFFFFFFFF else None}
     if native:result['natives']={'guard':int(native[1]),'bound':int(native[2]),'fallback':int(native[3]),
                                 'int_const':int(native[4],16),'add':int(native[5],16)}
+    result['bounded_observation'] = bool(result['observation_window_elapsed'] and result['stack_sample_observed'] and exit_status == 26 and not fault and not fatal)
+    result['presenter_null_reports'] = sdk_text.count('IssueSwap: presenter is null')
     if fatal:result['blocker_classification']='compatibility: SDK function dispatch rejected a guest target; no bypass applied'
-    elif missing:result['blocker_classification']='environment: failed file operations precede fault; investigate optional-vs-required data before attribution'
+    elif result['bounded_observation']:result['blocker_classification']='bounded observation: title thread still running at the observation limit; sampled wait is not proof of deadlock or game boot'
+    elif missing and fault:result['blocker_classification']='environment: failed file operations precede fault; investigate optional-vs-required data before attribution'
     elif fault:result['blocker_classification']='fault captured; investigate stack and subsystem configuration before classifying defect'
     else:result['blocker_classification']='no positively located blocker'
     return result
@@ -133,11 +136,14 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
 VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 COMPARE_GENERATED_TREE = '14c27505807e3381f5d9f4b20ab84a1b6f3404ea95204c134d5957260fbc2148'
+EXTENDED_NATIVE_GENERATED_TREE = 'bfb05b9fd7122d019d61d691c1764062107928d8262cc84dc4c3a4c8114e0121'
 NATIVE_GATEWAY_GENERATED_TREE = '994d2db123de56faf27f0560d872bb2481e6fa9f9c9e8123e6fe44d8a76f171b'
 
 
 def validate_title_profile(identity):
     """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == EXTENDED_NATIVE_GENERATED_TREE:
+        return 'extended-native-82517D70'
     if identity.get('tree_sha256') == NATIVE_GATEWAY_GENERATED_TREE:
         return 'native-gateway-82509380'
     if identity.get('tree_sha256') == COMPARE_GENERATED_TREE:
@@ -186,7 +192,9 @@ def execute(args):
         p=output/name
         if p.is_file():report[name]={'path':str(p),'sha256':digest(p),'size':p.stat().st_size}
     report['runtime_assets_unchanged']=result.get('runtime_assets_unchanged',True)
-    report['diagnostic_success'] &= diagnostic_input_guards(result,report)
+    guarded = diagnostic_input_guards(result,report)
+    report['diagnostic_success'] &= guarded
+    report['bounded_observation'] &= guarded
     (output/'title-entry.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(f"TITLE_ENTRY resumed={report['guest_entrypoint_launched']} located={report['diagnostic_success']} game_boot=False",flush=True)
     return report
@@ -202,7 +210,8 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if os.name!='nt':raise ValueError('title entry requires Windows SDK host')
-        return 0 if execute(args)['diagnostic_success'] else 1
+        report=execute(args)
+        return 0 if report['diagnostic_success'] or report['bounded_observation'] else 1
     except (OSError,ValueError,KeyError) as error:
         print('TITLE_ENTRY_ERROR: '+str(error),file=sys.stderr);return 1
 

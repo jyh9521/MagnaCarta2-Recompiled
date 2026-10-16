@@ -130,3 +130,10 @@ headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形
 固定`--entry-profile native-gateway`只追加已触发52入口，未将61一起hint；原标题接受第五个精确profile。
 20原成员根仅向既有19项追加原TitleMap_MSPT.xxx，所有hash/staging守卫不变。
 源码事务使用phase9对应baseline/manifest/verification；恢复源码配旧phase8构建及同一20根重现52原fatal。
+
+## 第十阶段：61扩展原入口与有界观测
+
+命令见[严格实验](docs/EXPERIMENT_EXTENDED_NATIVE.md)、[256后缀差分](docs/RESEARCH_EXTENDED_NATIVE.md)、[阶段10](docs/PHASE10_RESULTS.md)。
+`--entry-profile extended-native`只追加已实际触发61入口，197TU新目录重编译；标题接受第六个精确生成树。
+同一phase9原20成员根复用且hash不改。标题helper将完整有界采样记为bounded_observation，不将其当diagnostic_success或game_boot_success；子进程exit26保留。
+phase10源码事务恢复后配旧phase9构建/同一原根重现61原fatal，主目录保持修改态。
