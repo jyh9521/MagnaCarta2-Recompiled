@@ -32,4 +32,14 @@ UE3 头区 LZX、FName 和对象表已验证；第三阶段新增 UFunction flag
 - 七定义包12901个UFunction字段边界和字节码framing通过；native=3056（203非零index、2853零index），直接native调用点26117，final调用8375。
 - virtual/global/delegate共13731静态调用点仍待动态绑定；native声明匹配不是已恢复实现。
 详细来源、失败、输入身份与复现见 RESEARCH_BRANCH_FIXES、RESEARCH_UFUNCTION、EXPERIMENT_MODULE_BUILD和PHASE3_RESULTS。
-尚无完整宿主链接、运行时初始化、游戏启动或画面验收；其余函数与异常路径语义不能由两叶函数夹具外推。
+第三阶段当时尚无完整宿主链接、运行时初始化、游戏启动或画面验收；其余函数与异常路径语义不能由两叶函数夹具外推。
+
+## 第四阶段已验证
+- 197 个已哈希 COFF 对象显式链接，禁止引用裁剪/相同代码折叠，不靠空导入 stub 完成链接。
+- SDK tool_mode Setup 返回 0；58,408 个地址逐项 GetFunction 一致，分配/读写/释放与 Shutdown 通过。
+- 独立读取最终 AMD64 PE 与 linker map，确认 58,162 个生成函数各自存在于对应对象，没有只链接抽样 TU。
+- 原生名称表的结构/消费者、UFunction 声明与执行入口分别核验，详见 RESEARCH_NATIVE_REGISTRATION。
+- 全模块宿主调用真实 Add_IntInt，原生成实现及原操作数处理器执行 8 组合成输入；Code 前进 11、结果/保护字/非易失状态均通过。
+- 静态恢复312个表/2676项非零配对及299个原注册模板；203个非零index声明与名称入口、注册函数一致。
+- 真实执行token 0x1D与index146的原注册函数及重入路径；GNatives由原代码写入，原静态vtable指针与相关页仍受控提供，不是完整游戏启动链。
+本阶段没有调用 XEX 标题入口，没有完整游戏 VM、资源加载或图形验收。路线 B 的兼容原生实现缺口不因路线 A 调用原生成代码而自动消失。

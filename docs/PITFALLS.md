@@ -20,3 +20,9 @@
 16. Verified：446的ArrayFind无追加参数终止符，delegate comparison反而需要独立EndFunctionParms；两次真实失败报告保留。
 17. Verified：顶层参数终止token误接受、UFunction小端profile未拒绝，均经独立审查修复并加实际入口链回归；不能以当前原版全通过替代坏输入测试。
 18. Verified：全模块的inputs_unchanged涵盖明确已哈希输入，不涵盖未逐文件哈希的系统头与所有机器状态；隔离夹具成功不外推完整游戏。
+## 第四阶段：不要混淆三种表或两种初始化
+
+- `8320B5E0` 初被误认成 GNatives，按 203 个 native index 交叉核验出现大量冲突；它实际是 UObject vtable，不能以函数指针密集为依据当作 bytecode 表。
+- 静态 `{UTF16BE name pointer, implementation pointer}` 查找表、UFunction.native_index 与运行时 GNatives 是不同证据。恢复前两者不证明最后一者已由原游戏初始化；本阶段随后实际执行两个原注册函数，但其vtable输入仍受控，不是完整startup链。
+- 历史宿主构建成功后又修改宿主源，独立输入哈希复核正确失败。保留历史日志，冻结源码后在新目录重新链接，不忽略 source drift。
+- SDK tool_mode 初始化不调用标题入口；真实 native 本体在合成 FFrame 中成功不等于 VM、UObject 世界、加载地图或图形运行通过。

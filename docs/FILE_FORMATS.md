@@ -34,3 +34,16 @@ errors 保存扫描异常，任何异常都令 CLI 非零退出；部分清单�
 - UFunction大端446/25：44字节头、ScriptSize字节脚本、native index/precedence/flags、可选repOffset和FriendlyName，精确大小59+ScriptSize（network多2），见RESEARCH_UFUNCTION。
 - Bytecode：只验证token/表达式参数framing与静态引用，不宣称验证跳转目标、栈类型或执行语义。token0x15/0x16在顶层必须拒绝。
 - 静态native index非零只建立声明索引；零index的FUNC_Native仍需查注册，不得归为已实现脚本。
+## 第四阶段：XEX 原生名称表与受控调用 ABI
+
+盘1已锁定 XEX 内的静态 native 名称表使用 8-byte record：大端 u32 UTF-16BE 名称指针、
+大端 u32 PPC 实现指针，同类连续记录以 `{0,0}` 终止。名称形如 `intUObjectexecAdd_IntInt`，
+原样保留，不把前缀当源文翻译；该静态表不同于 UObject vtable 或运行时 GNatives。
+Core 表地址 `8320EC20`，消费者 `823C7F40` 按 stride 8 查找后返回实现槽地址 `record+4`，不是直接执行 native。
+
+受控 Add 调用中 r4 指向合成 FFrame、`FFrame+12` 是脚本游标，r5 是大端 32-bit 结果槽。
+两项操作数通过真实生成的四字节解码器读取，native 本体消费两个 token/值及参数终止符共 11 bytes。
+这只证明该函数在所测输入/ABI子集下成立，不能推广为全部 FFrame/UProperty/UObject 布局。
+GNatives 位于 `83250D80`；本阶段静态恢复299个原注册函数模板，并实际执行 `82E707C8`（token 0x1D）、
+`82E73108`（index146），由原代码完成首次4096槽fallback填充及两槽注册。原静态vtable的两个指针和相关页仍由夹具提供，尚未执行完整原游戏启动链。
+来源、版本守卫和未知项见 [注册研究](RESEARCH_NATIVE_REGISTRATION.md) 与 [调用实验](EXPERIMENT_NATIVE_CALL.md)。

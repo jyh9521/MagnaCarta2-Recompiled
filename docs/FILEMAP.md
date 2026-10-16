@@ -29,3 +29,8 @@
 - research/xex/disc1-control-flow.toml：与原版SHA绑定的完整函数/SEH范围元数据，不修改游戏字节。
 - tools/research/{probe_branch_codegen,verify_branch_ranges,audit_generated_control_flow,compile_module,probe_generated_branches}.py：重生、独立核验、模板静态审计、全量编译与隔离叶函数实验。
 - local/analysis/phase3：修改前源码、失败/成功生成树、197TU逐个对象/日志、UFunction报告、隔离回退和远端证据；不提交。
+
+## 第四阶段新增
+- src/host：自编SDK宿主初始化与受控native实验，不包含原游戏生成函数体。
+- tools/research/{link_module,native_registration,probe_native_call}.py：全量链接、原生名称映射和真实调用验收。
+- local/analysis/phase4：源码基线、原件哈希、SDK/对象输入身份、失败迭代、宿主PE/map、原生表、运行/隔离回退证据；不提交。

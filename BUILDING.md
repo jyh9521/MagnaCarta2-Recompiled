@@ -1,7 +1,7 @@
 # 构建与复现
 
 ## 当前可执行成果
-本轮仅构建/测试研究工具，不生成游戏程序。Python 3.12+，Git；标准库，无 pip 安装步骤。
+基础研究工具使用 Python 3.12+、Git；标准库，无 pip 安装步骤。第四阶段新增可选 Windows SDK 宿主链接/初始化实验，不是可玩游戏程序。
 在项目根目录执行 `python -m unittest discover -s tests -v`。
 Linux/Windows 均采用相同 Python CLI；本轮实测环境为 Windows、Python 3.14.2。
 
@@ -25,7 +25,7 @@ errors 非空的清单不允许作为双盘比较输入。总字节数是记录�
 
 ## 版本确认和发布
 第一轮原版指纹见勘测文档。尚无支持版本白名单或二进制补丁器；不得应用盲偏移。
-原生编译目标、C++ 编译器配置及运行时依赖尚待路线实验决定。
+研究宿主采用 Windows x64、Clang 20.1.8 与 ReXGlue SDK 0.10.0；完整游戏运行时与玩家部署方式尚未验收。
 发布检查见 `docs/BUILD_AND_RELEASE.md`。回退本轮源码在隔离副本验证，原镜像未写入。
 
 ## 第二阶段格式工具
@@ -66,3 +66,20 @@ python tools/formats/ufunction.py 'MagnaCarta II (Korea) (Disc 1).iso' local/ana
 `audit_generated_control_flow`限定ReXGlue v0.10模板；报告197源文件中195个函数TU、2个元数据TU，不把元数据跳过当丢失编译。
 UFunction仅支持已实测的Xbox大端446/25；未知token/字段边界失败不会跳过成成功，声明解析不执行脚本或实现native。
 源码回退继续使用verify_stage.py，把baseline与output换成本轮phase3路径，并以--modified-file tools/formats/ufunction.py留修改副本。
+## 第四阶段：完整宿主与原生调用
+
+先按第三阶段文档获得完整成功的 197 对象及对应生成目录；链接工具逐对象验证原构建记录、生成树与 SDK 头身份。
+所有输出使用新目录，SDK/编译器继续使用固定版本，不全局修改 PATH，不提交生成游戏代码/对象/可执行文件。
+完整命令与真实结果见 [宿主链接](docs/EXPERIMENT_HOST_LINK.md)、[原生注册映射](docs/RESEARCH_NATIVE_REGISTRATION.md) 和 [真实 native 实验](docs/EXPERIMENT_NATIVE_CALL.md)。
+`src/host/` 只包含自编 SDK 调用和合成内存夹具；运行前必须按文档核对源 XEX 和生成树，不用于未知版本。
+
+```powershell
+python -m tools.research.link_module --help
+python -m tools.research.native_registration --help
+python -m tools.research.probe_native_call --help
+```
+
+验证源码回退时使用 `scripts/verify_stage.py`，本阶段基线目录、manifest 与输出目录分别改为
+`local/analysis/phase4/baseline`、`local/analysis/phase4/baseline_manifest.json`、`local/analysis/phase4/verification`。
+宿主使用 `tool_mode`，不会调用 XEX 标题入口；native 实验的注册函数/原生本体/操作数处理器均为真实生成代码，夹具只提供原静态vtable指针及所需内存环境，GNatives由原代码写入。
+该结果不代表原游戏 VM 启动、完整 UObject 参数布局、资源部署、图形或首帧通过。

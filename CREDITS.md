@@ -17,3 +17,5 @@ XenonRecomp、ReXGlue、XenonRecomp 相关分支、Xenia、Xenia Canary 与 UE V
 - LLVM Project，LLVM 20.1.8，官方Windows包/Clang身份沿用路线A记录；[上游许可](https://github.com/llvm/llvm-project/blob/llvmorg-20.1.8/LICENSE.TXT)，Apache-2.0 WITH LLVM-exception；工具仅留local使用，不分发工具二进制。
 - PyCA cryptography 46.0.3，用于独立XEX映像证据复核，顶层版本锁于requirements-research.txt；第三方包不随仓库复制。
 Xenia/ReXGlue/UEViewer与libmspack的作者、版本和许可记录继续保留。生成的游戏C++/完整映像/COFF对象不进入公开仓库。
+第四阶段宿主实际链接/加载同一固定 ReXGlue v0.10.0 SDK 的 rexruntime，使用其公开内存与函数分派接口。
+原生名称表、注册函数模板及受控调用结果为本项目对已锁定原版的独立核验；没有复用或提交专有 UE3 源码。
