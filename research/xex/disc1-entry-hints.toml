@@ -1,0 +1,8 @@
+# Experimental branch targets reported by ReXGlue v0.10.0 strict validation.
+# Apply only after matching XEX SHA-256:
+# 26146f0ceaeb1945bc8e0031d31bfd7fe929c85a6e9e0992aeaa823968c0750f
+# These are entry hypotheses, not verified semantic function boundaries.
+[functions.0x82A39628]
+name = "branch_target_82A39628"
+[functions.0x828E0E68]
+name = "branch_target_828E0E68"

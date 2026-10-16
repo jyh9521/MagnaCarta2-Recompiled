@@ -2,7 +2,8 @@
 
 ## 当前阶段
 目标 locale 为 zh-Hans（简体中文）；源语言集合尚待解析确认。
-磁盘中出现 .int/.jpn/.kor 不等于三种语言都完整可用。当前正式原文/译文条目均为 0。
+已解析 Coalesced：.int 实际含大量韩文，不能按扩展名当作纯英语；详见 docs/RESEARCH_COALESCED.md。
+本地每盘有 35901 条原文候选，公开正式译文仍为 0，源语言逐条待审。
 
 ## 数据约定
 `localization/zh-Hans/catalog.json` 使用 schema_version=1、entries 数组。
@@ -10,7 +11,7 @@
 id 必须稳定唯一，建议使用版本指纹 + 包路径 + 对象标识 + 字段索引，而不是译文或易变的行号。
 resource 保留精确资源路径；context 保存场景/对象；source_locale 必须来自解析证据。
 status 只用 untranslated、draft、reviewed。reviewed 要求非空译文与人工审核者；自动化工具不替代人工审核。
-提取器尚未实现，不能用假造游戏句子填充正式库。
+Coalesced 原文候选提取已实现，输出仅在 local/analysis；游戏包对象文本提取尚待完善，不能用假造句子填充正式库。
 
 ## 工作流程
 只读提取到被忽略的 source → 确认许可与公开范围 → 稳定 ID → 术语审核 → 草稿 → 人工审核 → 实机排版。

@@ -16,3 +16,10 @@
 |research|研究入口；敏感输出在 local|是，private 除外|
 |根目录 ISO|用户现有光盘，不移动、不修改|否|
 |AGENTS.md|本地工作约束|否|
+
+## 第二阶段新增
+- tools/formats：XEX、Coalesced、UE3固定版本只读解析及可选LZX桥接/构建。
+- tools/research：Coalesced候选/对照、双盘包候选图、严格ReXGlue复现实验。
+- scripts/verify_stage.py：源码哈希守卫、隔离测试及回退证据生成。
+- research/xex：与原版SHA绑定的少量分析入口hint，不含游戏代码。
+- local/analysis/phase2：真实原文、包引用、第三方编译、生成C++、实验日志、隔离副本与验证；一律不提交。

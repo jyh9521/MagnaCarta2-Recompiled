@@ -1,3 +1,5 @@
 # 原文提取区
-原文提取器尚待开发。此目录除说明外默认忽略；不得提交完整源文或游戏资源。
-提取应包含版本指纹、稳定 ID、来源、源语言、上下文和原始控制码。当前不伪造游戏文本。
+
+Coalesced 原文候选已按两盘生成至 local/analysis/phase2/coalesced/discN/source.catalog.json，每盘 35901 条，locale=und，待语言与可见性审核。
+复现入口：`python -m tools.research.probe_coalesced --help`。详见 docs/RESEARCH_COALESCED.md。
+此目录除说明外仍默认忽略；原文、游戏资源不进入公开 Git。正式译文仍为 0。

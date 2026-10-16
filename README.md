@@ -3,14 +3,16 @@
 Xbox 360《MagnaCarta 2》原生 Windows x64 移植研究与简体中文本地化工程。
 目标是用户自备原版数据 + 本项目工具/兼容运行时；不是 Xenia 启动器。
 
-## 当前状态（2026-10-16）
-- 已实现：Python 标准库只读清单工具、XDVDFS 目录解析、盘内逐文件 SHA-256、双盘差异检查、本地化记录检查。
+## 当前状态（2026-10-16，第二阶段）
+- 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
+- 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
 - 已勘测：用户提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
-- 未实现：XEX 代码重编译、Windows 原生运行时、资源回写、中文字体与正式译文。
+- 实际 AOT 实验与当前代码生成/编译结果见 `docs/EXPERIMENT_ROUTE_A.md`，不将静态生成视为游戏运行。
+- 未实现：本游戏可用的 Windows 原生运行时、游戏资源部署回写、中文字体与正式译文。
 - 当前没有玩家安装包；任何游戏运行、可玩性、分辨率与帧率支持均为 NOT TESTED。
 
 ## 工具入口
-要求 Python 3.12+（当前验证为 3.14.2），无第三方运行依赖。
+基础工具要求 Python 3.12+（当前验证为 3.14.2），使用标准库；完整 LZX 包表解析需要可选本地解码库，构建见 BUILDING.md。
 ```powershell
 python -m unittest discover -s tests -v
 python tools/inventory/scan.py local/disc1 --disc disc1 --output local/analysis/disc1.json
@@ -30,7 +32,7 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 
 ## 开发入口
 [构建](BUILDING.md) · [翻译](TRANSLATING.md) · [技术记录](TECHNICAL.md) · [许可边界](LICENSING.md)
-[可行性](docs/PORTING_FEASIBILITY.md) · [架构](docs/PORTING_ARCHITECTURE.md) · [下一步](docs/NEXT_STEPS.md)
+[Coalesced](docs/RESEARCH_COALESCED.md) · [阶段二](docs/PHASE2_RESULTS.md) · [可行性](docs/PORTING_FEASIBILITY.md) · [架构](docs/PORTING_ARCHITECTURE.md) · [下一步](docs/NEXT_STEPS.md)
 [仓库](https://github.com/jyh9521/Magna-Carta-2-CN) · [问题反馈](https://github.com/jyh9521/Magna-Carta-2-CN/issues)
 
 ## 贡献与发布

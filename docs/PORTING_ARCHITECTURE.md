@@ -152,3 +152,10 @@ Epic 的通用本地化机制仅提供调查候选，不证明本游戏使用 `.
 分别报告静态检查、宿主编译、原生启动和实际游戏验收；未运行写 not_run。
 重要格式写 FILE_FORMATS，失败尝试写 PITFALLS，用户可见问题写 KNOWN_ISSUES。
 ```
+
+## 第二阶段落地映射
+source_identity 已有只读文件指纹和双盘 XEX 身份/可选头；resource_inventory 已有全部包表与 Coalesced 原文候选。
+package_adapter 目前仅实现指定版本的只读表级视图与 Coalesced 内存往返，不声称通用回写或对象语义。
+translation_catalog 已有稳定 ID 的本地候选目录/结构对齐，正式 zh-Hans 译文仍为空。
+recomp_backend 已启动真实严格 ReXGlue 实验，状态见 EXPERIMENT_ROUTE_A；runtime_platform、title_adapter 与 UE3兼容运行时仍未完成。
+模块接口草案不改作虚构实现清单；每项以 PHASE2_RESULTS 中实际命令为准。

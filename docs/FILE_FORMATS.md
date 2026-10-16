@@ -22,3 +22,9 @@ files 每项包含 path、size、extension、type、parse_status、disc、offset
 盘内路径写为镜像文件名::成员路径，extension 只针对成员；offset 是输入镜像绝对字节偏移。
 summary.total_record_bytes 含容器与成员的重复计数；依赖字段尚待包级研究。
 errors 保存扫描异常，任何异常都令 CLI 非零退出；部分清单不用于发布判定。
+
+## 第二阶段已验证的细化
+- XEX2：17 个可选头、执行身份、basic 压缩块与导入库元数据，详见 RESEARCH_XEX；不认证签名，不输出密钥。
+- Coalesced：大端字符串计数/长度、UTF-16LE 宽文本、路径/内容对，详见 RESEARCH_COALESCED；8 容器内存往返逐字节一致。
+- UE3 446/25：包 summary、name/import/export 表及表引用、LZX 容器块和 FName Unicode 特例，详见 RESEARCH_UE3。
+第一阶段 magic-only 描述保留为历史：当前专用解析器已推进到表级验证，但仍不等于对象载荷、脚本执行或资源回写。

@@ -27,3 +27,27 @@ errors 非空的清单不允许作为双盘比较输入。总字节数是记录�
 第一轮原版指纹见勘测文档。尚无支持版本白名单或二进制补丁器；不得应用盲偏移。
 原生编译目标、C++ 编译器配置及运行时依赖尚待路线实验决定。
 发布检查见 `docs/BUILD_AND_RELEASE.md`。回退本轮源码在隔离副本验证，原镜像未写入。
+
+## 第二阶段格式工具
+XEX 元数据与 Coalesced 解析仍仅依赖 Python 标准库；完整 LZX 包表解析增加可选 native DLL/so。
+```powershell
+python tools/formats/build_lzx.py --workspace local/analysis/phase2
+python tools/formats/ue3.py 'MagnaCarta II (Korea) (Disc 1).iso' local/analysis/phase1/disc1.json --output local/analysis/phase2/ue3-disc1.json --lzx-library local/analysis/phase2/ue3_lzx.dll
+python tools/formats/ue3.py 'MagnaCarta II (Korea) (Disc 2).iso' local/analysis/phase1/disc2.json --output local/analysis/phase2/ue3-disc2.json --lzx-library local/analysis/phase2/ue3_lzx.dll
+python -m tools.research.compare_dependencies local/analysis/phase2/ue3-disc1.json local/analysis/phase2/ue3-disc2.json --output local/analysis/phase2/cross-disc-dependencies.json
+python -m tools.research.probe_coalesced --manifest local/analysis/phase1/disc1.json --image-root . --output-dir local/analysis/phase2/coalesced/disc1
+```
+Windows native 依赖构建要求 VS 2022 C++ BuildTools（通过 vswhere 查找）；Linux 为 cc，产物后缀为 .so（macOS .dylib），替换 --lzx-library 路径。
+libmspack 固定 commit 与许可见源码、CREDITS 和路线 B 文档，下载与构建均只在 local；不得提交 DLL 或第三方游戏输出。
+UE3 不指定解压器时只对未压缩包解析表，压缩包明确标为 summary-only，不作为本轮完整通过证据。
+默认输出包摘要和依赖候选图；--full-tables 可本地保存完整紧凑表，体量大，不用于公开 Git。
+原版区间的 SHA 守卫、字段范围和原子输出均有自制样本测试。单文件 CLI 详见各 --help。
+
+## 阶段源码验证与回退
+在修改前保存源码副本与逐文件哈希，随后执行：
+```powershell
+python scripts/verify_stage.py --baseline-dir local/analysis/phase2/baseline --baseline-manifest local/analysis/phase2/baseline_manifest.json --output-dir local/analysis/phase2/verification
+```
+输出目录必须尚不存在；脚本只复制 Git 管理/未忽略的小型源码，拒绝大文件，隔离运行基线、修改、回退三组测试。
+该命令需要本轮真实修改前快照，不能用空目录代替。对未来阶段应先建立对应基线，不复用本轮私有目录作为构建依赖。
+回退脚本按全体哈希预检后恢复，测试只对隔离副本执行；主工作树和游戏输入保持原状态。

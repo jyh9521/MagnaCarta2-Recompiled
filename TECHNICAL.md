@@ -6,7 +6,9 @@ Verified：实际文件字节、工具输出与测试；High-confidence deductio
 
 ## 已验证
 两张 7,838,695,424 字节 ISO 均存在 XDVDFS 分区；目录与全量成员哈希见 RESEARCH 文档和本地 JSON。
-XEX2 固定头可读，不代表加密代码已可分析。UE3 包以 magic-only 标记，不宣称已完成反序列化。
+第二阶段已验证两盘 XEX 执行身份及全部 17 个可选头；通用扫描器仍保留其原有固定头级别，专用解析器承担进一步验证。
+两盘全部 4145 个 UE3 包的 name/import/export 表与表引用通过，包含可选 LZX 解码；不宣称对象载荷完整反序列化。
+8 个 Coalesced 容器内存往返逐字节相同，原文候选和结构对照只保存本地。
 
 ## 工具与接口
 `tools/inventory/scan.py` 0.1.0，标准库；目录/显式文件递归扫描、流式 SHA-256、XDVDFS 文件表遍历。
@@ -15,8 +17,10 @@ XEX2 固定头可读，不代表加密代码已可分析。UE3 包以 magic-only
 JSON 清单不含源文或资源 payload；机器绝对输入路径不写进清单标识。
 
 ## 边界与后续
-通用文件系统关系不等于游戏包导入/导出依赖，related_resources 当前为空，状态 not-analyzed。
-XEX 导入表、PPC 函数边界、VMX128、Xbox ABI、系统 API、Xenos 着色器、音视频和存档均待研究。
-UE3 压缩、FName 表、对象表、UnrealScript/原生函数绑定与定制序列化尚待解析。
+通用文件清单的 related_resources 仍为空、不替代专用 UE3 依赖图；后者已输出 root Package import 文件候选，不证明运行时闭包。
+XEX 导入库元数据已解析；PPC 代码生成/编译实测见 EXPERIMENT_ROUTE_A，VMX128、ABI、API、Xenos、音视频与存档语义尚待运行验证。
+UE3 头区 LZX、FName 和对象表已经验证；UnrealScript 字节码、原生函数 flags/index、对象属性流与资源回写尚待解析。
 详见 `docs/FILE_FORMATS.md`、`docs/RESEARCH_XEX.md`、`docs/RESEARCH_UE3.md` 与双路线文档。
 原始模板保存在本地 baseline 中，后续真实发现持续写入项目文档，而非仅保留聊天。
+
+第二阶段完整验收与命令见 docs/PHASE2_RESULTS.md，格式实验分别见 RESEARCH_COALESCED、RESEARCH_UE3、RESEARCH_XEX。

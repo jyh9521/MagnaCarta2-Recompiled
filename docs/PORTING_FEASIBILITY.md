@@ -143,3 +143,9 @@ Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest" |
 ```
 
 本阶段仅记录研究和架构方案；尚未复用或引入上述第三方代码。上游许可证、作者、固定 SHA 和采用组件须在实际引入时同步登记到 LICENSING.md。
+
+## 第二阶段证据增量
+本地执行身份已验证为 Title ID 0x4E4D0811，不能直接将前文 0x4E4D080B 的历史兼容报告当作同版本验收。
+双盘可选头、Coalesced 字节往返、4145 个 UE3 包表/引用图均已实测；路线 A 已用固定官方 SDK 对真实盘 1 XEX 进行严格代码分析。
+最新的逐门槛结果见 EXPERIMENT_ROUTE_A、EXPERIMENT_ROUTE_B 与 PHASE2_RESULTS。本文第一轮“未测试”条目作为历史快照保留，不覆盖第二阶段报告。
+两条路线仍没有本游戏可玩性证据。候选实验顺序可优先 A 的分析/生成瓶颈，同时继续 B 的原生绑定范围调查，不能把包表可读直接归纳为 UE3 重建完成。
