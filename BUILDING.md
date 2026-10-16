@@ -181,3 +181,8 @@ conditional-tail只追加原32-byte入口，保留store/beqlr/nonlink tail，继
 ## 工作目录更名兼容
 
 项目使用 MagnaCarta2-Recompiled；旧本地绝对路径通过 junction 保持有效。原构建和研究记录不批量改写，详见[更名与复现](docs/PROJECT_RENAME.md)。
+
+## 第十七阶段 — 2026-10-17
+
+word-leaf固定原8-byte入口与全hint守卫链，197对象全部继承strict FP；原body差分1536例完整正常返回，不含callee边界替代。
+[阶段17结果](docs/PHASE17_RESULTS.md)。

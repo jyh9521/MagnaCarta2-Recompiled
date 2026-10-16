@@ -131,3 +131,10 @@ rawO2消去回转转换，160项sNaN内存差异；Od与O2strict均通过，通�
 
 unsigned byte bounds检查之前已有r9/r5变化；非法full64错误返回，合法原宏tail ABI仅合成边界验证。旧DEC4正文原样并入parent，映射总数不变。
 [阶段16结果](docs/PHASE16_RESULTS.md)。
+
+## 第十七阶段 — 2026-10-17
+
+82B7CCD0完整原BE32-load/blr恢复；低32EA wrap、零扩展及独立Windows physical bias已验证。同21根真实标题推进原82390A70常量store触发C0000005写guest3，未记录word叶的标题实际读取值；下一步调查panic message/原调用条件。
+[阶段17结果](docs/PHASE17_RESULTS.md)。
+
+阶段17独立原/实际PE分析已把panic调用定位到824844F0：BEword[r26]与9E2A83C1不等路径，静态Core.Errors.BinaryFormat格式已从原Coalesced.int核验。实际文件名/headerword/message未捕获，不能把日志前置缺包当已证原因。

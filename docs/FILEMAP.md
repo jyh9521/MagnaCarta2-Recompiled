@@ -108,3 +108,8 @@
 
 新增research/xex/disc1-indexed-tail.toml、tools/research/verify_indexed_tail.py及对应回归；完整边界/复现见阶段16文档。
 [阶段16结果](PHASE16_RESULTS.md)。
+
+## 第十七阶段 — 2026-10-17
+
+新增research/xex/disc1-word-leaf.toml、tools/research/verify_word_leaf.py与tests/test_word_leaf.py；原byte-memory oracle、完整body及输入身份守卫通用且locale-neutral。
+[阶段17结果](PHASE17_RESULTS.md)。

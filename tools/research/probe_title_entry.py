@@ -178,6 +178,7 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
 VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 COMPARE_GENERATED_TREE = '14c27505807e3381f5d9f4b20ab84a1b6f3404ea95204c134d5957260fbc2148'
+WORD_LEAF_GENERATED_TREE = '628b54be3f51aa9f6ac198818102330a2e896a81765055f55a592c4144177f60'
 INDEXED_TAIL_GENERATED_TREE = 'd8336966f006a40c572f70585fbf4c3880554eca6669385d24605fde5a86ffd4'
 CONDITIONAL_TAIL_GENERATED_TREE = '641f44328a77585a8d263988f24d6044dfb39f14cd9b2d57f0522fb717c4699f'
 BITFIELD_LEAF_GENERATED_TREE = '0144be8ebcfe91c81da80a8a370cb61d096b3cd2ee518117234ccc24cceb2256'
@@ -190,6 +191,8 @@ NATIVE_GATEWAY_GENERATED_TREE = '994d2db123de56faf27f0560d872bb2481e6fa9f9c9e812
 
 def validate_title_profile(identity):
     """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == WORD_LEAF_GENERATED_TREE:
+        return 'word-leaf-82B7CCD0'
     if identity.get('tree_sha256') == INDEXED_TAIL_GENERATED_TREE:
         return 'indexed-tail-82A3DEA0'
     if identity.get('tree_sha256') == CONDITIONAL_TAIL_GENERATED_TREE:
@@ -218,7 +221,7 @@ def validate_title_profile(identity):
 
 def validate_fp_contract(profile, inputs, records):
     """Profiles containing the restored float leaf require strict FP; old rollback profiles stay valid."""
-    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8','indexed-tail-82A3DEA0'):return
+    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8','indexed-tail-82A3DEA0','word-leaf-82B7CCD0'):return
     if inputs.get('floating_point_contract') != 'strict' or not records:
         raise ValueError('discovery profile requires a strict FP module build')
     for row in records:

@@ -120,3 +120,8 @@
 
 首次生成身份断言错误地要求无函数删除：旧DEC4其实是内部合法分支。必须独立验证边界/引用并逐字比较tail，不能凭总数加一判断。首次harness.lib位置编译失败保留；缺WoodSword包不是此次明确未登记fatal的已证原因。
 [阶段16结果](PHASE16_RESULTS.md)。
+
+## 第十七阶段 — 2026-10-17
+
+word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而不是当前profile；首预检失败与完整链回归保留。EAFFFFFFFC物理偏移超过4GiB，不能只reserve4GiB；BE载荷勿用被测load配套store初始化，避免同错抵消。无PDATA不是完整函数大小的独立证明。
+[阶段17结果](PHASE17_RESULTS.md)。
