@@ -172,3 +172,8 @@ bitfield-leaf只追加32-byte原目标，继承/fp:strict对象合同，未知�
 conditional-tail只追加原32-byte入口，保留store/beqlr/nonlink tail，继承全对象strict FP合同。
 2560差分中非null仅观察尾ABI，不将其当原callee执行；真实标题使用完整197对象，不链接observer。
 源码事务phase15恢复184hash/移除6新增；旧phase14模块同21根实际重现826A9EC8。
+
+## 第十六阶段 — 2026-10-17
+
+新增indexed-tail固定profile，完整72-byte恢复并将旧DEC4内部块合并；严格FP197对象全量编译链接。
+[阶段16结果](docs/PHASE16_RESULTS.md)。

@@ -8,6 +8,28 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_indexed_tail_profile(self):
+        self.assertEqual(p.profile_fields('indexed-tail'),(0x82A3DEA0,72,'da78cc530445e6be3717bc6cec9e6cf949e163d65dc481ee5d6f63d4648b708a'))
+
+    def test_indexed_tail_exact_hint(self):
+        code=bytes.fromhex('8943003c548b063e7ca92b787cc533787f0b5040419800103c608007606300574e80002081430024556b18387ce63b787d244b787c6b502e81630000814b00107d4903a64e800420')
+        with patch.object(p,'BASE',0x82A3DEA0):
+            self.assertEqual(p.verify_hint(code,'[functions.0x82A3DEA0]\nsize=72','indexed-tail')['size'],72)
+
+    def test_indexed_tail_no_truncation(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x82A3DEA0]\nsize=36','indexed-tail')
+
+    def test_indexed_tail_wrong_bytes(self):
+        with self.assertRaisesRegex(ValueError,'range hash'):
+            p.verify_hint(bytes(72),'[functions.0x82A3DEA0]\nsize=72','indexed-tail')
+
+    def test_indexed_tail_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','82A3DEA0'))
+            self.assertTrue(p.verify_entry(root,0x82A3DEA0)['registered'])
+
     def test_conditional_tail_profile(self):
         self.assertEqual(p.profile_fields('conditional-tail'),(0x826A9EC8,32,'8b4df364b42994f970049966b3a8c5db4528bc3c6a18c3f7cd2a78b35d0501a7'))
 

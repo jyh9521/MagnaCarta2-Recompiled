@@ -103,3 +103,8 @@
 - research/xex/disc1-conditional-tail.toml：原32-byte状态写入/条件尾分派发现元数据。
 - tools/research/verify_conditional_tail.py：原身份/范围、完整副作用oracle、原生成body与明确tail ABI边界。
 - [阶段15](PHASE15_RESULTS.md)、[严格实验](EXPERIMENT_CONDITIONAL_TAIL.md)、[原语义](RESEARCH_CONDITIONAL_TAIL.md)。
+
+## 第十六阶段 — 2026-10-17
+
+新增research/xex/disc1-indexed-tail.toml、tools/research/verify_indexed_tail.py及对应回归；完整边界/复现见阶段16文档。
+[阶段16结果](PHASE16_RESULTS.md)。

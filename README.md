@@ -49,3 +49,8 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 提交只包含自编工具、文档和经授权的数据；原版资源不进入仓库。
 原始模板改写前已在本地证据目录保留逐文件哈希和副本。
 后续发布将验证用户原版版本，构建可复现的补丁，不分发完整商业游戏。
+
+## 第十六阶段 — 2026-10-17
+
+原82A3DEA0完整索引尾分派恢复，旧DEC4合并，197TU严格重建实际推进82B7CCD0原fatal；fixture合法路径只证明tail ABI，不证明原callee/首帧。
+[阶段16结果](docs/PHASE16_RESULTS.md)。

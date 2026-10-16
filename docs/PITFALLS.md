@@ -115,3 +115,8 @@
 - tail ABI observer必须在入口比对fullcontext及已写flags；它不执行复杂原callee，更不替代真实标题中的callee。
 - 当前更远fatal栈未含826C9920，旧fatal消失不能被写成当次已执行/完整验证callee；GPU depth target创建不等于首帧。
 - 原callee PDATAsnippet首次else32拼写导致SyntaxError，失败保留后纠正；不得把未完成研究当作原执行证据。
+
+## 第十六阶段 — 2026-10-17
+
+首次生成身份断言错误地要求无函数删除：旧DEC4其实是内部合法分支。必须独立验证边界/引用并逐字比较tail，不能凭总数加一判断。首次harness.lib位置编译失败保留；缺WoodSword包不是此次明确未登记fatal的已证原因。
+[阶段16结果](PHASE16_RESULTS.md)。
