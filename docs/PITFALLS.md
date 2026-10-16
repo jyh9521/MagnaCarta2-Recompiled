@@ -92,3 +92,11 @@
 - FAULT快照无正常restore/freeze，不宣称capture_verified；blocked pre无post也不是死锁。原异常/fatal照常传播。
 - NtResetEvent在固定DLL中不存在；KeResetEvent不同，不代填导出。原调用直接用host IAT，dispatcher SetFunction替换会漏direct calls；SDK内部/已缓存ptr仍非完整覆盖。
 - SDK包装没有可推导完整unwind边界的研究失败、错误XEX拒绝、首轮trace失败均保留。
+
+## 第十三阶段补充
+
+- lfs/stfs不是直接memcpy：原顺序store可改变第二source，rawO2会消去回转，sNaN内存保持signaling但FPR0quiet；768夹具中160差异。显式/fp:strict后通过；不能泛称硬件FPSCR等价。
+- FP缓存CSR与实际MXCSR必须一致初始化，host sticky flags不等于完整PPC FPSCR；不能为通过而拟合oracle。
+- COFF弱alias section0不是函数定义；首次误读.pdata解码作废，最终锁定EXECUTE中的__imp__定义与对象hash。
+- git show字节与Windows混合换行工作树不一定同hash；基线必须对照上一已验172hash，而不是默许EOL漂移。
+- 文档读取显式UTF8；本次cp932读取失败保留，未据此改内容。

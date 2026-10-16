@@ -1,4 +1,4 @@
-# 第十二阶段之后的实验门槛
+# 第十三阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
@@ -7,7 +7,8 @@
 真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
-- 首先独立验证82AC1DE8完整20-byte叶（SHA579d0af704a9e2c35ba6dc55ffe769344f780cf91ddc302e77aa72da6071ab53）：lfs/stfs两组后blr，无PDATA；caller8266CC74 bctrl/LR8266CC78、原vtable+20。先验证FPR0/舍入/NaN/subnormal/输出别名与内存副作用，再hint/strict重生，不以手写floatcopy替代原体。
+- 首先独立验证82AC2810完整32-byte双return叶（SHA9174c77a101ea25e91a9fb0f1b8c9c7e512c4b7fdc7d80af0ce39fbfbe311f6a）：无PDATA，实际caller82AB2CE8 bctrl/LR82AB2CEC/CTR82AC2810，vtable+0x68。静态(word[r3+0x20]>>8)&3之外须验证r10/r11/CR6和两个return；实际输入/result未知，不截断早return。
+- 82AC1DE8已strict重生、共同58166正文不改，197TU以/fp:strict全量重建并推进新原fatal。原float768差分Od/strict通过；rawO2的160内存差异保留。新profile禁止非strict对象，完整FPSCR硬件等价未证。
 - 原21成员根与无IAT45秒对照均触发82AC1DE8 SDK原fatal；data_party_start原包已按整ISO/member hash追加，旧20根缺包AV保留。
 - 原导入53 BL/8 API已核验；透明host IAT四导入跟踪已实际捕获同句柄创建、main Set/Clear、worker Set及main Wait返回0。有限采样不是死锁；close/reuse、非IAT/SDK内部调用和完整生产者图仍未知。
 - Query kind1与实际Create请求kind0分开记账；不修改SDK、不用Query(state)消费信号，不把参数请求自动当backend模式实证。

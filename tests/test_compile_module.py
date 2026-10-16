@@ -34,6 +34,15 @@ class ModuleBuildTests(unittest.TestCase):
         with patch.object(module, 'CLANG_CL_SHA256', self.hash), patch.object(module.subprocess, 'run', runner or self.runner):
             return module.build(self.generated, self.sdk, self.compiler, self.output, dict(os.environ), **kwargs)
 
+    def test_strict_fp_command(self):
+        command=module.command(self.compiler,self.sdk,self.generated,self.generated/'a.cpp',self.output/'a.obj')
+        self.assertIn('/fp:strict',command)
+        self.assertNotIn('/fp:fast',command)
+
+    def test_strict_fp_metadata(self):
+        self.run_build()
+        self.assertEqual(json.loads((self.output/'inputs.json').read_text())['floating_point_contract'],'strict')
+
     def test_all_units_and_logs(self):
         result = self.run_build(jobs=2)
         self.assertTrue(result['success'])

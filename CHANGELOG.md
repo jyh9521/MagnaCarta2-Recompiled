@@ -71,3 +71,8 @@
 - 透明委托四原SDK事件导入，观察worker Set/main Wait返回；正常IAT页保护回退与FAULT弱快照分开。
 - 原data_party_start追加到独立21根；trace与无hook实际同到82AC1DE8缺入口原fatal，未自动hint。
 - strict397源同字节、197TU全量构建；575项测试/源码及实际行为回退，保留观测器延迟和缺包失败。
+
+## 第十三阶段研究 — 2026-10-17
+- 恢复原82AC1DE8完整叶，197TU严格FP全量编译/链接，真实21根推进82AC2810原fatal。
+- 独立FP oracle及每配置768差分，保留rawO2的160差异；固定/fp:strict并拒绝新profile的非strict对象。
+- 基线/修改/隔离源码和真实行为回退、远端与CI分开记账，未验收可玩性。

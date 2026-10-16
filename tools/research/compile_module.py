@@ -33,7 +33,7 @@ def inventory(root):
 
 def command(compiler, sdk, generated, source, obj):
     return [str(compiler), '/nologo', '/c', '/Brepro', '/std:c++latest', '/utf-8',
-            '/DSPDLOG_FMT_EXTERNAL', '/DSPDLOG_COMPILED_LIB', '/DNOMINMAX',
+            '/fp:strict', '/DSPDLOG_FMT_EXTERNAL', '/DSPDLOG_COMPILED_LIB', '/DNOMINMAX',
             '/DWIN32_LEAN_AND_MEAN', '/EHa', '/arch:AVX2', '/bigobj', '/MD',
             '/I' + str(sdk / 'include'), '/I' + str(generated), str(source), '/Fo' + str(obj)]
 
@@ -97,7 +97,7 @@ def build(generated, sdk, compiler, output, env, jobs=2, timeout=600):
     output.mkdir(parents=True, exist_ok=False)
     (output / 'objects').mkdir()
     (output / 'logs').mkdir()
-    metadata = {'schema': 1, 'generated': before, 'sdk_include': sdk_before,
+    metadata = {'schema': 1, 'floating_point_contract': 'strict', 'generated': before, 'sdk_include': sdk_before,
                 'compiler': str(compiler), 'compiler_sha256': digest(compiler),
                 'compiler_resource_headers': resource_before,
                 'jobs': jobs, 'per_tu_timeout_seconds': timeout, 'expected_tus': len(sources),

@@ -70,6 +70,17 @@ class TitleEntryTests(unittest.TestCase):
         r=self.observation(sdk='Unhandled guest access violation: write of guest 0x00000003 (host 0x100000003)')
         self.assertFalse(r['bounded_observation']);self.assertEqual(r['sdk_guest_faults'][0]['guest_address'],3)
 
+    def test_float_fp_contract(self):
+        p.validate_fp_contract('float-leaf-82AC1DE8',{'floating_point_contract':'strict'},[{'command':['clang-cl','/fp:strict']}])
+        for inputs,rows in [({},[]),({'floating_point_contract':'strict'},[]),({'floating_point_contract':'strict'},[{'command':['/fp:precise']}]),({'floating_point_contract':'strict'},[{'command':['/fp:strict','/fp:fast']}])]:
+            with self.assertRaises(ValueError):p.validate_fp_contract('float-leaf-82AC1DE8',inputs,rows)
+
+    def test_old_fp_contract_rollback(self):
+        p.validate_fp_contract('extended-native-event-trace-rebuild',{},[])
+
+    def test_float_leaf_profile_exact(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.FLOAT_LEAF_GENERATED_TREE}),'float-leaf-82AC1DE8')
+
     def test_event_trace_rebuild_profile_exact(self):
         self.assertEqual(p.validate_title_profile({'tree_sha256':p.EVENT_TRACE_REBUILD_TREE}),'extended-native-event-trace-rebuild')
 

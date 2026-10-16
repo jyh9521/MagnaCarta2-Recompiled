@@ -84,3 +84,10 @@
 - `tools/research/event_trace_report.py`：有界记录/原生栈/数字handle相关性，不推断生命周期或signal。
 - `tools/research/verify_event_import_sites.py`：原8导入/53BL与callerLR守卫。
 - [阶段12](PHASE12_RESULTS.md)、[事件实验](EXPERIMENT_EVENT_TRACE.md)、[IAT研究](RESEARCH_EVENT_IMPORT_TRACE.md)、[原调用点](RESEARCH_EVENT_IMPORT_SITES.md)。
+
+## 第十三阶段补充
+
+- research/xex/disc1-float-leaf.toml：实际82AC1DE8原20-byte发现元数据。
+- tools/research/verify_float_leaf.py：原身份/边界、整数FP oracle与真实生成体差分。
+- tools/research/compile_module.py：显式/fp:strict及构建元数据；标题新profile逐对象核验。
+- [阶段13](PHASE13_RESULTS.md)、[原叶实验](EXPERIMENT_FLOAT_LEAF.md)、[FP研究](RESEARCH_FLOAT_LEAF.md)。

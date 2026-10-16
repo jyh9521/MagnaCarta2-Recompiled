@@ -28,6 +28,8 @@ def profile_fields(profile):
         return 0x82509380, 0x18, '24858452f74ebfe37c65055b81249f2b52a972d7f8374451f2b260775436bad2'
     if profile == 'extended-native':
         return 0x82517D70, 0x2C, 'b628e1746cfef4cd7c8340ad46cddaaf9fe16e6a083111c11983d7e43c6ce471'
+    if profile == 'float-leaf':
+        return 0x82AC1DE8, 0x14, '579d0af704a9e2c35ba6dc55ffe769344f780cf91ddc302e77aa72da6071ab53'
     raise ValueError('unknown entry discovery profile')
 
 
@@ -64,19 +66,21 @@ def execute(args):
     hints = [ROOT/'research/xex/disc1-control-flow.toml', ROOT/'research/xex/disc1-callback-entry.toml']
     profile = getattr(args, 'entry_profile', 'callback')
     profile_fields(profile)
-    if profile in ('virtual-thunk','compare','native-gateway','extended-native'):hints.append(ROOT/'research/xex/disc1-virtual-thunk.toml')
-    if profile in ('compare','native-gateway','extended-native'):hints.append(ROOT/'research/xex/disc1-compare-callback.toml')
-    if profile in ('native-gateway','extended-native'):hints.append(ROOT/'research/xex/disc1-native-gateway.toml')
-    if profile == 'extended-native':hints.append(ROOT/'research/xex/disc1-extended-native.toml')
+    if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf'):hints.append(ROOT/'research/xex/disc1-virtual-thunk.toml')
+    if profile in ('compare','native-gateway','extended-native','float-leaf'):hints.append(ROOT/'research/xex/disc1-compare-callback.toml')
+    if profile in ('native-gateway','extended-native','float-leaf'):hints.append(ROOT/'research/xex/disc1-native-gateway.toml')
+    if profile in ('extended-native','float-leaf'):hints.append(ROOT/'research/xex/disc1-extended-native.toml')
+    if profile == 'float-leaf':hints.append(ROOT/'research/xex/disc1-float-leaf.toml')
     before = {str(p): digest(p) for p in [xex, exe, args.loader_source.resolve(), *hints]}
     if before[str(xex)] != XEX_SHA256 or before[str(exe)] != SDK_EXE_SHA256:
         raise ValueError('unsupported XEX or SDK executable')
     image = image_from_xex(xex.read_bytes(), args.loader_source)
     proof = verify_hint(image, hints[1].read_text(encoding='utf-8'))
-    if profile in ('virtual-thunk','compare','native-gateway','extended-native'):proof['virtual_thunk'] = verify_hint(image,hints[2].read_text(encoding='utf-8'),'virtual-thunk')
-    if profile in ('compare','native-gateway','extended-native'):proof['compare'] = verify_hint(image,hints[3].read_text(encoding='utf-8'),'compare')
-    if profile in ('native-gateway','extended-native'):proof['native_gateway'] = verify_hint(image,hints[4].read_text(encoding='utf-8'),'native-gateway')
-    if profile == 'extended-native':proof['extended_native'] = verify_hint(image,hints[5].read_text(encoding='utf-8'),profile)
+    if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf'):proof['virtual_thunk'] = verify_hint(image,hints[2].read_text(encoding='utf-8'),'virtual-thunk')
+    if profile in ('compare','native-gateway','extended-native','float-leaf'):proof['compare'] = verify_hint(image,hints[3].read_text(encoding='utf-8'),'compare')
+    if profile in ('native-gateway','extended-native','float-leaf'):proof['native_gateway'] = verify_hint(image,hints[4].read_text(encoding='utf-8'),'native-gateway')
+    if profile in ('extended-native','float-leaf'):proof['extended_native'] = verify_hint(image,hints[5].read_text(encoding='utf-8'),'extended-native')
+    if profile == 'float-leaf':proof['float_leaf'] = verify_hint(image,hints[6].read_text(encoding='utf-8'),profile)
     for p in [xex, exe, args.loader_source.resolve(), *hints]:
         if output == p or output in p.parents or p.parent == output or p.parent in output.parents:
             raise ValueError('output overlaps an input')
@@ -97,10 +101,11 @@ def execute(args):
         if steps[-1]['returncode'] == 0:
             proof.update(verify_generated(project/'generated/default-disc1'))
             proof['callback'] = verify_entry(project/'generated/default-disc1')
-            if profile in ('virtual-thunk','compare','native-gateway','extended-native'):proof['virtual_thunk']['generated'] = verify_entry(project/'generated/default-disc1',0x823C2740)
-            if profile in ('compare','native-gateway','extended-native'):proof['compare']['generated'] = verify_entry(project/'generated/default-disc1',0x82C1C1A0)
-            if profile in ('native-gateway','extended-native'):proof['native_gateway']['generated'] = verify_entry(project/'generated/default-disc1',0x82509380)
-            if profile == 'extended-native':proof['extended_native']['generated'] = verify_entry(project/'generated/default-disc1',0x82517D70)
+            if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf'):proof['virtual_thunk']['generated'] = verify_entry(project/'generated/default-disc1',0x823C2740)
+            if profile in ('compare','native-gateway','extended-native','float-leaf'):proof['compare']['generated'] = verify_entry(project/'generated/default-disc1',0x82C1C1A0)
+            if profile in ('native-gateway','extended-native','float-leaf'):proof['native_gateway']['generated'] = verify_entry(project/'generated/default-disc1',0x82509380)
+            if profile in ('extended-native','float-leaf'):proof['extended_native']['generated'] = verify_entry(project/'generated/default-disc1',0x82517D70)
+            if profile == 'float-leaf':proof['float_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82AC1DE8)
     stable = before == {p:digest(Path(p)) for p in before} and digest(output/'default-disc1.xex') == XEX_SHA256
     report = dict(profile=profile,proof=proof,steps=steps,input_hashes=before,inputs_unchanged=stable,
                   success=stable and steps[-1]['returncode']==0,game_execution='NOT TESTED')
@@ -112,7 +117,7 @@ def execute(args):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('xex','sdk-exe','loader-source','output'):p.add_argument('--'+name,required=True,type=Path)
-    p.add_argument('--entry-profile',choices=('callback','virtual-thunk','compare','native-gateway','extended-native'),default='callback')
+    p.add_argument('--entry-profile',choices=('callback','virtual-thunk','compare','native-gateway','extended-native','float-leaf'),default='callback')
     args=p.parse_args(argv)
     return 0 if execute(args)['success'] else 1
 

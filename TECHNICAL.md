@@ -107,3 +107,10 @@ PPCContext/guestfixture/errno/LastError差分与指针+页保护实际恢复通�
 清洁20秒捕获3866记录、drop/pending0且IAT恢复；45秒FAULT快照独立记为weak/nonfrozen，不伪装已完整恢复。
 候选F80000AC请求Create kind0/initial0，main Set/Wait/Clear、worker Set与后续main Wait成功返回均实际观察；signal/backend/lifetime仍不由参数或数值相关性单独证明。
 补原data_party_start后trace与无hook同到82AC1DE8原fatal；原20-byte无PDATA叶范围已独立锁hash，未恢复该入口。
+
+## 第十三阶段：原浮点叶与优化合同
+
+82AC1DE8已按原20-byte边界严格重生；整数格式oracle与真实768夹具覆盖别名顺序/完整context/双页/MXCSR。
+rawO2消去回转转换，160项sNaN内存差异；Od与O2strict均通过，通用编译固定/fp:strict。
+最终197TU/58413映射标题推进82AC2810，原32-byte双return叶尚未恢复；r10/r11/CR6副作用须先验证。
+[原语义与机器码](docs/RESEARCH_FLOAT_LEAF.md)、[结果与未知](docs/PHASE13_RESULTS.md)。

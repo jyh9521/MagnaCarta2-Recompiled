@@ -152,3 +152,10 @@ phase10源码事务恢复后配旧phase9构建/同一原根重现61原fatal，�
 标题默认不hook，新增`--trace-events`及`--observe-seconds 20..60`；实际捕获走独立64KiB缓冲文件而非逐行控制台。
 第八个精确strict树只变3个codegen元数据，397源同字节；197TU重编译/58412映射通过，第三个host header纳入hash/snapshot。
 事务恢复后用旧phase11源码/构建、基线20原成员根和20秒present模式，验证trace标记消失与原边界恢复；新21根独立保留。
+
+## 第十三阶段：原浮点叶与严格FP构建合同
+
+命令见[原叶实验](docs/EXPERIMENT_FLOAT_LEAF.md)、[差分研究](docs/RESEARCH_FLOAT_LEAF.md)、[阶段13](docs/PHASE13_RESULTS.md)。
+compile_module显式/fp:strict，记录floating_point_contract=strict；新float-leaf profile还逐对象argv核验，旧profiles可回退。
+rawO2将sNaN回转store优化掉的160差异保留，不能直接给生成代码加O2。strict并非完整PPC硬件FP等价证明。
+事务phase13恢复172hash/移除6新增，旧phase12构建同21根实际重现82AC1DE8。
