@@ -1,0 +1,24 @@
+# 文件格式记录
+
+## XDVDFS 文件表（Verified：本轮两盘均通过遍历）
+扇区 2048 字节；候选分区基址：0、0xFB20、0x20600、0x2080000、0xFD90000。
+卷描述符位于分区 + 0x10000，头尾各 20 字节 magic。+20/+24 为小端根目录扇区/字节数。
+目录节点：+0/+2 两个 uint16 子节点索引（乘 4 后为表内偏移）；+4 uint32 扇区；+8 uint32 长度；+12 属性；+13 名称字节数；+14 名称。
+目录属性位 0x10；文件绝对偏移=分区基址+扇区*2048。
+初版拒绝越界、节点环、重复目录表、路径分隔符与重复名称；目录长度上限 32 MiB，深度上限 128。
+非 ASCII 名称保留原字节对应 surrogateescape，JSON 使用转义，不擅自猜原编码。
+结构依据：[Xenia 文件系统实现](https://github.com/xenia-project/xenia/blob/master/src/xenia/vfs/devices/disc_image_device.cc)。本项目独立实现 Python 只读解析，不复制上游源码。
+
+## XEX2（仅固定头 Verified）
++0 XEX2；大端 uint32：+4 module_flags，+8 PE 数据偏移，+12 保留，+16 security 信息偏移，+20 可选头数量。
+当前仅输出固定头，未验证可选头、签名、加密、压缩、导入或 PPC 映像。
+
+## UE3 候选包
+magic 9e2a83c1 或 c1832a9e 仅表示候选。实际序列化与压缩未解析，不能回写。
+本轮文件头样本及证据见 `RESEARCH_UE3.md`。Bink/RIFF 同样只是签名判断，不证明可解码。
+
+## 机器清单 schema v1
+files 每项包含 path、size、extension、type、parse_status、disc、offset、sha256、related_resources 和 relationship_status。
+盘内路径写为镜像文件名::成员路径，extension 只针对成员；offset 是输入镜像绝对字节偏移。
+summary.total_record_bytes 含容器与成员的重复计数；依赖字段尚待包级研究。
+errors 保存扫描异常，任何异常都令 CLI 非零退出；部分清单不用于发布判定。
