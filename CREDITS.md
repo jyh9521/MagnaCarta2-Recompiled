@@ -19,3 +19,5 @@ XenonRecomp、ReXGlue、XenonRecomp 相关分支、Xenia、Xenia Canary 与 UE V
 Xenia/ReXGlue/UEViewer与libmspack的作者、版本和许可记录继续保留。生成的游戏C++/完整映像/COFF对象不进入公开仓库。
 第四阶段宿主实际链接/加载同一固定 ReXGlue v0.10.0 SDK 的 rexruntime，使用其公开内存与函数分派接口。
 原生名称表、注册函数模板及受控调用结果为本项目对已锁定原版的独立核验；没有复用或提交专有 UE3 源码。
+第五阶段依照同一SDK的`share/rexglue/rex_app.cpp`恢复正式kernel/audio/input配置，并使用`rex/system/gpu_plugin.h`公开C ABI加载真实GPU插件。
+原像比较、CRT链与遗漏回调入口结论由本项目独立核验；SDK及其插件未修改，来源/许可证沿用上列固定版本。

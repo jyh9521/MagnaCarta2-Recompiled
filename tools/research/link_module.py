@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -83,7 +84,13 @@ def runtime_path(env, sdk):
     return env
 
 
-def build(build_dir, generated, sdk, compiler, linker, source, output, env, probe_source=None):
+def title_thread_resumed(run_text):
+    """An exact SDK Resume marker, not a claim that title initialization finished."""
+    return 'TITLE_RESUMED status=00000000' in run_text.splitlines()
+
+
+def build(build_dir, generated, sdk, compiler, linker, source, output, env, probe_source=None,
+          *, run_environment=None, expected_markers=None, run_timeout=120, runtime_assets=()):
     build_dir, generated, sdk, compiler, linker, source, output = [Path(p).resolve() for p in
         (build_dir, generated, sdk, compiler, linker, source, output)]
     if digest(compiler) != CLANG_CL_SHA256:
@@ -105,11 +112,22 @@ def build(build_dir, generated, sdk, compiler, linker, source, output, env, prob
         raise ValueError('duplicate host probe source')
     before = {str(p): digest(p) for p in [compiler, linker, *source_paths, *objects]}
     output.mkdir(parents=True, exist_ok=False)
+    copied_assets = []
+    for asset in runtime_assets:
+        asset = Path(asset).resolve()
+        if asset.parent != sdk / 'bin' or asset.suffix.lower() != '.dll':
+            raise ValueError('runtime asset must be an SDK bin DLL')
+        destination = output / asset.name
+        if destination.exists(): raise ValueError('duplicate runtime asset')
+        shutil.copyfile(asset, destination)
+        if digest(asset) != digest(destination): raise ValueError('runtime asset copy mismatch')
+        copied_assets.append({'source':str(asset),'path':str(destination),'sha256':digest(asset)})
     identities = {'schema': 1, 'input_hashes': before, 'sdk': sdk_before,
                   'generated': previous['generated'], 'explicit_object_count': len(objects),
                   'libraries': {name: digest(sdk / 'lib' / name) for name in LIBRARIES},
                   'environment': {k:v for k,v in env.items() if k.upper() in ('LIB','INCLUDE','VCTOOLSVERSION','WINDOWSSDKVERSION')}}
     identities['compiler_resource_headers']=resource_before
+    identities['runtime_assets']=copied_assets
     identities['host_source_snapshots']=[]
     for i, path in enumerate(source_paths):
         snapshot=output/f'source-{i}.cpp';snapshot.write_bytes(path.read_bytes())
@@ -127,21 +145,34 @@ def build(build_dir, generated, sdk, compiler, linker, source, output, env, prob
     if len(records) == len(source_paths) and all(r['exit_status'] == 0 for r in records) and all(p.is_file() for p in host_objects):
         records.append(run_record(link_command(linker,output,objects,host_objects,sdk),output,'link',env))
         if records[-1]['exit_status'] == 0 and (output/'module_probe.exe').is_file():
-            records.append(run_record([str(output/'module_probe.exe')],output,'run',runtime_path(env,sdk),120))
+            execution_environment = dict(env)
+            if run_environment:
+                execution_environment.update(run_environment)
+            records.append(run_record([str(output/'module_probe.exe')],output,'run',runtime_path(execution_environment,sdk),run_timeout))
     stable = before == {p:digest(p) for p in before} and sdk_before == inventory(sdk) and previous['generated'] == inventory(generated)
     if resource_before is not None: stable = stable and resource_before == inventory(resource)
     run_text = (output/'run.txt').read_text(encoding='utf-8') if (output/'run.txt').is_file() else ''
     expected = len(re.findall(r'^\s*registrar->SetFunction\(', (generated/'mc2_probe_register.cpp').read_text(encoding='utf-8'),re.M))
     markers = ['SETUP status=00000000', f'REGISTRATION count={expected} base=mapped', 'MEMORY roundtrip=12345678', 'SHUTDOWN complete']
     if probe_source: markers.append('NATIVE_PROBE status=0')
+    if expected_markers is not None: markers = list(expected_markers)
     runtime_line = [line[12:] for line in run_text.splitlines() if line.startswith('RUNTIME_DLL ')]
     runtime_verified = len(runtime_line)==1 and Path(runtime_line[0]).resolve()==(sdk/'bin/rexruntime.dll').resolve()
     marker_verified = all(m in run_text.splitlines() for m in markers)
     complete = len(records) == len(source_paths)+2 and all(r['exit_status']==0 for r in records)
     result = {'schema':1,'object_count':len(objects),'expected_mappings':expected,'records':records,
               'inputs_unchanged':stable,'runtime_markers_verified':marker_verified,'runtime_dll_verified':runtime_verified,
-              'guest_entrypoint_launched':False,'game_boot':'NOT TESTED','success':complete and stable and marker_verified and runtime_verified}
+              'guest_entrypoint_launched': title_thread_resumed(run_text),
+              'title_thread_resumed': title_thread_resumed(run_text),
+              'game_boot': 'ENTRY THREAD RESUMED; execution requires diagnostic stack proof' if title_thread_resumed(run_text) else 'NOT TESTED',
+              'success':complete and stable and marker_verified and runtime_verified}
     if probe_source: result['native_profile_generated_tree']=NATIVE_GENERATED_TREE
+    result['runtime_environment_overrides'] = dict(run_environment or {})
+    result['expected_runtime_markers'] = markers
+    result['run_timeout_seconds'] = run_timeout
+    result['runtime_assets'] = copied_assets
+    result['runtime_assets_unchanged'] = all(digest(item['path']) == item['sha256'] for item in copied_assets)
+    result['success'] = result['success'] and result['runtime_assets_unchanged']
     if probe_source: result['probe_source']={'path':str(source_paths[1]),'sha256':before[str(source_paths[1])]}
     for name in ('module_probe.exe','host.map'):
         p=output/name

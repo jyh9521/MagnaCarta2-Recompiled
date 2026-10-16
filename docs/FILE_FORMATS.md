@@ -47,3 +47,13 @@ Core 表地址 `8320EC20`，消费者 `823C7F40` 按 stride 8 查找后返回实
 GNatives 位于 `83250D80`；本阶段静态恢复299个原注册函数模板，并实际执行 `82E707C8`（token 0x1D）、
 `82E73108`（index146），由原代码完成首次4096槽fallback填充及两槽注册。原静态vtable的两个指针和相关页仍由夹具提供，尚未执行完整原游戏启动链。
 来源、版本守卫和未知项见 [注册研究](RESEARCH_NATIVE_REGISTRATION.md) 与 [调用实验](EXPERIMENT_NATIVE_CALL.md)。
+## 第五阶段：装载字节身份与初始化表
+
+盘1security/basic展开映像长度为20,119,552；PE OptionalHeader.SizeOfImage为22,284,288，不能混用。
+PE声明的`.reloc`只有458,240bytes位于security映像内，本轮核验不把截断slice的SHA当作完整section身份。
+原映像和SDK加载快照在正式kernel绑定后仅13个variable import槽共50bytes不同，按原import metadata与SDK resolver逐项验证；
+其他20MB字节无未解释差异，原`.data`4,199,568bytes在执行初始化器前完全相同。
+
+原CRT的pre-C、pre-C++、C++表分别包含2、2、3873个非零函数指针；第三表864,937slots包括大量零/FFFFFFFF，
+应按原扫描器顺序而非只调用299个indexed-native子集。静态表恢复与真实标题执行分别验收。
+最新运行效果匹配299项静态indexed-native目标，不据此声称逐构造函数调用均已跟踪。

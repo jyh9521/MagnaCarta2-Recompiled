@@ -34,3 +34,7 @@
 - src/host：自编SDK宿主初始化与受控native实验，不包含原游戏生成函数体。
 - tools/research/{link_module,native_registration,probe_native_call}.py：全量链接、原生名称映射和真实调用验收。
 - local/analysis/phase4：源码基线、原件哈希、SDK/对象输入身份、失败迭代、宿主PE/map、原生表、运行/隔离回退证据；不提交。
+## 第五阶段新增
+- src/host/{image_probe,title_probe}.cpp：真实SDK装载/原数据native实验与有界标题诊断；不含原游戏生成body。
+- tools/research/{probe_xex_image,analyze_startup,stage_runtime_files,probe_title_entry}.py：全映像核对、静态初始化链、显式原资源部署、调用栈与首阻塞验收。
+- local/analysis/phase5：原源码基线、SDK加载快照、staged只读原资源、全部失败/采样/首次fatal、独立重放与源码回退；不提交。

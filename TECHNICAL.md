@@ -43,3 +43,12 @@ UE3 头区 LZX、FName 和对象表已验证；第三阶段新增 UFunction flag
 - 静态恢复312个表/2676项非零配对及299个原注册模板；203个非零index声明与名称入口、注册函数一致。
 - 真实执行token 0x1D与index146的原注册函数及重入路径；GNatives由原代码写入，原静态vtable指针与相关页仍受控提供，不是完整游戏启动链。
 本阶段没有调用 XEX 标题入口，没有完整游戏 VM、资源加载或图形验收。路线 B 的兼容原生实现缺口不因路线 A 调用原生成代码而自动消失。
+## 第五阶段已验证
+
+- SDK真实装载原XEX，security/basic映像20,119,552bytes；正式InitializeKernel使13个变量导入槽/50字节改变，其他字节零差异，原.data4,199,568bytes全同。PE SizeOfImage22,284,288不同义，.reloc仅部分在security范围内。
+- 不再写原vtable/GNatives夹具；从真实装载数据执行两个原注册函数与Add8组输入，正常Shutdown通过。合成调用参数/栈仍明确保留。
+- 原入口82868EC0映射真实生成xstart；静态CRT表2/2/3873非零项，299个indexed-native注册仅为第三表子集。
+- 正式kernel/audio/input配置与GPU公开C ABI使真实标题线程通过原入口、CRT并进入main路径。当前采样GNatives299项静态目标全部匹配，但不是逐构造函数调用跟踪。
+- 首当前兼容阻塞为SDK拒绝未登记guest回调8234FF10，实际ctr=8234FF10/lr=823B9B1C，对应823B9B18间接调用。原48byte叶范围存在、无登记/PDATA；没有添加stub或修改生成代码来掩盖。
+- 所有早期部署/宿主配置失败分别保留，不把缺TOC/Coalesced、无kernel/audio或无GPU消费者的轮询当最终游戏兼容缺陷。
+详细原始证据、例外与下一门槛见PHASE5_RESULTS、EXPERIMENT_XEX_IMAGE、EXPERIMENT_TITLE_ENTRY和RESEARCH_STARTUP_CHAIN。

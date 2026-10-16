@@ -3,7 +3,7 @@
 Xbox 360《MagnaCarta 2》原生 Windows x64 移植研究与简体中文本地化工程。
 目标是用户自备原版数据 + 本项目工具/兼容运行时；不是 Xenia 启动器。
 
-## 当前状态（2026-10-16，第四阶段）
+## 当前状态（2026-10-16，第五阶段）
 - 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
 - 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
 - 已勘测：用户提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
@@ -11,10 +11,12 @@ Xbox 360《MagnaCarta 2》原生 Windows x64 移植研究与简体中文本地�
 - 已解析七定义包 **12901 UFunction** 的 native index/flags 与字节码 framing，量化 3056 项 native 声明；未恢复兼容 native 实现。
 - 全部 197 对象已显式链接为 Windows x64 宿主；SDK 初始化、58,408 项函数映射复核、内存分配读写释放与关闭通过。
 - 已解析 312 个原生名称表、2,676 项非零实现配对及 299 个注册函数模板；203 个有 index 声明均交叉匹配。
-- 已执行两个原注册函数、真实 `Object.Add_IntInt` 与真实四字节操作数解码器，8 组输入通过；原静态 vtable 指针与内存环境仍是受控夹具，不等于恢复完整游戏 VM 启动。
-- 实际实验及边界见 `docs/PHASE4_RESULTS.md`，不将宿主初始化、隔离夹具或静态声明解析视为游戏启动。
+- 已执行两个原注册函数、真实 `Object.Add_IntInt` 与真实四字节操作数解码器，8 组输入通过；阶段四的静态数据夹具现已由原像装载替代。
+- 原 XEX 已通过官方 SDK 装载，20,119,552 bytes 严格比较仅有 13 个正常变量导入槽变化；已移除 vtable/GNatives 输入夹具。
+- 正式 kernel/audio/input 与真实 GPU 插件配置后，实际执行原入口、CRT 链和 main 路径；首个当前兼容阻塞定位为未登记回调 `0x8234FF10`，未绕过断言。
+- 实际实验及边界见 `docs/PHASE5_RESULTS.md`；这不是玩家可用版本，headless GPU 命令执行不等于可见首帧验收。
 - 未实现：本游戏可用的 Windows 原生运行时、游戏资源部署回写、中文字体与正式译文。
-- 当前没有玩家安装包；任何游戏运行、可玩性、分辨率与帧率支持均为 NOT TESTED。
+- 当前没有玩家安装包；仅标题初始化路径已实测，可玩性、可见首帧、分辨率与帧率支持均为 NOT TESTED。
 
 ## 工具入口
 基础工具要求 Python 3.12+（当前验证为 3.14.2），使用标准库；完整 LZX 包表解析需要可选本地解码库，构建见 BUILDING.md。
@@ -33,11 +35,11 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 - `localization/source/`：本地提取源文，默认忽略；`zh-Hans/`：简体中文工作记录；`review/`：审核流程。
 - `locales/zh-CN/`：原模板保留目录，不存第二份翻译；数据主目录为 `localization/zh-Hans/`。
 - `docs/`：原版勘测、双路线评估、构建与测试；`local/`：不提交的输入与证据。
-- `src/host/`：调用官方 SDK 的最小宿主和受控真实 native 实验，不含游戏生成代码或完整兼容引擎。
+- `src/host/`：SDK 初始化、真实 XEX 装载、native 实验和有界标题诊断，不含游戏生成代码或完整兼容引擎。
 
 ## 开发入口
 [构建](BUILDING.md) · [翻译](TRANSLATING.md) · [技术记录](TECHNICAL.md) · [许可边界](LICENSING.md)
-[Coalesced](docs/RESEARCH_COALESCED.md) · [阶段二](docs/PHASE2_RESULTS.md) · [阶段三](docs/PHASE3_RESULTS.md) · [阶段四](docs/PHASE4_RESULTS.md) · [可行性](docs/PORTING_FEASIBILITY.md) · [架构](docs/PORTING_ARCHITECTURE.md) · [下一步](docs/NEXT_STEPS.md)
+[Coalesced](docs/RESEARCH_COALESCED.md) · [阶段二](docs/PHASE2_RESULTS.md) · [阶段三](docs/PHASE3_RESULTS.md) · [阶段四](docs/PHASE4_RESULTS.md) · [阶段五](docs/PHASE5_RESULTS.md) · [可行性](docs/PORTING_FEASIBILITY.md) · [架构](docs/PORTING_ARCHITECTURE.md) · [下一步](docs/NEXT_STEPS.md)
 [仓库](https://github.com/jyh9521/Magna-Carta-2-CN) · [问题反馈](https://github.com/jyh9521/Magna-Carta-2-CN/issues)
 
 ## 贡献与发布

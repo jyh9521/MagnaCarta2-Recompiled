@@ -26,3 +26,12 @@
 - 静态 `{UTF16BE name pointer, implementation pointer}` 查找表、UFunction.native_index 与运行时 GNatives 是不同证据。恢复前两者不证明最后一者已由原游戏初始化；本阶段随后实际执行两个原注册函数，但其vtable输入仍受控，不是完整startup链。
 - 历史宿主构建成功后又修改宿主源，独立输入哈希复核正确失败。保留历史日志，冻结源码后在新目录重新链接，不忽略 source drift。
 - SDK tool_mode 初始化不调用标题入口；真实 native 本体在合成 FFrame 中成功不等于 VM、UObject 世界、加载地图或图形运行通过。
+## 第五阶段：部署、宿主配置与真实兼容缺口分开
+
+- `RuntimeConfig.kernel_init`默认空；官方宿主使用`rex::kernel::InitializeKernel`。未配置时变量import descriptor `00010193`被误作地址，不能硬写伪指针掩盖。
+- GetExecutableModule的object_ref若跨Runtime.Shutdown存活，历史诊断会在清理时AV；先释放该引用再关闭，保留失败原日志。
+- 无audio_factory曾导致SDK音频对象空指针；无graphics消费者会使游戏在ringbuffer读指针固定时轮询。正式音频与真实GPU配置后这些早期阻塞已解除。
+- 20秒观察结束不是死锁定位。三次栈/寄存器/原循环条件及读写指针观测才支持当时GPU等待结论，后续真实GPU执行又反证其并非永久游戏锁死。
+- 缺TOC/Coalesced是局部部署问题，按原ISO成员哈希补齐后再找兼容缺口，不能用缺资产崩溃冒充最终成果。
+- `xstart`是原82868EC0生成body，不是SDK替代函数；仅查`sub_82868EC0`会误判。最终真实fatal栈与linker map均覆盖原入口。
+- 原SDKfatal fastfail未必经过VEH；额外只读日志sink记录fatal时PPC和调用栈，保持原abort，不以吞异常/返回成功实现“修复”。

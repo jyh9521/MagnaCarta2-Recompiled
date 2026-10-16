@@ -1,7 +1,7 @@
 # 构建与复现
 
 ## 当前可执行成果
-基础研究工具使用 Python 3.12+、Git；标准库，无 pip 安装步骤。第四阶段新增可选 Windows SDK 宿主链接/初始化实验，不是可玩游戏程序。
+基础研究工具使用 Python 3.12+、Git；标准库，无 pip 安装步骤。第四/五阶段新增可选 Windows SDK 宿主链接/装载/有界标题诊断，不是可玩游戏程序。
 在项目根目录执行 `python -m unittest discover -s tests -v`。
 Linux/Windows 均采用相同 Python CLI；本轮实测环境为 Windows、Python 3.14.2。
 
@@ -83,3 +83,21 @@ python -m tools.research.probe_native_call --help
 `local/analysis/phase4/baseline`、`local/analysis/phase4/baseline_manifest.json`、`local/analysis/phase4/verification`。
 宿主使用 `tool_mode`，不会调用 XEX 标题入口；native 实验的注册函数/原生本体/操作数处理器均为真实生成代码，夹具只提供原静态vtable指针及所需内存环境，GNatives由原代码写入。
 该结果不代表原游戏 VM 启动、完整 UObject 参数布局、资源部署、图形或首帧通过。
+## 第五阶段：真实原像、原资源与标题首阻塞
+
+原XEX/SDK/197对象继续使用既有固定身份，不覆盖上一阶段输出。先按 [原资源部署](docs/RUNTIME_DATA_STAGING.md)
+从原ISO显式提取所选成员，整ISO和每成员均校验SHA；本地原资源、完整快照和宿主EXE不提交。
+真实XEX装载与无vtable夹具的native复现见 [装载实验](docs/EXPERIMENT_XEX_IMAGE.md)。
+原入口和CRT表见 [初始化链](docs/RESEARCH_STARTUP_CHAIN.md)；正式kernel/audio/input/GPU与有界标题诊断的完整命令见
+[标题入口实验](docs/EXPERIMENT_TITLE_ENTRY.md)。该程序保持SDK原fatal，诊断成功不等于游戏成功或正常Shutdown。
+
+```powershell
+python -m tools.research.stage_runtime_files --help
+python -m tools.research.probe_xex_image --help
+python -m tools.research.analyze_startup --help
+python -m tools.research.probe_title_entry --help
+```
+
+headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形逻辑或提供stub；本机C++包装路径的fastfail原因未定。
+未调用任何方法绕过未登记`8234FF10`回调，下一阶段应由显式入口元数据严格重生，而非让失败消失。
+本轮源码事务基线/manifest/output采用`local/analysis/phase5/`对应目录，仍按`verify_stage.py`在隔离副本回退，原件不改。
