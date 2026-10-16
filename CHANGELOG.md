@@ -59,3 +59,9 @@
 - 原61入口严格恢复，197TU全量编译/链接；256后缀差分通过，58165共同正文不变。
 - 同一20原成员根越过旧61fatal，两次采样原NtWaitForSingleObjectEx链，未将有界等待当作死锁/首帧。
 - 分离bounded_observation与located诊断，保留实际exit26、首次report误分类及旧fatal；源码/实际行为回退完成。
+
+## 2026-10-17 — presenter接入与等待对象观测
+
+- 独立真实presenter/隐藏窗口正常清理；同契约接入原标题并泵官方UI loop。
+- 等待类别Event与公开元数据已观测，Query类型与backend reset语义分开；signal/producer未知。
+- strict397源同字节、197TU全重建/58412映射，531项源码测试及源码/实际行为回退；无可见首帧宣称。

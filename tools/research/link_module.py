@@ -18,7 +18,7 @@ from tools.research.compile_module import digest, inventory, vc_environment
 from tools.research.probe_route_a import CLANG_CL_SHA256
 
 LIBRARIES = ('rexruntime.lib', 'spdlog.lib', 'fmt.lib')
-SYSTEM_LIBRARIES = ('dxgi.lib', 'dxguid.lib')
+SYSTEM_LIBRARIES = ('dxgi.lib', 'dxguid.lib', 'user32.lib')
 NATIVE_GENERATED_TREE = '2f665e02be216bc4e87ed8544bd29bf2d0b24dde92857506b492bd18056a43db'
 
 
@@ -89,8 +89,22 @@ def title_thread_resumed(run_text):
     return 'TITLE_RESUMED status=00000000' in run_text.splitlines()
 
 
+def verified_dependencies(source, dependencies):
+    """Explicit local headers are guarded inputs, never implicit ambient source."""
+    source=Path(source).resolve(); result=[]
+    for candidate in dependencies:
+        p=Path(candidate)
+        if p.is_symlink() or not p.is_file() or p.suffix.lower() not in ('.h','.hpp'):
+            raise ValueError('host dependency must be a regular header')
+        p=p.resolve()
+        if p.parent!=source.parent or p in result:
+            raise ValueError('host dependency must be unique and next to its source')
+        result.append(p)
+    return result
+
+
 def build(build_dir, generated, sdk, compiler, linker, source, output, env, probe_source=None,
-          *, run_environment=None, expected_markers=None, run_timeout=120, runtime_assets=()):
+          *, run_environment=None, expected_markers=None, run_timeout=120, runtime_assets=(), source_dependencies=()):
     build_dir, generated, sdk, compiler, linker, source, output = [Path(p).resolve() for p in
         (build_dir, generated, sdk, compiler, linker, source, output)]
     if digest(compiler) != CLANG_CL_SHA256:
@@ -110,7 +124,8 @@ def build(build_dir, generated, sdk, compiler, linker, source, output, env, prob
     source_paths = [source] + ([Path(probe_source).resolve()] if probe_source else [])
     if len(set(source_paths)) != len(source_paths):
         raise ValueError('duplicate host probe source')
-    before = {str(p): digest(p) for p in [compiler, linker, *source_paths, *objects]}
+    dependencies=verified_dependencies(source,source_dependencies)
+    before = {str(p): digest(p) for p in [compiler, linker, *source_paths, *dependencies, *objects]}
     output.mkdir(parents=True, exist_ok=False)
     copied_assets = []
     for asset in runtime_assets:
@@ -132,6 +147,10 @@ def build(build_dir, generated, sdk, compiler, linker, source, output, env, prob
     for i, path in enumerate(source_paths):
         snapshot=output/f'source-{i}.cpp';snapshot.write_bytes(path.read_bytes())
         identities['host_source_snapshots'].append({'path':str(snapshot),'sha256':digest(snapshot),'original':str(path)})
+    identities['host_header_snapshots']=[]
+    for i,path in enumerate(dependencies):
+        snapshot=output/f'header-{i}.h';snapshot.write_bytes(path.read_bytes())
+        identities['host_header_snapshots'].append({'path':str(snapshot),'sha256':digest(snapshot),'original':str(path)})
     (output / 'inputs.json').write_text(json.dumps(identities, indent=2)+'\n', encoding='utf-8')
     records, host_objects = [], []
     for i, item in enumerate(source_paths):

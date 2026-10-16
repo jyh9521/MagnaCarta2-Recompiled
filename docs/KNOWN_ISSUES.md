@@ -43,3 +43,7 @@ Headless GPU已消费命令并建立渲染pipeline，但presenter为空，不表
 第十阶段61入口严格重生/全量重建及256后缀差分通过；20原成员根两次在20秒后仍运行，
 三次采样均在NtWaitForSingleObjectEx链，LR82869BC0。headless持续presenter=null；
 等待对象类型/生产者与因果关系未知，不宣称死锁、成功启动或首帧。
+
+第十一阶段已接入真实SDK presenter与隐藏窗口/官方UI loop，presenter-null从对照514降为0。
+等待对象类别Event已观察，Query只报告kind1；实际backend reset、信号状态和生产者未验证。
+20秒后仍有等待，未证明死锁、正常关闭、swapchain或可见首帧；仅独立无XEX presenter正常清理已验。

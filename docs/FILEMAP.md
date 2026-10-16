@@ -70,3 +70,10 @@
 - `research/xex/disc1-extended-native.toml`：实际61扩展原入口的0x2C发现元数据。
 - `tools/research/verify_extended_native.py`：原44-byte/注册/caller守卫与256后缀原生成体差分。
 - [阶段10](PHASE10_RESULTS.md)、[严格实验](EXPERIMENT_EXTENDED_NATIVE.md)、[原体研究](RESEARCH_EXTENDED_NATIVE.md)。
+
+## 第十一阶段补充
+
+- `src/host/presentation_probe.h` / `presenter_probe.cpp`：独立可复用SDK窗口契约与有限清理宿主。
+- `tools/research/probe_presenter.py`：精确DLL/Clang守卫、构建、隐藏启动与完整生命周期记录。
+- `src/host/wait_observation.h`：固定SDK公共元数据、非阻塞锁、非消耗事件类型读。
+- [阶段11](PHASE11_RESULTS.md)、[接入实验](EXPERIMENT_PRESENTATION.md)、[presenter](RESEARCH_PRESENTER.md)、[等待对象](RESEARCH_WAIT_OBJECT.md)。

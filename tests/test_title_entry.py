@@ -24,6 +24,40 @@ TITLE_NATIVES guard=1 bound=4096 fallback=3794 int_const=82508E60 add=8250BAF0
 
 
 class TitleEntryTests(unittest.TestCase):
+    def test_presentation_requires_every_positive_marker(self):
+        lines=['PRESENTATION_CONTEXT initialized=1 ui_thread=1',
+               'PRESENTATION_SETUP status=00000000 has_presentation=1 presenter=1',
+               'PRESENTATION_WINDOW open=1 hidden=1 binding_requested=1',
+               'TITLE_PRESENTATION bound_before_setup=1 hidden=1']
+        self.assertTrue(p.presentation_observation('\n'.join(lines))['initialized'])
+        for i in range(len(lines)):
+            self.assertFalse(p.presentation_observation('\n'.join(lines[:i]+lines[i+1:]))['initialized'])
+        self.assertFalse(p.presentation_observation('\n'.join(reversed(lines)))['initialized'])
+        self.assertFalse(p.presentation_observation('\n'.join(lines+lines))['initialized'])
+        r=p.presentation_observation('\n'.join(lines));self.assertFalse(r['visible_frame_verified'])
+        self.assertFalse(r['title_shutdown_verified']);self.assertFalse(r['loop_entered'])
+
+    def test_wait_object_metadata_retains_unknown_not_signaled_false(self):
+        text='TITLE_WAIT_OBJECT sample=0 handle=F80000AC status=observed type_name=event event_signal_known=0 scope=public-readonly\n'
+        r=p.wait_observations(text)[0]
+        self.assertEqual(r['event_signal_known'],'0');self.assertNotIn('event_signal',r)
+        self.assertEqual(r['handle'],'F80000AC');self.assertEqual(r['type_name'],'event')
+        self.assertEqual(p.wait_observations(text.replace('public-readonly','other')),[])
+        self.assertEqual(p.wait_observations('TITLE_WAIT_OBJECT incomplete'),[])
+
+    def test_sdk_wait_attestation_matches_header_contract(self):
+        text=Path('src/host/wait_observation.h').read_text(encoding='utf-8')
+        self.assertIn(p.WAIT_SDK_SHA256,text)
+        self.assertEqual(len(p.WAIT_SDK_SHA256),64)
+
+    def test_presentation_requires_gpu_before_any_input_read(self):
+        from types import SimpleNamespace
+        with self.assertRaisesRegex(ValueError,'requires the real GPU'):
+            p.execute(SimpleNamespace(present=True,gpu=False))
+
+    def test_rebuilt_extended_native_profile_exact(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.PRESENTATION_REBUILD_TREE}),'extended-native-presentation-rebuild')
+
     def test_extended_native_profile(self):
         self.assertEqual(p.validate_title_profile({'tree_sha256':p.EXTENDED_NATIVE_GENERATED_TREE}),'extended-native-82517D70')
 

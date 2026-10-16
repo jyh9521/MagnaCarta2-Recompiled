@@ -1,14 +1,15 @@
-# 第十阶段之后的实验门槛
+# 第十一阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
 七包12901个UFunction完成字段/native index/flags和token framing；缺口统计不等于native实现恢复。
 197对象显式宿主链接、SDK tool_mode初始化、58408映射/内存往返释放/关闭通过；全模块真实Add native执行8组受控参数成功。
-真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；20成员根两次到达非alertable等待观测边界，旧61 fatal消失。
+真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
-- 首先查明当前等待对象/生产者：3次采样LR82869BC0，对应原82869BBC -> xboxkrnl!NtWaitForSingleObjectEx，wrapper非alertable、上游timeout=-1。实际对象类型/唤醒链尚未证明，禁止把20秒边界叫死锁。
-- 保留正式headless配置；两次运行持续IssueSwap presenter=null，未接呈现器是明确部署配置。先独立验证SDK呈现器/窗口绑定契约，再做最小真实显示实验；不要据此直接断言等待由presenter造成。
+- 首先追踪等待Event的原创建/传递/唤醒链：候选F80000AC、guest3007D018、unnamed/alias1/host0已观测，signal/refcount/producer未知；不同进程相同数值不是同一对象。禁止为了推进而伪造信号。
+- Query报告kind1不证明实际backend reset kind：发行Initialize未见更新Query读取标志的原字节证据已留档。先独立验证原create参数/guest dispatch header/backend构造关系，不直接修SDK或假定auto-reset。
+- SDK真实presenter/有效隐藏HWND/官方UI loop与Runtime绑定已通过，presenter-null对照514→0；等待元数据相同但GPU因果关系未证。下一显示实验需独立验证真实swap/可见呈现/首帧，不把SetPresenter调用或零error当成功。
 - 61原44-byte体256后缀/状态差分通过，仅新增其hint；实际302非fallback目标全部mapped，但真实suffix/具体下游未记录，不等于302实现逐一验收。01旧模板变体仍待通用解析恢复。
 - 新r6比较回调调查17sites/15targets均已映射；映射不代表逐个执行/完整语义验证。不要混淆GNatives与83250980另一尾分派表。
 - 保留各旧fatal、缺包/GuidCache/TitleMap部署AV、合成harness页映射AV和旧61原fatal及当前等待边界；原数据/旧构建不改，不以空stub或吞fatal推进。

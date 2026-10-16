@@ -89,3 +89,12 @@ strict恢复C1A0完整0x88范围，原C214内部tail不再单独作为函数；5
 同一20成员根两次不再触发61fatal，原主线程在20秒边界仍运行；LR82869BC0对应原82869BBC调用NtWaitForSingleObjectEx。
 发行SDK导出表独立对应native等待栈；静态wrapper非alertable、上游-1 timeout转NULL，实际对象类型/唤醒生产者未知。
 headless持续IssueSwap presenter=null，仅证明缺呈现器日志，未建立其与等待因果关系；无首帧或游戏启动成功验收。
+
+## 第十一阶段：窗口契约、事件元数据和证据边界
+
+独立SDK契约验证SetupPresentation必须先于SetupGuestGpu；SDL官方UI loop/Window.Create/Open/SetPresenter及Runtime context/window在Setup前绑定。
+仅隐藏HWND已实测，SetPresenter是公开void调用，未读取protected getter或声称surface/swap成功。
+真实标题20秒后仍运行；post-resume非阻塞锁+RAII引用观测确认Event类别、guest3007D018、alias1/unnamed/host0。
+父工具先核验发行DLL精确SHA再attest；进程不自hash。只读Query(type,nullptr)，绝不调用Query(state)消费信号。
+发行Initialize与Query字段关系存在疑点，kind1只作API报告，实际backend reset/signal/refcount/producer保持unknown。
+headless对照514条presenter-null，接入presenter后0条且wait元数据相同，不建立因果或deadlock/首帧结论。

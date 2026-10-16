@@ -137,3 +137,11 @@ headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形
 `--entry-profile extended-native`只追加已实际触发61入口，197TU新目录重编译；标题接受第六个精确生成树。
 同一phase9原20成员根复用且hash不改。标题helper将完整有界采样记为bounded_observation，不将其当diagnostic_success或game_boot_success；子进程exit26保留。
 phase10源码事务恢复后配旧phase9构建/同一原根重现61原fatal，主目录保持修改态。
+
+## 第十一阶段：真实presenter与非消耗等待观测
+
+完整命令见[呈现接入实验](docs/EXPERIMENT_PRESENTATION.md)、[presenter研究](docs/RESEARCH_PRESENTER.md)、[等待对象](docs/RESEARCH_WAIT_OBJECT.md)、[阶段11](docs/PHASE11_RESULTS.md)。
+先运行不加载XEX的500ms独立presenter，之后标题添加`--gpu --present`；默认仍为headless。
+新strict输出397源与前阶段同字节，仅3个codegen元数据不同；第七个精确树profile保留未知树拒绝。
+197TU重新编译/链接；标题新增两header显式hash/snapshot守卫及user32.lib真实UI依赖，不补未解析符号。
+源码事务phase11恢复后配旧phase10构建/同一20原成员根，重现headless/null-presenter/exit26且新元数据观测消失。

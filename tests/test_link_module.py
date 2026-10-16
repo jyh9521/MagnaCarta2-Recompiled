@@ -27,11 +27,25 @@ class HostLinkTests(unittest.TestCase):
     def save(self):
         (self.build/'module-build.json').write_text(json.dumps(self.report))
         (self.build/'inputs.json').write_text(json.dumps(self.inputs))
+    def test_explicit_source_headers_are_guarded(self):
+        source=self.root/'host.cpp';source.write_text('')
+        header=self.root/'host.h';header.write_text('')
+        self.assertEqual(lm.verified_dependencies(source,[header]),[header.resolve()])
+        self.assertEqual(lm.verified_dependencies(source,[]),[])
+
+    def test_missing_wrong_duplicate_and_external_header_rejected(self):
+        source=self.root/'host.cpp';source.write_text('')
+        header=self.root/'host.h';header.write_text('')
+        external=self.gen/'other.h';external.write_text('')
+        for values in ([self.root/'missing.h'],[source],[header,header],[external]):
+            with self.assertRaises(ValueError):lm.verified_dependencies(source,values)
+
     def test_full197_inputs_retained(self):
         objects,_=lm.verified_objects(self.build,self.gen)
         command=lm.link_command('link.exe',self.root,objects,['host.obj'],self.root)
         self.assertEqual(len(objects),197)
         self.assertTrue(all(str(p) in command for p in objects))
+        self.assertIn('user32.lib',command)
         for flag in ('/OPT:NOREF','/OPT:NOICF','/INCREMENTAL:NO'):self.assertIn(flag,command)
         self.assertFalse(any('/FORCE' in x for x in command))
     def test_failed_build_rejected(self):

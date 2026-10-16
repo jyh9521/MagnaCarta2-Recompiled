@@ -1,5 +1,9 @@
 // Unmodified generated-module / SDK title-launch probe. No guest data fixtures.
 #include "mc2_probe_init.h"
+#include "presentation_probe.h"
+#include "wait_observation.h"
+#include <thread>
+#include <rex/cvar.h>
 #include <rex/runtime.h>
 #include <rex/system/function_dispatcher.h>
 #include <rex/system/xthread.h>
@@ -20,6 +24,8 @@ extern void mc2_probe_RegisterFunctions(rex::runtime::IModuleRegistrar*);
 namespace {
 uint8_t* guest_base = nullptr;
 volatile LONG launch_phase = 0;
+rex::system::KernelState* kernel_state = nullptr;
+bool wait_sdk_verified = false;
 uint32_t Read32(uint32_t address) {
   uint32_t value; std::memcpy(&value,guest_base+address,sizeof(value));return __builtin_bswap32(value);
 }
@@ -65,6 +71,7 @@ void SampleThread(rex::system::XThread* thread) {
   auto handle=static_cast<HANDLE>(thread->thread()->native_handle());
   for(unsigned sample=0;sample<3;++sample) {
     if(SuspendThread(handle)==DWORD(-1)){std::printf("TITLE_SAMPLE_FAILED error=%lu\n",GetLastError());return;}
+    uint32_t wait_handle=0; bool sampled_wait=false;
     CONTEXT context{};context.ContextFlags=CONTEXT_FULL;
     if(GetThreadContext(handle,&context)) {
       auto* c=thread->thread_state()->context();
@@ -72,6 +79,8 @@ void SampleThread(rex::system::XThread* thread) {
         sample,context.Rip,c->r1.u32,c->r3.u32,c->r4.u32,c->r11.u32,unsigned(c->lr),c->ctr.u32);
       std::printf("TITLE_NONVOL sample=%u r13=%08X r29=%08X r30=%08X r31=%08X\n",
         sample,c->r13.u32,c->r29.u32,c->r30.u32,c->r31.u32);
+      sampled_wait=c->lr==0x82869BC0 && c->ctr.u32==0x8248B100;
+      wait_handle=c->r3.u32;
       const auto object=c->r29.u32;
       if(Readable(object,11016)) {
         auto read_address=Read32(object+10896);
@@ -93,7 +102,9 @@ void SampleThread(rex::system::XThread* thread) {
         }
       }
     } else std::printf("TITLE_SAMPLE_FAILED error=%lu\n",GetLastError());
-    ResumeThread(handle);Sleep(250);
+    ResumeThread(handle);
+    if(sampled_wait)mc2::host::ObserveWaitObject(kernel_state,sample,wait_handle,wait_sdk_verified);
+    Sleep(250);
   }
   NativeState();
 }
@@ -130,7 +141,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
 }
 }
-int main() {
+int main(int argc,char** argv) {
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX|SEM_NOOPENFILEERRORBOX);
   std::setvbuf(stdout,nullptr,_IONBF,0); std::setvbuf(stderr,nullptr,_IONBF,0);
   AddVectoredExceptionHandler(1,RecordException);
@@ -149,6 +160,16 @@ int main() {
     auto* root=std::getenv("MC2_GAME_ROOT");
     const auto game_root=root?std::filesystem::absolute(root):xex.parent_path();
     std::printf("TITLE_ROOT %s\n",game_root.string().c_str());
+    const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
+    if(present) {
+      rex::cvar::Init(argc,argv);rex::cvar::ApplyEnvironment();
+      if(!rex::cvar::SetFlagByName("headless","false"))return 32;
+      std::puts("TITLE_PRESENTATION headless_flag=false");
+    }
+    const char* sdk_hash=std::getenv("MC2_WAIT_SDK_SHA256");
+    wait_sdk_verified=sdk_hash && std::strcmp(sdk_hash,mc2::host::kWaitObservationRuntimeSha256)==0;
+    std::printf("TITLE_WAIT_SDK parent_attested=%u\n",unsigned(wait_sdk_verified));
+    mc2::host::PresentationSession presentation;
     rex::Runtime runtime(game_root,"./user",{},"./cache");
     rex::RuntimeConfig config;config.tool_mode=false;
     config.kernel_init=rex::kernel::InitializeKernel;
@@ -170,10 +191,17 @@ int main() {
       char loaded_plugin[MAX_PATH]{};GetModuleFileNameA(plugin,loaded_plugin,MAX_PATH);
       std::printf("TITLE_GPU plugin_loaded backend=any presentation=false path=%s\n",loaded_plugin);
     }
+    if(present) {
+      if(!config.graphics || !presentation.Initialize(config.graphics.get()))return 31;
+      runtime.set_app_context(presentation.context());
+      runtime.set_display_window(presentation.window());
+      std::puts("TITLE_PRESENTATION bound_before_setup=1 hidden=1");
+    }
     auto status=runtime.Setup(PPCImageConfig,std::move(config));
     std::printf("SETUP status=%08X\n",unsigned(status));if(status)return 22;
     std::printf("TITLE_SUBSYSTEMS graphics=%u audio=%u input=%u\n",unsigned(runtime.graphics_system()!=nullptr),
       unsigned(runtime.audio_system()!=nullptr),unsigned(runtime.input_system()!=nullptr));
+    kernel_state=runtime.kernel_state();
     mc2_probe_RegisterFunctions(runtime.function_dispatcher());
     guest_base=runtime.virtual_membase();
     std::puts("TITLE_STAGE functions_registered");
@@ -200,9 +228,19 @@ int main() {
     launch_phase=2;
     status=thread->Resume();
     std::printf("TITLE_RESUMED status=%08X\n",unsigned(status));if(status)return 25;
-    auto wait=rex::thread::Wait(thread->thread(),false,std::chrono::seconds(20));
-    std::printf("TITLE_WAIT result=%u running=%u\n",unsigned(wait),unsigned(thread->is_running()));
-    if(wait!=rex::thread::WaitResult::kSuccess)SampleThread(thread.get());
+    auto wait=rex::thread::WaitResult::kTimeout;
+    auto observe=[&] {
+      wait=rex::thread::Wait(thread->thread(),false,std::chrono::seconds(20));
+      std::printf("TITLE_WAIT result=%u running=%u\n",unsigned(wait),unsigned(thread->is_running()));
+      if(wait!=rex::thread::WaitResult::kSuccess)SampleThread(thread.get());
+      if(present)presentation.RequestStop();
+    };
+    if(present) {
+      std::thread observer(observe);
+      presentation.Pump();
+      observer.join();
+      std::puts("TITLE_PRESENTATION bounded_exit=1 guest_shutdown_verified=0");
+    } else observe();
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();
     std::_Exit(wait==rex::thread::WaitResult::kSuccess?0:26);

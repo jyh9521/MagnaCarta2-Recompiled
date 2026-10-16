@@ -74,3 +74,12 @@
 - 三个相同等待采样与持续GPU日志并不证明死锁；无限timeout原静态链也不证明实际等待对象种类或生产者。
 - 256后缀完全覆盖单字节输入，但仅在全合成16KB页执行原体并record尾目标；不是原游戏GNatives夹具或真实下游验收。
 - unittest点名tests模块与直接执行local私有脚本分别遇ModuleNotFoundError；改用discover及根runpy入口，失败与修复命令保留。
+
+## 第十一阶段：公共API、链接与弱观测
+
+- 两轮standalone误用protected Window.presenter/HasSurface而编译失败，保留；只改用公共调用和诚实binding_requested，不放开访问权限。
+- 标题首次新UI链接缺user32.lib而LNK2019/LNK1120，保留；加真实Windows依赖后成功，未用/FORCE或stub。失败还暴露partial host.map不含load base，解析器现仅在link exit0后解析map。
+- 全树相等断言首次失败：397生成源同字节，只有codegen.d/stamp/build.stamp元数据不同；保留新输出/新hash，不复制旧stamp伪造可重复性。
+- XEvent.Query(state)在发行DLL中Wait(...,0)后restore，会临时消费信号；只用type,nullptr。Query报告kind1不能提升为已验证backend reset kind，Initialize未见更新对应标志证据另存。
+- 默认Windows缺PATH C++编译器时mock运行测试跳过，另在真实VS/Clang环境运行8项全通过；源码全测试的skip2与游戏验收分开。
+- 探针窗口保持隐藏；SetPresenter无返回值，官方loop与零null日志都不是surface/首帧成功。标题exit26保持有界终止，不宣称完整runtime清理。
