@@ -38,3 +38,9 @@
 - src/host/{image_probe,title_probe}.cpp：真实SDK装载/原数据native实验与有界标题诊断；不含原游戏生成body。
 - tools/research/{probe_xex_image,analyze_startup,stage_runtime_files,probe_title_entry}.py：全映像核对、静态初始化链、显式原资源部署、调用栈与首阻塞验收。
 - local/analysis/phase5：原源码基线、SDK加载快照、staged只读原资源、全部失败/采样/首次fatal、独立重放与源码回退；不提交。
+
+## 第六阶段补充
+
+- `research/xex/disc1-callback-entry.toml`：原版本48-byte入口发现元数据。
+- `tools/research/probe_callback_codegen.py` / `verify_callback.py`：严格重生与有限PPC/原生成体差分。
+- [阶段6结果](PHASE6_RESULTS.md)、[重生实验](EXPERIMENT_CALLBACK_CODEGEN.md)、[回调研究](RESEARCH_CALLBACK_ENTRY.md)。

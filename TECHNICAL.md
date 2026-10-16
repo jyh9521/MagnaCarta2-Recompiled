@@ -52,3 +52,10 @@ UE3 头区 LZX、FName 和对象表已验证；第三阶段新增 UFunction flag
 - 首当前兼容阻塞为SDK拒绝未登记guest回调8234FF10，实际ctr=8234FF10/lr=823B9B1C，对应823B9B18间接调用。原48byte叶范围存在、无登记/PDATA；没有添加stub或修改生成代码来掩盖。
 - 所有早期部署/宿主配置失败分别保留，不把缺TOC/Coalesced、无kernel/audio或无GPU消费者的轮询当最终游戏兼容缺陷。
 详细原始证据、例外与下一门槛见PHASE5_RESULTS、EXPERIMENT_XEX_IMAGE、EXPERIMENT_TITLE_ENTRY和RESEARCH_STARTUP_CHAIN。
+
+## 第六阶段：8234FF10发现缺口已推进
+
+原48-byte hash守卫后仅增加发现hint；strict重生增加1个真实函数，共58,163，旧58,162正文全部同hash。
+197TU全量重编译/链接与5组原生成体完整受控状态差分通过；未写替代函数、原像或SDK。
+原标题两次到达新823C2740虚分派thunk缺口，caller828C5060/LR828C5064；其16-byte原体没有PDATA/映射。
+当前未执行其下游目标，不把诊断成功等于可玩性；见docs/PHASE6_RESULTS.md。

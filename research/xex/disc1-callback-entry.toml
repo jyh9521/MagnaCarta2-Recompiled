@@ -1,0 +1,6 @@
+# Verified original 48-byte leaf reached by 823B9B18 bctrl.
+# XEX SHA256: 26146f0ceaeb1945bc8e0031d31bfd7fe929c85a6e9e0992aeaa823968c0750f
+# Range SHA256: 5c43c892cc33dcb8b15d083257e0a8211788bb01aaa0698cd379c2164e77665e
+# Keep original instructions; this adds discovery metadata, not a stub.
+[functions.0x8234FF10]
+size = 0x30

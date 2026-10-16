@@ -35,3 +35,10 @@
 - 缺TOC/Coalesced是局部部署问题，按原ISO成员哈希补齐后再找兼容缺口，不能用缺资产崩溃冒充最终成果。
 - `xstart`是原82868EC0生成body，不是SDK替代函数；仅查`sub_82868EC0`会误判。最终真实fatal栈与linker map均覆盖原入口。
 - 原SDKfatal fastfail未必经过VEH；额外只读日志sink记录fatal时PPC和调用栈，保持原abort，不以吞异常/返回成功实现“修复”。
+
+## 第六阶段：发现hint不等于修复所有间接调用
+
+- 原48-byte叶确实存在但不在PDATA内，地址由lis/addi构成；仅依赖PDATA/原始指针扫描会遗漏。增加版本锁定hint并严格重生，不填空stub。
+- 独立叶harness初次在同一scope重复声明bool good导致compile1；完整失败留callback-generated-first，分scope并加回归后通过，未改生成体。
+- 逐函数正文比较确认只新增1函数，不能只看TU数或codegen exit0推断其它函数未变。
+- 新阻塞823C2740是虚分派尾调用thunk而非已证实的构造函数；它保留调用者LR，最近host符号不自动等于guest精确调用点。

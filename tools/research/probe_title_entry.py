@@ -130,9 +130,20 @@ def analyze(run_text, sdk_text, symbols, exit_status):
     return result
 
 
+CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
+
+
+def validate_title_profile(identity):
+    """Only the two independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == CALLBACK_GENERATED_TREE:
+        return 'callback-entry-8234FF10'
+    link_module.validate_native_profile(identity)
+    return 'phase5-missing-callback-baseline'
+
+
 def execute(args):
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
-    link_module.validate_native_profile(previous['generated'])
+    profile = validate_title_profile(previous['generated'])
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
     if args.output.resolve()==root or root in args.output.resolve().parents:
@@ -155,7 +166,7 @@ def execute(args):
     symbols=map_symbols(map_path.read_text(encoding='utf-8')) if map_path.exists() else []
     run=next((r for r in result['records'] if Path(r['log']).name=='run.txt'),{})
     report=analyze(run_text,sdk_text,symbols,run.get('exit_status',127))
-    report.update(image=image,inputs_unchanged=result['inputs_unchanged'],object_count=result['object_count'],
+    report.update(image=image,generated_profile=profile,inputs_unchanged=result['inputs_unchanged'],object_count=result['object_count'],
                   host_build_success=result['success'],gpu_requested=args.gpu)
     report['game_input_before']=root_before
     report['game_input_after']=inventory(root)

@@ -101,3 +101,11 @@ python -m tools.research.probe_title_entry --help
 headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形逻辑或提供stub；本机C++包装路径的fastfail原因未定。
 未调用任何方法绕过未登记`8234FF10`回调，下一阶段应由显式入口元数据严格重生，而非让失败消失。
 本轮源码事务基线/manifest/output采用`local/analysis/phase5/`对应目录，仍按`verify_stage.py`在隔离副本回退，原件不改。
+
+## 第六阶段：回调发现与全量重建
+
+命令见 [严格重生实验](docs/EXPERIMENT_CALLBACK_CODEGEN.md)，原体差分见 [回调研究](docs/RESEARCH_CALLBACK_ENTRY.md)，结果见 [阶段6](docs/PHASE6_RESULTS.md)。
+只增加`research/xex/disc1-callback-entry.toml`发现元数据，不编辑生成C++、不覆盖旧197对象。
+标题工具接受两个精确审计树身份；单独native实验仍使用旧profile。
+源码事务使用`local/analysis/phase6/baseline`、`baseline_manifest.json`和新`verification`目录，
+`--modified-file tools/research/probe_title_entry.py`。隔离源码恢复后以旧对象实际重现8234FF10失败，主目录保持修改态。

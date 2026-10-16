@@ -24,6 +24,16 @@ TITLE_NATIVES guard=1 bound=4096 fallback=3794 int_const=82508E60 add=8250BAF0
 
 
 class TitleEntryTests(unittest.TestCase):
+    def test_callback_profile(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.CALLBACK_GENERATED_TREE}),'callback-entry-8234FF10')
+
+    def test_original_profile_preserved(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.link_module.NATIVE_GENERATED_TREE}),'phase5-missing-callback-baseline')
+
+    def test_unknown_title_profile_rejected(self):
+        for value in ({},{'tree_sha256':'unknown'}):
+            with self.assertRaises(ValueError):p.validate_title_profile(value)
+
     def test_map_aslr_independent_rva(self):
         self.assertEqual(p.resolve_rva(p.map_symbols(MAP),0x4010)['name'],'sub_82944420')
         self.assertEqual(p.resolve_rva(p.map_symbols(MAP),0x4010)['offset'],16)
