@@ -114,3 +114,9 @@ PPCContext/guestfixture/errno/LastError差分与指针+页保护实际恢复通�
 rawO2消去回转转换，160项sNaN内存差异；Od与O2strict均通过，通用编译固定/fp:strict。
 最终197TU/58413映射标题推进82AC2810，原32-byte双return叶尚未恢复；r10/r11/CR6副作用须先验证。
 [原语义与机器码](docs/RESEARCH_FLOAT_LEAF.md)、[结果与未知](docs/PHASE13_RESULTS.md)。
+
+## 第十四阶段：PPC64环绕mask与原双返回叶
+
+82AC2810真实bnelr+末尾blr整体严格恢复。rlwinm环绕mask跨64bit，不能一概将word操作结果零扩展；原512模型失败经官方ISA+固定Xenia纠正，2048完整状态通过。
+197TU/fp:strict全量编译、58414映射后同21根实际推进826A9EC8原fatal；下一原候选含store与tail ABI，不按getter处理。
+[架构依据与失败](docs/RESEARCH_BITFIELD_LEAF.md)、[结果](docs/PHASE14_RESULTS.md)。

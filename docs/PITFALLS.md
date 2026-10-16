@@ -100,3 +100,10 @@
 - COFF弱alias section0不是函数定义；首次误读.pdata解码作废，最终锁定EXECUTE中的__imp__定义与对象hash。
 - git show字节与Windows混合换行工作树不一定同hash；基线必须对照上一已验172hash，而不是默许EOL漂移。
 - 文档读取显式UTF8；本次cp932读取失败保留，未据此改内容。
+
+## 第十四阶段补充
+
+- PPC64的rlwinm按ROTL32(low32)=rotate64(low32||low32)、MASK(MB+32,ME+32)；MB31/ME29跨64bit的mask为FFFFFFFFFFFFFFFD。原wordgetter低32为1时rawr3可100000001。原oracle误用32bit导致512 context失败，保留后按独立ISA/Xenia纠正，未改SDK。
+- 原4C9A0020是bnelr CR6（BO4/BI26），不是beqlr；早return不表示函数结束，末尾mask和blr必须包含。
+- 低32返回式正确不等于完整GPR正确；需比较全context、SO/CR6及无写内存两页。byte/hash守卫通过不证明语义模型无误。
+- 已有REA对XEX格式拒绝证据复用，本轮用固定原像decoder，不重复启动不支持的分析；官方PDF首次web获取失败而实际urllib成功的记录均保留。

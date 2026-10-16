@@ -91,3 +91,9 @@
 - tools/research/verify_float_leaf.py：原身份/边界、整数FP oracle与真实生成体差分。
 - tools/research/compile_module.py：显式/fp:strict及构建元数据；标题新profile逐对象核验。
 - [阶段13](PHASE13_RESULTS.md)、[原叶实验](EXPERIMENT_FLOAT_LEAF.md)、[FP研究](RESEARCH_FLOAT_LEAF.md)。
+
+## 第十四阶段补充
+
+- research/xex/disc1-bitfield-leaf.toml：实际原32-byte双返回发现元数据。
+- tools/research/verify_bitfield_leaf.py：固定原身份/边界、PPC64 rotate/mask oracle及2048真实body差分。
+- [阶段14](PHASE14_RESULTS.md)、[严格实验](EXPERIMENT_BITFIELD_LEAF.md)、[原语义与失败](RESEARCH_BITFIELD_LEAF.md)。

@@ -178,6 +178,7 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
 VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 COMPARE_GENERATED_TREE = '14c27505807e3381f5d9f4b20ab84a1b6f3404ea95204c134d5957260fbc2148'
+BITFIELD_LEAF_GENERATED_TREE = '0144be8ebcfe91c81da80a8a370cb61d096b3cd2ee518117234ccc24cceb2256'
 FLOAT_LEAF_GENERATED_TREE = 'cddd7af7516965eb293c850fb07b20e5b6976f759addf906b52ea441e8869767'
 EVENT_TRACE_REBUILD_TREE = 'ae88b3e9c6506fa6ca9ac42981653c7736975cbc889a1bbced35a5bd74b034b4'
 PRESENTATION_REBUILD_TREE = '8eff0b28ea7e74aada90e1e5f7802a34ed3b9ef7d30867c51bf64231bd573c32'
@@ -187,6 +188,8 @@ NATIVE_GATEWAY_GENERATED_TREE = '994d2db123de56faf27f0560d872bb2481e6fa9f9c9e812
 
 def validate_title_profile(identity):
     """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == BITFIELD_LEAF_GENERATED_TREE:
+        return 'bitfield-leaf-82AC2810'
     if identity.get('tree_sha256') == FLOAT_LEAF_GENERATED_TREE:
         return 'float-leaf-82AC1DE8'
     if identity.get('tree_sha256') == EVENT_TRACE_REBUILD_TREE:
@@ -208,14 +211,14 @@ def validate_title_profile(identity):
 
 
 def validate_fp_contract(profile, inputs, records):
-    """New float profile requires the actual strict flag; old rollback profiles stay valid."""
-    if profile != 'float-leaf-82AC1DE8':return
+    """Profiles containing the restored float leaf require strict FP; old rollback profiles stay valid."""
+    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810'):return
     if inputs.get('floating_point_contract') != 'strict' or not records:
-        raise ValueError('float leaf requires a strict FP module build')
+        raise ValueError('discovery profile requires a strict FP module build')
     for row in records:
         flags=[str(x).lower() for x in row.get('command',[])]
         if '/fp:strict' not in flags or any(x.startswith('/fp:') and x!='/fp:strict' for x in flags):
-            raise ValueError('float leaf object lacks exact strict FP contract')
+            raise ValueError('discovery object lacks exact strict FP contract')
 
 
 def execute(args):

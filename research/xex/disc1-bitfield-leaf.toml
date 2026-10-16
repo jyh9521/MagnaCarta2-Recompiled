@@ -1,0 +1,3 @@
+# Original dual-return 32-byte bitfield leaf; exact original range guarded.
+[functions.0x82AC2810]
+size = 0x20

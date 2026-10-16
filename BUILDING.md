@@ -159,3 +159,9 @@ phase10源码事务恢复后配旧phase9构建/同一原根重现61原fatal，�
 compile_module显式/fp:strict，记录floating_point_contract=strict；新float-leaf profile还逐对象argv核验，旧profiles可回退。
 rawO2将sNaN回转store优化掉的160差异保留，不能直接给生成代码加O2。strict并非完整PPC硬件FP等价证明。
 事务phase13恢复172hash/移除6新增，旧phase12构建同21根实际重现82AC1DE8。
+
+## 第十四阶段：双返回bitfield叶
+
+[严格实验](docs/EXPERIMENT_BITFIELD_LEAF.md)、[原语义](docs/RESEARCH_BITFIELD_LEAF.md)、[阶段14](docs/PHASE14_RESULTS.md)。
+bitfield-leaf只追加32-byte原目标，继承/fp:strict对象合同，未知树拒绝。原512 oracle失败经独立64bit ISA定义纠正，2048差分通过。
+源码事务phase14恢复178hash/移除6新增；旧phase13严格模块同21根实际重现82AC2810原fatal。

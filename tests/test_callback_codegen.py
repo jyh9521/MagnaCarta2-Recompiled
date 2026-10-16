@@ -8,6 +8,28 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_bitfield_profile_range(self):
+        self.assertEqual(p.profile_fields('bitfield-leaf'),(0x82AC2810,32,'9174c77a101ea25e91a9fb0f1b8c9c7e512c4b7fdc7d80af0ce39fbfbe311f6a'))
+
+    def test_bitfield_exact_hint(self):
+        code=bytes.fromhex('81630020556abffe556bc7fe2b0a0000616300024c9a0020556307fa4e800020')
+        with patch.object(p,'BASE',0x82AC2810):
+            self.assertEqual(p.verify_hint(code,'[functions.0x82AC2810]\nsize=32','bitfield-leaf')['size'],32)
+
+    def test_bitfield_early_return_truncation_rejected(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x82AC2810]\nsize=24','bitfield-leaf')
+
+    def test_bitfield_mismatch_rejected(self):
+        with self.assertRaisesRegex(ValueError,'range hash'):
+            p.verify_hint(bytes(32),'[functions.0x82AC2810]\nsize=32','bitfield-leaf')
+
+    def test_bitfield_mapping(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','82AC2810'))
+            self.assertTrue(p.verify_entry(root,0x82AC2810)['registered'])
+
     def test_float_leaf_profile_range(self):
         self.assertEqual(p.profile_fields('float-leaf'),(0x82AC1DE8,20,'579d0af704a9e2c35ba6dc55ffe769344f780cf91ddc302e77aa72da6071ab53'))
 
