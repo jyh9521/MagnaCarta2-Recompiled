@@ -186,3 +186,8 @@ conditional-tail只追加原32-byte入口，保留store/beqlr/nonlink tail，继
 
 word-leaf固定原8-byte入口与全hint守卫链，197对象全部继承strict FP；原body差分1536例完整正常返回，不含callee边界替代。
 [阶段17结果](docs/PHASE17_RESULTS.md)。
+
+## 第十八阶段 — 2026-10-17
+
+复用阶段17精确strict生成树与197对象须重新核验hash和/fp:strict记录；本阶段只重新编译host并显式全量链接。`python -m tools.research.probe_title_entry --help`中的`--capture-panic`仅接受word-leaf固定profile，默认关闭。捕获请求不成功CLI exit1；成功捕获后原panic仍C0000005，诊断CLI exit0不是游戏成功。
+[阶段18结果](docs/PHASE18_RESULTS.md)。

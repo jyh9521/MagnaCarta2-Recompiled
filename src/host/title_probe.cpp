@@ -3,6 +3,7 @@
 #include "presentation_probe.h"
 #include "wait_observation.h"
 #include "event_import_trace.h"
+#include "panic_observation.h"
 #include <thread>
 #include <rex/cvar.h>
 #include <rex/runtime.h>
@@ -121,6 +122,59 @@ void SampleThread(rex::system::XThread* thread) {
   }
   NativeState();
 }
+namespace po = mc2::host::panic_observation;
+void PrintPanicRead(const char* tag,const po::Result& value) {
+  std::printf("PANIC_READ tag=%s guest=%08X status=%s captured=%zu terminated=%u truncated=%u word_known=%u word=%08X hex=",
+      tag,value.guest,po::StatusName(value.status),value.captured,unsigned(value.terminated),unsigned(value.truncated),unsigned(value.word_known),value.word);
+  for(size_t i=0;i<value.captured;++i)std::printf("%02X",unsigned(value.bytes[i]));
+  std::printf("\n");
+}
+bool PanicCodeMatches(po::GuestView view) {
+  static constexpr uint32_t guards[][2]={
+    {0x82390A20,0x7D8802A6},{0x82390A24,0x9181FFF8},{0x82390A44,0x9421FFA0},
+    {0x82390A4C,0x3D408328},{0x82390A58,0x386AC318},{0x82390A5C,0x38801000},
+    {0x82390A68,0x484E0111},{0x82390A6C,0x3900000D},{0x82390A70,0x91000003},{0x82390A80,0x4E800020},
+    {0x82484490,0x3D409E2A},{0x82484494,0x813A0000},{0x82484498,0x3D60820B},
+    {0x8248449C,0x614883C1},{0x824844A0,0x3B8BA120},{0x824844A4,0x7F094040},{0x824844A8,0x419A0054}};
+  for(const auto& guard:guards){auto got=po::ReadWord(view,guard[0]);if(!got.word_known || got.word!=guard[1])return false;}
+  return true;
+}
+void ObserveOriginalPanic(const EXCEPTION_RECORD& record,const PPCContext& c) {
+  const char* requested=std::getenv("MC2_CAPTURE_PANIC");
+  if(!requested || std::strcmp(requested,"1")!=0)return;
+  po::GuestView view{guest_base,0x100001000ULL};
+  const bool match=record.ExceptionCode==EXCEPTION_ACCESS_VIOLATION && record.NumberParameters>=2 &&
+    record.ExceptionInformation[0]==1 && record.ExceptionInformation[1]==reinterpret_cast<uintptr_t>(guest_base)+3 &&
+    c.lr==0x82390A6C && PanicCodeMatches(view);
+  std::printf("PANIC_GATE requested=1 matched=%u lr=%08X\n",unsigned(match),unsigned(c.lr));
+  if(!match)return;
+  PPCContext before;std::memcpy(&before,&c,sizeof(c));
+  PrintPanicRead("message",po::ReadUtf16(view,0x8327C318,4096));
+  const uint64_t lr_address=uint64_t(c.r1.u32)+0x58;
+  auto caller=lr_address<=UINT32_MAX-3?po::ReadWord(view,uint32_t(lr_address)):po::ReadWord(view,0);
+  std::printf("PANIC_CALLER known=%u saved_lr=%08X r25=%08X r26=%08X r30=%08X\n",
+    unsigned(caller.word_known),caller.word,c.r25.u32,c.r26.u32,c.r30.u32);
+  if(caller.word_known && caller.word==0x824844F4){
+    PrintPanicRead("header_word",po::ReadWord(view,c.r26.u32));
+    PrintPanicRead("header_prefix",po::ReadBytes(view,c.r26.u32,16));
+    const uint64_t args_address=uint64_t(c.r1.u32)+0x78;
+    auto arg=args_address<=UINT32_MAX-7?po::ReadBytes(view,uint32_t(args_address),8):po::ReadBytes(view,0,8);
+    PrintPanicRead("saved_first_arg",arg);
+    if(arg.captured==8){
+      uint64_t raw=0;for(size_t i=0;i<8;++i)raw=(raw<<8)|arg.bytes[i];
+      std::printf("PANIC_FILENAME source=saved_first_arg raw=%016llX\n",static_cast<unsigned long long>(raw));
+      PrintPanicRead("filename",po::ReadUtf16(view,uint32_t(raw),4096));
+    }
+    const uint64_t object_end=uint64_t(c.r30.u32)+0xE0;
+    if(object_end<=UINT32_MAX-3){
+      auto count=po::ReadWord(view,uint32_t(object_end));auto pointer=po::ReadWord(view,c.r30.u32+0xDC);
+      std::printf("PANIC_FILENAME_CANDIDATE count_known=%u count=%08X pointer_known=%u pointer=%08X fallback=%08X\n",
+        unsigned(count.word_known),count.word,unsigned(pointer.word_known),pointer.word,c.r25.u32);
+    }
+  }
+  std::printf("PANIC_CAPTURE_END context_unchanged=%u resumes_guest=0\n",unsigned(std::memcmp(&before,&c,sizeof(c))==0));
+}
+
 LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
   if(mc2::host::EventTraceMemoryReadActive())return EXCEPTION_CONTINUE_SEARCH;
   auto* record = pointers->ExceptionRecord;
@@ -149,6 +203,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
     auto* c=state->context();
     std::printf("TITLE_PPC r1=%08X r3=%08X r4=%08X lr=%08X ctr=%08X\n",
       c->r1.u32,c->r3.u32,c->r4.u32,unsigned(c->lr),c->ctr.u32);
+    ObserveOriginalPanic(*record,*c);
   }
   NativeState();
   if(event_trace_requested)WriteEventTrace("fault");

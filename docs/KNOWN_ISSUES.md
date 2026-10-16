@@ -71,3 +71,8 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 82B7CCD0原叶已恢复，1536映射对齐夹具完整返回；同21根197TU实际到原82390A70显式panic写guest3/C0000005。fault/MMIO/未对齐与标题实际word值未验证，不改变不可玩状态。
 [阶段17结果](PHASE17_RESULTS.md)。
+
+## 第十八阶段 — 2026-10-17
+
+实际panic已关联WoodSword路径，当前21根仍缺该成员；故障后零header不证明原包损坏，也未完成读取因果或部署修复。仍在C0000005 guest3，未到首帧/可玩状态。
+[阶段18结果](PHASE18_RESULTS.md)。

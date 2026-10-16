@@ -14,6 +14,7 @@ import sys
 
 from tools.research import link_module
 from tools.research.event_trace_report import parse_event_trace
+from tools.research.panic_capture_report import parse_panic_capture
 from tools.research.compile_module import digest, inventory, vc_environment
 
 GPU_PLUGIN_SHA256 = '0c23cfa23fc4fa5638dc8a3dc0de87b1041d97705d4677774083f1f350cd8d89'
@@ -234,6 +235,7 @@ def execute(args):
     seconds=getattr(args,'observe_seconds',20)
     if not 20<=seconds<=60:raise ValueError('observation must be 20..60 seconds')
     trace=getattr(args,'trace_events',False)
+    capture_panic=getattr(args,'capture_panic',False)
     present=getattr(args,'present',False)
     if present and not args.gpu:raise ValueError('presentation requires the real GPU plugin')
     sdk_runtime=args.sdk/'bin/rexruntime.dll'
@@ -242,6 +244,7 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
+    if capture_panic and profile!='word-leaf-82B7CCD0':raise ValueError('panic capture requires the independently verified original word-leaf profile')
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
@@ -253,9 +256,13 @@ def execute(args):
     overrides={'MC2_XEX_PATH':image['source'],'MC2_GAME_ROOT':str((args.game_root or args.xex.parent).resolve())}
     overrides['MC2_OBSERVE_SECONDS']=str(seconds)
     overrides['MC2_EVENT_TRACE']='1' if trace else '0'
+    overrides['MC2_CAPTURE_PANIC']='1' if capture_panic else '0'
     overrides['MC2_PRESENTATION']='1' if present else '0'
     overrides['MC2_WAIT_SDK_SHA256']=WAIT_SDK_SHA256
     dependencies=[args.source.parent/name for name in ('presentation_probe.h','wait_observation.h','event_import_trace.h')]
+    has_panic_header='#include "panic_observation.h"' in args.source.read_text(encoding='utf-8-sig')
+    if capture_panic and not has_panic_header:raise ValueError('capture requires the read-only observation host header')
+    if has_panic_header:dependencies.append(args.source.parent/'panic_observation.h')
     assets=[]
     if args.gpu:
         overrides['MC2_GPU_PLUGIN']='xenos';assets=[args.sdk/'bin/rexgpu-xenos.dll']
@@ -292,6 +299,8 @@ def execute(args):
         p=output/name
         if p.is_file():report[name]={'path':str(p),'sha256':digest(p),'size':p.stat().st_size}
     report['runtime_assets_unchanged']=result.get('runtime_assets_unchanged',True)
+    report['panic_capture_requested']=capture_panic
+    report['panic_capture']=parse_panic_capture(run_text)
     guarded = diagnostic_input_guards(result,report)
     report['diagnostic_success'] &= guarded
     report['bounded_observation'] &= guarded
@@ -314,6 +323,7 @@ def main(argv=None):
     parser.add_argument('--game-root',type=Path)
     parser.add_argument('--source',type=Path,default=Path('src/host/title_probe.cpp'))
     parser.add_argument('--observe-seconds',type=int,default=20,help='bounded diagnostic window, 20..60 seconds')
+    parser.add_argument('--capture-panic',action='store_true',help='opt-in bounded original-panic read-only observation; never resumes a fault')
     parser.add_argument('--trace-events',action='store_true',help='transparent scoped host IAT trace of four original SDK event imports')
     parser.add_argument('--present',action='store_true',help='bind a real hidden SDK window/presenter and pump the official UI loop')
     parser.add_argument('--gpu',action='store_true',help='request the unmodified SDK xenos plugin, no presentation')
@@ -321,6 +331,7 @@ def main(argv=None):
     try:
         if os.name!='nt':raise ValueError('title entry requires Windows SDK host')
         report=execute(args)
+        if args.capture_panic and not report['panic_capture']['success']:return 1
         return 0 if report['diagnostic_success'] or report['bounded_observation'] else 1
     except (OSError,ValueError,KeyError) as error:
         print('TITLE_ENTRY_ERROR: '+str(error),file=sys.stderr);return 1

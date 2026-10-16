@@ -138,3 +138,8 @@ unsigned byte bounds检查之前已有r9/r5变化；非法full64错误返回，�
 [阶段17结果](docs/PHASE17_RESULTS.md)。
 
 阶段17独立原/实际PE分析已把panic调用定位到824844F0：BEword[r26]与9E2A83C1不等路径，静态Core.Errors.BinaryFormat格式已从原Coalesced.int核验。实际文件名/headerword/message未捕获，不能把日志前置缺包当已证原因。
+
+## 第十八阶段 — 2026-10-17
+
+原panic格式化上限4096 UTF16 units=8192bytes；故障时savedLR在r1+58、保存原r4在r1+78。实际message和原变参指向WoodSword，故障后BE32[r26]=0；原显式panic保持。非原子快照与原数据/读取因果分开记账。
+[阶段18结果](docs/PHASE18_RESULTS.md)。

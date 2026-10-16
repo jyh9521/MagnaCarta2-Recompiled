@@ -129,3 +129,10 @@ word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而
 阶段17首个GitHub运行38981548880在Windows/Python3.12因hint-chain自制digest mock按未规范路径字符串识别SDK而失败，另一Windows矩阵被fail-fast取消；Linux两项通过。通过显式inputs/../inputs路径在本机复现同样exit1后，仅规范mock两端路径，保留路径别名回归；生产XEX/SDK哈希守卫、生成模块和真实运行输入不改。原CI日志和本机red/green记录均保留。
 
 外部云盘可能在原ISO旁创建非UTF8上传进度sidecar；源码清单必须排除这种私有元数据，不能将其送入文本diff/回退事务。阶段17保留该失败，仅加入精确扩展名ignore规则，不删除用户文件。
+
+## 第十八阶段 — 2026-10-17
+
+原formatter的4096是UTF16 units而非bytes；不要只截4096bytes。r1+58不是+88，formatter后的当前r4不是原filename，读取原保存变参。RPM跨noaccess本机实际0bytes；partial清理helper测试不等于真实API返回非零partial。捕获不改变原CONTINUE_SEARCH，故障后header不当compare瞬间原子证据。
+[阶段18结果](PHASE18_RESULTS.md)。
+
+阶段18协议解析必须在全部UTF16校验后赋text；decode_error与text同时存在会造成false-success，interior-NUL实际red已保留。相同原21根/旧host的首次rollback也出现更早read0043004E/LR823BF2B8；必须保留独立故障，不能只挑panic运行宣称确定性。
