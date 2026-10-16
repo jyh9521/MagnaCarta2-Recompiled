@@ -30,10 +30,10 @@ class CallbackCodegenTests(unittest.TestCase):
             for source in (p.ROOT/'research/xex').glob('disc1-*.toml'):
                 (meta/source.name).write_bytes(source.read_bytes())
             inputs=root/'inputs';inputs.mkdir();xex=inputs/'input.xex';xex.write_bytes(b'fixture')
-            exe=inputs/'sdk.exe';exe.write_bytes(b'fixture')
+            exe=inputs/'sdk.exe';exe.write_bytes(b'fixture');exe=inputs/'..'/'inputs'/'sdk.exe'
             loader=inputs/'loader.cc';loader.write_bytes(b'fixture')
             def digest(path):
-                return p.SDK_EXE_SHA256 if Path(path)==exe else p.XEX_SHA256
+                return p.SDK_EXE_SHA256 if Path(path).resolve()==exe.resolve() else p.XEX_SHA256
             def hint(image,text,profile='callback'):
                 return {'profile':profile}
             args=SimpleNamespace(xex=xex,sdk_exe=exe,loader_source=loader,output=root/'out',entry_profile='word-leaf')

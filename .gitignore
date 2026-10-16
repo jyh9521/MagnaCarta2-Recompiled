@@ -150,3 +150,6 @@ decompiled/
 /decompilation/
 /keys/
 /user-config/
+
+# Private cloud-transfer progress metadata (not source)
+*.baiduyun.uploading.cfg

@@ -125,3 +125,7 @@
 
 word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而不是当前profile；首预检失败与完整链回归保留。EAFFFFFFFC物理偏移超过4GiB，不能只reserve4GiB；BE载荷勿用被测load配套store初始化，避免同错抵消。无PDATA不是完整函数大小的独立证明。
 [阶段17结果](PHASE17_RESULTS.md)。
+
+阶段17首个GitHub运行38981548880在Windows/Python3.12因hint-chain自制digest mock按未规范路径字符串识别SDK而失败，另一Windows矩阵被fail-fast取消；Linux两项通过。通过显式inputs/../inputs路径在本机复现同样exit1后，仅规范mock两端路径，保留路径别名回归；生产XEX/SDK哈希守卫、生成模块和真实运行输入不改。原CI日志和本机red/green记录均保留。
+
+外部云盘可能在原ISO旁创建非UTF8上传进度sidecar；源码清单必须排除这种私有元数据，不能将其送入文本diff/回退事务。阶段17保留该失败，仅加入精确扩展名ignore规则，不删除用户文件。

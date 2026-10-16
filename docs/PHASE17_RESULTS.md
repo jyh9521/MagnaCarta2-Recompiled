@@ -30,5 +30,9 @@ AMD64 PE、197对象、全部58170函数map、三个host header快照及原299 i
 首轮word-leaf继承indexed-tail守卫误传当前profile，原字节预检明确拒绝；改为传固定indexed-tail，增加完整10项hint链回归。首次链测试把输出放在输入父目录下被overlap守卫拒绝，修正自制fixture布局而未放宽守卫；失败日志保留。
 根698测试(skip2)和catalog通过；隔离源码676→698→恢复676(skip3)，原199文件hash恢复/新增6文件移除，主205文件保持修改态。
 实际行为回退复用隔离恢复源码、旧phase16严格197对象、同一21原成员根，重现82B7CCD0原fatal；不改原资源、不删旧记录。
-四件套及精确命令/input/literal output/exit位于ignored local/analysis/phase17/verification-final/；推送、远端HEAD、全新clone与四项CI另核验。
+四件套及精确命令/input/literal output/exit位于ignored local/analysis/phase17/verification-release/；推送、远端HEAD、全新clone与四项CI另核验。
 下一项先读取原panic message并追踪82390A20的真实caller及原数据条件，区分部署缺失/SDK兼容/原执行错误；不得跳过82390A70常量store或将其当新hint恢复；仍无正常标题关闭、首帧/输入/音频/战斗/存档/换盘或可玩性验收。
+
+阶段17首个GitHub运行38981548880在Windows/Python3.12因hint-chain自制digest mock按未规范路径字符串识别SDK而失败，另一Windows矩阵被fail-fast取消；Linux两项通过。通过显式inputs/../inputs路径在本机复现同样exit1后，仅规范mock两端路径，保留路径别名回归；生产XEX/SDK哈希守卫、生成模块和真实运行输入不改。原CI日志和本机red/green记录均保留。
+
+最终源码事务曾被外部上传程序新建的两个非UTF8 ISO进度sidecar中断；记录保留。仅新增对应进度元数据ignore规则，未读取/提交其内容、未移动或删除上传文件/原ISO，重新建立源码事务。
