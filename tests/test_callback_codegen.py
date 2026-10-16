@@ -8,6 +8,19 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_gateway_profile_range(self):
+        self.assertEqual(p.profile_fields('native-gateway'),(0x82509380,0x18,'24858452f74ebfe37c65055b81249f2b52a972d7f8374451f2b260775436bad2'))
+
+    def test_gateway_wrong_hint(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x82509380]\nsize=0x1C','native-gateway')
+
+    def test_gateway_generated_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','82509380'))
+            self.assertTrue(p.verify_entry(root,0x82509380)['registered'])
+
     def test_compare_profile_range(self):
         entry,size,digest=p.profile_fields('compare')
         self.assertEqual((entry,size),(0x82C1C1A0,0x88))

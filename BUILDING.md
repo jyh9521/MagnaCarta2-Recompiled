@@ -123,3 +123,10 @@ headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形
 固定`--entry-profile compare`保留旧profiles，包含原0x88范围；C214由strict生成自动恢复为内部label，不手工删除。
 最终19成员根增加原GuidCache.xxx，所有staging仍核对整ISO及逐成员hash；原18根部署AV不隐藏。
 源码事务使用phase8对应baseline/manifest/verification；恢复源码配旧phase7构建和同一19根重现82C1C1A0。
+
+## 第九阶段：native网关与槽清单对账
+
+命令见 [网关重建](docs/EXPERIMENT_NATIVE_GATEWAY.md)、[原体差分](docs/RESEARCH_NATIVE_GATEWAY.md)、[槽对账](docs/RESEARCH_NATIVE_SLOT_GAPS.md)、[阶段9](docs/PHASE9_RESULTS.md)。
+固定`--entry-profile native-gateway`只追加已触发52入口，未将61一起hint；原标题接受第五个精确profile。
+20原成员根仅向既有19项追加原TitleMap_MSPT.xxx，所有hash/staging守卫不变。
+源码事务使用phase9对应baseline/manifest/verification；恢复源码配旧phase8构建及同一20根重现52原fatal。

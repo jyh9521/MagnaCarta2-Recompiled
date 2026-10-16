@@ -58,3 +58,11 @@
 - 新mapping入口与内部label最初仅记录，review后加入硬成功守卫及负例；测试编辑曾IndentationError，原日志保留，修复后通过。
 - 原18成员缺GuidCache导致部署AV；只增加hash验证原第19成员，不写空包/目录替代。
 - 原native静态模板解析器以目标已generated-entry为前提，会遗漏真实已注册但尚缺入口的52；61另列为待调查缺口，运行时GNatives是独立见证。
+
+## 第九阶段：合成地址空间与真实部署分开
+
+- gateway初次harness在高guest地址AV：SDK原加载宏按REX_PHYS_HOST_OFFSET调整host页，初次只commit guest页。仅修正harness页计算/commit/snapshot后通过，不改SDK宏或原函数。
+- 合成4GB reservation只commit五页20KB，执行后released=1；它没有加载游戏，不是原vtable/GNatives输入夹具，外部目标仅record。
+- 19根缺TitleMap_MSPT导致AV guest3，保留部署失败；只追加hash验证原包到20根，不创建空map。
+- 01模板遗漏是寄存器分配变体而非未生成；52/61旧entry筛选缺口与之不同。静态300/runtime302不意味着兼容实现完成。
+- 61入口查找失败不等于它已消费下一byte；必须区分caller消费的61和handler将读取的新byte。

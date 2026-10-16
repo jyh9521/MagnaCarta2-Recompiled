@@ -57,3 +57,10 @@
 - `tools/research/verify_compare_callback.py`：原语义/双return/尾块审计/真实生成体差分。
 - `tools/research/audit_callback_sites.py`：有界lis/addi到r6的静态site研究，支持内存XEX展开，不自动hint。
 - [阶段8](PHASE8_RESULTS.md)、[比较重建](EXPERIMENT_COMPARE_CODEGEN.md)、[比较研究](RESEARCH_COMPARE_CALLBACK.md)、[发现研究](RESEARCH_CALLBACK_DISCOVERY.md)。
+
+## 第九阶段补充
+
+- `research/xex/disc1-native-gateway.toml`：真实触发的52网关发现元数据。
+- `tools/research/verify_native_gateway.py`：原范围/注册/caller守卫和稀疏合成内存分派差分。
+- `tools/research/reconcile_native_slots.py`：静态/实际快照显式身份对账，不自动hint。
+- [阶段9](PHASE9_RESULTS.md)、[网关实验](EXPERIMENT_NATIVE_GATEWAY.md)、[网关研究](RESEARCH_NATIVE_GATEWAY.md)、[槽缺口](RESEARCH_NATIVE_SLOT_GAPS.md)。

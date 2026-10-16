@@ -85,3 +85,10 @@ python -m unittest discover -s tests -p test_stage_runtime_files.py -v
 新比较入口通过后，原18根日志真实请求MC2Game/CookedXenon/GuidCache.xxx而缺失并AV。
 `phase8/stage-root19.json`记录既有staging工具完整命令；新game-root-19保留原18并添加该原包，
 整ISO/19成员hash及输入不变全部通过。旧根/失败不覆盖，不据此宣称所有资产齐全。
+
+## 阶段9实际扩展：20个原成员
+
+52网关恢复后原19根实际请求MC2Game/CookedXenon/TitleMap_MSPT.xxx并缺失。
+`phase9/stage-root20.json`记录完整命令；全新game-root-20保留19项并从原ISO追加该3,604,480-byte原包，
+整ISO/20成员hash与输入不变全部通过。可选Coalesced搜索路径的原盘不存在探测继续保留，不用假副本消除。
+加载请求推进不等于TitleMap渲染/电影播放/首帧验收。
