@@ -47,3 +47,7 @@ Headless GPU已消费命令并建立渲染pipeline，但presenter为空，不表
 第十一阶段已接入真实SDK presenter与隐藏窗口/官方UI loop，presenter-null从对照514降为0。
 等待对象类别Event已观察，Query只报告kind1；实际backend reset、信号状态和生产者未验证。
 20秒后仍有等待，未证明死锁、正常关闭、swapchain或可见首帧；仅独立无XEX presenter正常清理已验。
+
+第十二阶段45秒原入口追踪捕获worker Set与main Wait返回；旧20秒等待不是已证死锁。
+原20根缺data_party_start随后guest3 AV；严格追加原第21成员后，trace与无hook对照均到82AC1DE8缺登记原fatal。
+该20-byte原叶尚未hint/执行，原FPR/输出行为待差分；可见首帧/可玩性仍未验收。

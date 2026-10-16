@@ -65,3 +65,9 @@
 - 独立真实presenter/隐藏窗口正常清理；同契约接入原标题并泵官方UI loop。
 - 等待类别Event与公开元数据已观测，Query类型与backend reset语义分开；signal/producer未知。
 - strict397源同字节、197TU全重建/58412映射，531项源码测试及源码/实际行为回退；无可见首帧宣称。
+
+## 2026-10-17 — 原事件调用链与21成员推进
+
+- 透明委托四原SDK事件导入，观察worker Set/main Wait返回；正常IAT页保护回退与FAULT弱快照分开。
+- 原data_party_start追加到独立21根；trace与无hook实际同到82AC1DE8缺入口原fatal，未自动hint。
+- strict397源同字节、197TU全量构建；575项测试/源码及实际行为回退，保留观测器延迟和缺包失败。

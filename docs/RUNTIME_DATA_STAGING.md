@@ -92,3 +92,10 @@ python -m unittest discover -s tests -p test_stage_runtime_files.py -v
 `phase9/stage-root20.json`记录完整命令；全新game-root-20保留19项并从原ISO追加该3,604,480-byte原包，
 整ISO/20成员hash与输入不变全部通过。可选Coalesced搜索路径的原盘不存在探测继续保留，不用假副本消除。
 加载请求推进不等于TitleMap渲染/电影播放/首帧验收。
+
+## 阶段12实际扩展：21个原成员
+
+45秒窗口实测20根请求MC2Game/CookedXenon/data_party_start.xxx失败，随后guest3 write AV。
+两盘实际原成员均3,964,928bytes、同hash，独立LZX/UE3表解析与历史相同（446/25；1407 names/166 imports/1198 exports）。
+`phase12/stage-root21.json`记录命令与整ISO/member验证，只向新game-root-21添加该原包，旧20根不改。
+新根trace与无hook控制均推进至82AC1DE8原fatal；不把包存在或此推进当可见呈现/可玩性。

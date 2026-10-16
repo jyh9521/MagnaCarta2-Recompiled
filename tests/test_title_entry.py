@@ -55,6 +55,24 @@ class TitleEntryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'requires the real GPU'):
             p.execute(SimpleNamespace(present=True,gpu=False))
 
+    def test_bulk_resolver_matches_single_lookup(self):
+        symbols=p.map_symbols(MAP);lookup=p.make_symbol_resolver(symbols)
+        for address in (0,0x2000,0x2004,0x3010,0xFFFF):
+            self.assertEqual(lookup(address),p.resolve_rva(symbols,address))
+
+    def test_observation_range_checked_before_inputs(self):
+        from types import SimpleNamespace
+        for seconds in (19,61):
+            with self.assertRaisesRegex(ValueError,'20..60'):
+                p.execute(SimpleNamespace(observe_seconds=seconds))
+
+    def test_sdk_guest_fault_overrides_bounded_wait_marker(self):
+        r=self.observation(sdk='Unhandled guest access violation: write of guest 0x00000003 (host 0x100000003)')
+        self.assertFalse(r['bounded_observation']);self.assertEqual(r['sdk_guest_faults'][0]['guest_address'],3)
+
+    def test_event_trace_rebuild_profile_exact(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.EVENT_TRACE_REBUILD_TREE}),'extended-native-event-trace-rebuild')
+
     def test_rebuilt_extended_native_profile_exact(self):
         self.assertEqual(p.validate_title_profile({'tree_sha256':p.PRESENTATION_REBUILD_TREE}),'extended-native-presentation-rebuild')
 

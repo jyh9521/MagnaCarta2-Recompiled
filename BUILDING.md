@@ -145,3 +145,10 @@ phase10源码事务恢复后配旧phase9构建/同一原根重现61原fatal，�
 新strict输出397源与前阶段同字节，仅3个codegen元数据不同；第七个精确树profile保留未知树拒绝。
 197TU重新编译/链接；标题新增两header显式hash/snapshot守卫及user32.lib真实UI依赖，不补未解析符号。
 源码事务phase11恢复后配旧phase10构建/同一20原成员根，重现headless/null-presenter/exit26且新元数据观测消失。
+
+## 第十二阶段：有限事件导入观测
+
+命令见[事件实验](docs/EXPERIMENT_EVENT_TRACE.md)、[原调用点](docs/RESEARCH_EVENT_IMPORT_SITES.md)、[host IAT](docs/RESEARCH_EVENT_IMPORT_TRACE.md)、[阶段12](docs/PHASE12_RESULTS.md)。
+标题默认不hook，新增`--trace-events`及`--observe-seconds 20..60`；实际捕获走独立64KiB缓冲文件而非逐行控制台。
+第八个精确strict树只变3个codegen元数据，397源同字节；197TU重编译/58412映射通过，第三个host header纳入hash/snapshot。
+事务恢复后用旧phase11源码/构建、基线20原成员根和20秒present模式，验证trace标记消失与原边界恢复；新21根独立保留。

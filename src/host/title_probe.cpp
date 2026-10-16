@@ -2,6 +2,7 @@
 #include "mc2_probe_init.h"
 #include "presentation_probe.h"
 #include "wait_observation.h"
+#include "event_import_trace.h"
 #include <thread>
 #include <rex/cvar.h>
 #include <rex/runtime.h>
@@ -26,6 +27,17 @@ uint8_t* guest_base = nullptr;
 volatile LONG launch_phase = 0;
 rex::system::KernelState* kernel_state = nullptr;
 bool wait_sdk_verified = false;
+bool event_trace_requested = false;
+std::atomic<unsigned> event_dump_index{0};
+void WriteEventTrace(const char* reason) {
+  const auto index=event_dump_index.fetch_add(1);
+  if(index>=4){std::printf("EVENT_TRACE_FILE reason=%s path=- success=0 limit=1\n",reason);return;}
+  char name[64]{};std::snprintf(name,sizeof(name),"event-trace-%u.txt",index);
+  auto* file=std::fopen(name,"wb");
+  bool okay=file && std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+  if(file){mc2::host::DumpEventImportTrace(file);okay=std::ferror(file)==0 && okay;okay=std::fclose(file)==0 && okay;}
+  std::printf("EVENT_TRACE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+}
 uint32_t Read32(uint32_t address) {
   uint32_t value; std::memcpy(&value,guest_base+address,sizeof(value));return __builtin_bswap32(value);
 }
@@ -64,6 +76,7 @@ class FatalDiagnosticSink final : public spdlog::sinks::base_sink<std::mutex> {
         c->r1.u32,c->r3.u32,c->r4.u32,unsigned(c->lr),c->ctr.u32);
     }
     NativeState();
+    if(event_trace_requested)WriteEventTrace("fault");
   }
   void flush_() override {std::fflush(stdout);}
 };
@@ -109,14 +122,15 @@ void SampleThread(rex::system::XThread* thread) {
   NativeState();
 }
 LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
+  if(mc2::host::EventTraceMemoryReadActive())return EXCEPTION_CONTINUE_SEARCH;
   auto* record = pointers->ExceptionRecord;
   if (!launch_phase || (record->ExceptionCode != EXCEPTION_ACCESS_VIOLATION &&
       record->ExceptionCode != EXCEPTION_BREAKPOINT && record->ExceptionCode != EXCEPTION_ILLEGAL_INSTRUCTION))
     return EXCEPTION_CONTINUE_SEARCH;
-  std::fprintf(stderr, "TITLE_EXCEPTION code=%08lX ip=%p phase=%ld thread=%lu\n",
+  std::printf("TITLE_EXCEPTION code=%08lX ip=%p phase=%ld thread=%lu\n",
       record->ExceptionCode, record->ExceptionAddress, launch_phase, GetCurrentThreadId());
   if(record->NumberParameters >= 2) {
-    std::fprintf(stderr,"TITLE_FAULT operation=%llu address=%016llX guest_offset=%016llX\n",
+    std::printf("TITLE_FAULT operation=%llu address=%016llX guest_offset=%016llX\n",
       static_cast<unsigned long long>(record->ExceptionInformation[0]),
       static_cast<unsigned long long>(record->ExceptionInformation[1]),
       static_cast<unsigned long long>(record->ExceptionInformation[1])-reinterpret_cast<uintptr_t>(guest_base));
@@ -128,16 +142,17 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
     GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
       reinterpret_cast<LPCSTR>(frames[i]), &module);
     if(module) GetModuleFileNameA(module,name,MAX_PATH);
-    std::fprintf(stderr,"TITLE_STACK %u address=%p rva=%llX module=%s\n",i,frames[i],
+    std::printf("TITLE_STACK %u address=%p rva=%llX module=%s\n",i,frames[i],
       reinterpret_cast<uintptr_t>(frames[i])-reinterpret_cast<uintptr_t>(module),name);
   }
   if (auto* state = rex::runtime::ThreadState::Get()) {
     auto* c=state->context();
-    std::fprintf(stderr,"TITLE_PPC r1=%08X r3=%08X r4=%08X lr=%08X ctr=%08X\n",
+    std::printf("TITLE_PPC r1=%08X r3=%08X r4=%08X lr=%08X ctr=%08X\n",
       c->r1.u32,c->r3.u32,c->r4.u32,unsigned(c->lr),c->ctr.u32);
   }
   NativeState();
-  std::fflush(stderr);
+  if(event_trace_requested)WriteEventTrace("fault");
+  std::fflush(stdout);
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
 }
 }
@@ -160,6 +175,7 @@ int main(int argc,char** argv) {
     auto* root=std::getenv("MC2_GAME_ROOT");
     const auto game_root=root?std::filesystem::absolute(root):xex.parent_path();
     std::printf("TITLE_ROOT %s\n",game_root.string().c_str());
+    event_trace_requested=std::getenv("MC2_EVENT_TRACE") && std::strcmp(std::getenv("MC2_EVENT_TRACE"),"1")==0;
     const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
     if(present) {
       rex::cvar::Init(argc,argv);rex::cvar::ApplyEnvironment();
@@ -201,6 +217,11 @@ int main(int argc,char** argv) {
     std::printf("SETUP status=%08X\n",unsigned(status));if(status)return 22;
     std::printf("TITLE_SUBSYSTEMS graphics=%u audio=%u input=%u\n",unsigned(runtime.graphics_system()!=nullptr),
       unsigned(runtime.audio_system()!=nullptr),unsigned(runtime.input_system()!=nullptr));
+    if(event_trace_requested) {
+      const bool installed=mc2::host::InstallEventImportTrace(GetModuleHandleW(nullptr),dll,wait_sdk_verified);
+      std::printf("TITLE_EVENT_TRACE installed=%u\n",unsigned(installed));
+      if(!installed){WriteEventTrace("install");return 33;}
+    }
     kernel_state=runtime.kernel_state();
     mc2_probe_RegisterFunctions(runtime.function_dispatcher());
     guest_base=runtime.virtual_membase();
@@ -225,12 +246,22 @@ int main(int argc,char** argv) {
     auto* context=thread->thread_state()->context();
     std::printf("TITLE_PREPARED id=%u r1=%08X r13=%08X suspend_count=%u\n",
       thread->thread_id(),context->r1.u32,context->r13.u32,thread->suspend_count());
+    if(event_trace_requested)std::printf("TITLE_MAIN_THREAD host=%lu context=%016llX guest=%u\n",
+      GetThreadId(static_cast<HANDLE>(thread->thread()->native_handle())),
+      static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(context)),thread->thread_id());
     launch_phase=2;
     status=thread->Resume();
     std::printf("TITLE_RESUMED status=%08X\n",unsigned(status));if(status)return 25;
+    unsigned observation_seconds=20;
+    if(const auto* value=std::getenv("MC2_OBSERVE_SECONDS")){
+      char* end=nullptr;const auto parsed=std::strtoul(value,&end,10);
+      if(!*value || !end || *end || parsed<20 || parsed>60)std::_Exit(35);
+      observation_seconds=unsigned(parsed);
+    }
+    std::printf("TITLE_OBSERVATION seconds=%u\n",observation_seconds);
     auto wait=rex::thread::WaitResult::kTimeout;
     auto observe=[&] {
-      wait=rex::thread::Wait(thread->thread(),false,std::chrono::seconds(20));
+      wait=rex::thread::Wait(thread->thread(),false,std::chrono::seconds(observation_seconds));
       std::printf("TITLE_WAIT result=%u running=%u\n",unsigned(wait),unsigned(thread->is_running()));
       if(wait!=rex::thread::WaitResult::kSuccess)SampleThread(thread.get());
       if(present)presentation.RequestStop();
@@ -241,10 +272,16 @@ int main(int argc,char** argv) {
       observer.join();
       std::puts("TITLE_PRESENTATION bounded_exit=1 guest_shutdown_verified=0");
     } else observe();
+    if(event_trace_requested) {
+      const bool restored=mc2::host::RestoreEventImportTrace();
+      std::printf("TITLE_EVENT_TRACE restored=%u\n",unsigned(restored));
+      WriteEventTrace("boundary");
+      if(!restored){std::fflush(stdout);std::_Exit(34);}
+    }
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();
     std::_Exit(wait==rex::thread::WaitResult::kSuccess?0:26);
   } catch(const std::exception& error) {
-    std::fprintf(stderr,"TITLE_HOST_EXCEPTION %s\n",error.what());return 27;
+    std::printf("TITLE_HOST_EXCEPTION %s\n",error.what());return 27;
   }
 }

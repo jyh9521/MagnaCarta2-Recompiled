@@ -1,4 +1,4 @@
-# 第十一阶段之后的实验门槛
+# 第十二阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
@@ -7,9 +7,11 @@
 真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
-- 首先追踪等待Event的原创建/传递/唤醒链：候选F80000AC、guest3007D018、unnamed/alias1/host0已观测，signal/refcount/producer未知；不同进程相同数值不是同一对象。禁止为了推进而伪造信号。
-- Query报告kind1不证明实际backend reset kind：发行Initialize未见更新Query读取标志的原字节证据已留档。先独立验证原create参数/guest dispatch header/backend构造关系，不直接修SDK或假定auto-reset。
-- SDK真实presenter/有效隐藏HWND/官方UI loop与Runtime绑定已通过，presenter-null对照514→0；等待元数据相同但GPU因果关系未证。下一显示实验需独立验证真实swap/可见呈现/首帧，不把SetPresenter调用或零error当成功。
+- 首先独立验证82AC1DE8完整20-byte叶（SHA579d0af704a9e2c35ba6dc55ffe769344f780cf91ddc302e77aa72da6071ab53）：lfs/stfs两组后blr，无PDATA；caller8266CC74 bctrl/LR8266CC78、原vtable+20。先验证FPR0/舍入/NaN/subnormal/输出别名与内存副作用，再hint/strict重生，不以手写floatcopy替代原体。
+- 原21成员根与无IAT45秒对照均触发82AC1DE8 SDK原fatal；data_party_start原包已按整ISO/member hash追加，旧20根缺包AV保留。
+- 原导入53 BL/8 API已核验；透明host IAT四导入跟踪已实际捕获同句柄创建、main Set/Clear、worker Set及main Wait返回0。有限采样不是死锁；close/reuse、非IAT/SDK内部调用和完整生产者图仍未知。
+- Query kind1与实际Create请求kind0分开记账；不修改SDK、不用Query(state)消费信号，不把参数请求自动当backend模式实证。
+- SDK真实presenter/隐藏HWND/UI loop保留，下一显示实验需正向swap/可见首帧证据；当前新阻塞优先按原叶边界/语义推进，不伪造事件唤醒。
 - 61原44-byte体256后缀/状态差分通过，仅新增其hint；实际302非fallback目标全部mapped，但真实suffix/具体下游未记录，不等于302实现逐一验收。01旧模板变体仍待通用解析恢复。
 - 新r6比较回调调查17sites/15targets均已映射；映射不代表逐个执行/完整语义验证。不要混淆GNatives与83250980另一尾分派表。
 - 保留各旧fatal、缺包/GuidCache/TitleMap部署AV、合成harness页映射AV和旧61原fatal及当前等待边界；原数据/旧构建不改，不以空stub或吞fatal推进。

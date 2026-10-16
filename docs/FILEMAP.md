@@ -77,3 +77,10 @@
 - `tools/research/probe_presenter.py`：精确DLL/Clang守卫、构建、隐藏启动与完整生命周期记录。
 - `src/host/wait_observation.h`：固定SDK公共元数据、非阻塞锁、非消耗事件类型读。
 - [阶段11](PHASE11_RESULTS.md)、[接入实验](EXPERIMENT_PRESENTATION.md)、[presenter](RESEARCH_PRESENTER.md)、[等待对象](RESEARCH_WAIT_OBJECT.md)。
+
+## 第十二阶段补充
+
+- `src/host/event_import_trace.h`：固定四host IAT导入、原函数委托、有限ring及指针/页保护恢复。
+- `tools/research/event_trace_report.py`：有界记录/原生栈/数字handle相关性，不推断生命周期或signal。
+- `tools/research/verify_event_import_sites.py`：原8导入/53BL与callerLR守卫。
+- [阶段12](PHASE12_RESULTS.md)、[事件实验](EXPERIMENT_EVENT_TRACE.md)、[IAT研究](RESEARCH_EVENT_IMPORT_TRACE.md)、[原调用点](RESEARCH_EVENT_IMPORT_SITES.md)。

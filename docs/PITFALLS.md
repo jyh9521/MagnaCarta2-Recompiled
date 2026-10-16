@@ -83,3 +83,12 @@
 - XEvent.Query(state)在发行DLL中Wait(...,0)后restore，会临时消费信号；只用type,nullptr。Query报告kind1不能提升为已验证backend reset kind，Initialize未见更新对应标志证据另存。
 - 默认Windows缺PATH C++编译器时mock运行测试跳过，另在真实VS/Clang环境运行8项全通过；源码全测试的skip2与游戏验收分开。
 - 探针窗口保持隐藏；SetPresenter无返回值，官方loop与零null日志都不是surface/首帧成功。标题exit26保持有界终止，不宣称完整runtime清理。
+
+## 第十二阶段：观测器本身会改变时间
+
+- 首次5.6MB非缓冲stdout dump使20秒探针实际44.523秒；期间真实缺包AV触发第二dump，两份交错/截断，拒作有效捕获，旧报告误称bounded也保留。
+- 改为每次独立缓冲trace文件、原子status/fixed cutoff；fault输出stdout、SDK guest AV正见证覆盖窗口标签。清洁20秒run21.771秒，IAT指针/原页保护均恢复。
+- 逐native PC重建58k符号索引导致报告后处理缓慢；预建索引保持nearest-symbol含义，不能把解析耗时算成游戏时间。
+- FAULT快照无正常restore/freeze，不宣称capture_verified；blocked pre无post也不是死锁。原异常/fatal照常传播。
+- NtResetEvent在固定DLL中不存在；KeResetEvent不同，不代填导出。原调用直接用host IAT，dispatcher SetFunction替换会漏direct calls；SDK内部/已缓存ptr仍非完整覆盖。
+- SDK包装没有可推导完整unwind边界的研究失败、错误XEX拒绝、首轮trace失败均保留。

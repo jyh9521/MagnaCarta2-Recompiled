@@ -98,3 +98,12 @@ headless持续IssueSwap presenter=null，仅证明缺呈现器日志，未建立
 父工具先核验发行DLL精确SHA再attest；进程不自hash。只读Query(type,nullptr)，绝不调用Query(state)消费信号。
 发行Initialize与Query字段关系存在疑点，kind1只作API报告，实际backend reset/signal/refcount/producer保持unknown。
 headless对照514条presenter-null，接入presenter后0条且wait元数据相同，不建立因果或deadlock/首帧结论。
+
+## 第十二阶段：原事件链与下一叶入口
+
+8原事件导入/53直接BL及完整原PDATA范围hash通过；实际raw LR逐条匹配，未把SDK内部/缓存函数指针调用纳入完整覆盖。
+仅当前EXE四个IAT槽受控替换，原SDK函数原指针exact一次委托；锁自由固定ring保存前/后参数、状态与有界native栈。
+PPCContext/guestfixture/errno/LastError差分与指针+页保护实际恢复通过，SDK/XEX/生成源不改，未改原GNatives/vtable。
+清洁20秒捕获3866记录、drop/pending0且IAT恢复；45秒FAULT快照独立记为weak/nonfrozen，不伪装已完整恢复。
+候选F80000AC请求Create kind0/initial0，main Set/Wait/Clear、worker Set与后续main Wait成功返回均实际观察；signal/backend/lifetime仍不由参数或数值相关性单独证明。
+补原data_party_start后trace与无hook同到82AC1DE8原fatal；原20-byte无PDATA叶范围已独立锁hash，未恢复该入口。
