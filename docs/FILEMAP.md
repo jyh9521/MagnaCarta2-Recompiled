@@ -97,3 +97,9 @@
 - research/xex/disc1-bitfield-leaf.toml：实际原32-byte双返回发现元数据。
 - tools/research/verify_bitfield_leaf.py：固定原身份/边界、PPC64 rotate/mask oracle及2048真实body差分。
 - [阶段14](PHASE14_RESULTS.md)、[严格实验](EXPERIMENT_BITFIELD_LEAF.md)、[原语义与失败](RESEARCH_BITFIELD_LEAF.md)。
+
+## 第十五阶段补充
+
+- research/xex/disc1-conditional-tail.toml：原32-byte状态写入/条件尾分派发现元数据。
+- tools/research/verify_conditional_tail.py：原身份/范围、完整副作用oracle、原生成body与明确tail ABI边界。
+- [阶段15](PHASE15_RESULTS.md)、[严格实验](EXPERIMENT_CONDITIONAL_TAIL.md)、[原语义](RESEARCH_CONDITIONAL_TAIL.md)。

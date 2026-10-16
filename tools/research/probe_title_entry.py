@@ -178,6 +178,7 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
 VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 COMPARE_GENERATED_TREE = '14c27505807e3381f5d9f4b20ab84a1b6f3404ea95204c134d5957260fbc2148'
+CONDITIONAL_TAIL_GENERATED_TREE = '641f44328a77585a8d263988f24d6044dfb39f14cd9b2d57f0522fb717c4699f'
 BITFIELD_LEAF_GENERATED_TREE = '0144be8ebcfe91c81da80a8a370cb61d096b3cd2ee518117234ccc24cceb2256'
 FLOAT_LEAF_GENERATED_TREE = 'cddd7af7516965eb293c850fb07b20e5b6976f759addf906b52ea441e8869767'
 EVENT_TRACE_REBUILD_TREE = 'ae88b3e9c6506fa6ca9ac42981653c7736975cbc889a1bbced35a5bd74b034b4'
@@ -188,6 +189,8 @@ NATIVE_GATEWAY_GENERATED_TREE = '994d2db123de56faf27f0560d872bb2481e6fa9f9c9e812
 
 def validate_title_profile(identity):
     """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == CONDITIONAL_TAIL_GENERATED_TREE:
+        return 'conditional-tail-826A9EC8'
     if identity.get('tree_sha256') == BITFIELD_LEAF_GENERATED_TREE:
         return 'bitfield-leaf-82AC2810'
     if identity.get('tree_sha256') == FLOAT_LEAF_GENERATED_TREE:
@@ -212,7 +215,7 @@ def validate_title_profile(identity):
 
 def validate_fp_contract(profile, inputs, records):
     """Profiles containing the restored float leaf require strict FP; old rollback profiles stay valid."""
-    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810'):return
+    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8'):return
     if inputs.get('floating_point_contract') != 'strict' or not records:
         raise ValueError('discovery profile requires a strict FP module build')
     for row in records:

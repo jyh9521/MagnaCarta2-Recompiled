@@ -8,6 +8,28 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_conditional_tail_profile(self):
+        self.assertEqual(p.profile_fields('conditional-tail'),(0x826A9EC8,32,'8b4df364b42994f970049966b3a8c5db4528bc3c6a18c3f7cd2a78b35d0501a7'))
+
+    def test_conditional_tail_exact_hint(self):
+        code=bytes.fromhex('814301087c6b1b7880630080554900c22b030000912b01084d9a00204801fa3c')
+        with patch.object(p,'BASE',0x826A9EC8):
+            self.assertEqual(p.verify_hint(code,'[functions.0x826A9EC8]\nsize=32','conditional-tail')['size'],32)
+
+    def test_conditional_tail_no_truncation(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x826A9EC8]\nsize=28','conditional-tail')
+
+    def test_conditional_tail_wrong_bytes(self):
+        with self.assertRaisesRegex(ValueError,'range hash'):
+            p.verify_hint(bytes(32),'[functions.0x826A9EC8]\nsize=32','conditional-tail')
+
+    def test_conditional_tail_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','826A9EC8'))
+            self.assertTrue(p.verify_entry(root,0x826A9EC8)['registered'])
+
     def test_bitfield_profile_range(self):
         self.assertEqual(p.profile_fields('bitfield-leaf'),(0x82AC2810,32,'9174c77a101ea25e91a9fb0f1b8c9c7e512c4b7fdc7d80af0ce39fbfbe311f6a'))
 

@@ -3,7 +3,7 @@
 Xbox 360《MagnaCarta 2》原生 Windows x64 移植研究与简体中文本地化工程。
 目标是用户自备原版数据 + 本项目工具/兼容运行时；不是 Xenia 启动器。
 
-## 当前状态（2026-10-17，第十四阶段）
+## 当前状态（2026-10-17，第十五阶段）
 - 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
 - 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
 - 已勘测：用户提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
@@ -17,6 +17,7 @@ Xbox 360《MagnaCarta 2》原生 Windows x64 移植研究与简体中文本地�
 - 823C2740、82C1C1A0、52/61入口已恢复，58,412映射/58,166生成函数。事件原导入透明观测已捕获worker Set与main Wait成功返回；原21成员根和无hook对照均实际推进至 `82AC1DE8` 原叶入口缺登记。见 `docs/PHASE12_RESULTS.md`；不把20秒等待、IAT观测、隐藏窗口或零error当死锁/首帧/可玩性验收。
 - 第13阶段：原82AC1DE8浮点叶已严格恢复，58,413映射/58,167函数；rawO2的160差异保留，通用/fp:strict全量197TU重建后，同21原成员根推进82AC2810原fatal。[结果](docs/PHASE13_RESULTS.md)。
 - 第14阶段：原82AC2810双return已恢复；原512模型差异经独立64bit ISA纠正，2048差分通过，197TU严格重建后同21根到826A9EC8原fatal。[结果](docs/PHASE14_RESULTS.md)。
+- 第15阶段：原826A9EC8写入/条件tail严格恢复，2560差分明确区分null完整返回与非null ABI边界；197TU严格重建后同21根到82A3DEA0原fatal。[结果](docs/PHASE15_RESULTS.md)。
 - 未实现：本游戏可用的 Windows 原生运行时、游戏资源部署回写、中文字体与正式译文。
 - 当前没有玩家安装包；仅标题初始化路径已实测，可玩性、可见首帧、分辨率与帧率支持均为 NOT TESTED。
 

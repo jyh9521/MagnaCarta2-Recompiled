@@ -107,3 +107,11 @@
 - 原4C9A0020是bnelr CR6（BO4/BI26），不是beqlr；早return不表示函数结束，末尾mask和blr必须包含。
 - 低32返回式正确不等于完整GPR正确；需比较全context、SO/CR6及无写内存两页。byte/hash守卫通过不证明语义模型无误。
 - 已有REA对XEX格式拒绝证据复用，本轮用固定原像decoder，不重复启动不支持的分析；官方PDF首次web获取失败而实际urllib成功的记录均保留。
+
+## 第十五阶段补充
+
+- 条件尾函数不是getter：object+108总先store，随后null return或nonlink tail；只测最终返回值会遗漏真正副作用。
+- 原r9 full64掩码FFFFFFFFDFFFFFFF，低32 store为DFFFFFFF，不能把rawGPR错误零扩展或改变r11 full64对象地址。
+- tail ABI observer必须在入口比对fullcontext及已写flags；它不执行复杂原callee，更不替代真实标题中的callee。
+- 当前更远fatal栈未含826C9920，旧fatal消失不能被写成当次已执行/完整验证callee；GPU depth target创建不等于首帧。
+- 原callee PDATAsnippet首次else32拼写导致SyntaxError，失败保留后纠正；不得把未完成研究当作原执行证据。

@@ -165,3 +165,10 @@ rawO2将sNaN回转store优化掉的160差异保留，不能直接给生成代码
 [严格实验](docs/EXPERIMENT_BITFIELD_LEAF.md)、[原语义](docs/RESEARCH_BITFIELD_LEAF.md)、[阶段14](docs/PHASE14_RESULTS.md)。
 bitfield-leaf只追加32-byte原目标，继承/fp:strict对象合同，未知树拒绝。原512 oracle失败经独立64bit ISA定义纠正，2048差分通过。
 源码事务phase14恢复178hash/移除6新增；旧phase13严格模块同21根实际重现82AC2810原fatal。
+
+## 第十五阶段：写入与条件尾调用
+
+[严格实验](docs/EXPERIMENT_CONDITIONAL_TAIL.md)、[原语义/边界](docs/RESEARCH_CONDITIONAL_TAIL.md)、[阶段15](docs/PHASE15_RESULTS.md)。
+conditional-tail只追加原32-byte入口，保留store/beqlr/nonlink tail，继承全对象strict FP合同。
+2560差分中非null仅观察尾ABI，不将其当原callee执行；真实标题使用完整197对象，不链接observer。
+源码事务phase15恢复184hash/移除6新增；旧phase14模块同21根实际重现826A9EC8。

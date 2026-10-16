@@ -73,6 +73,13 @@ class TitleEntryTests(unittest.TestCase):
     def test_bitfield_profile_exact(self):
         self.assertEqual(p.validate_title_profile({'tree_sha256':p.BITFIELD_LEAF_GENERATED_TREE}),'bitfield-leaf-82AC2810')
 
+    def test_conditional_tail_profile(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.CONDITIONAL_TAIL_GENERATED_TREE}),'conditional-tail-826A9EC8')
+
+    def test_conditional_tail_fp_contract(self):
+        p.validate_fp_contract('conditional-tail-826A9EC8',{'floating_point_contract':'strict'},[{'command':['clang-cl','/fp:strict']}])
+        with self.assertRaises(ValueError):p.validate_fp_contract('conditional-tail-826A9EC8',{},[{'command':['clang-cl']}])
+
     def test_bitfield_fp_contract(self):
         p.validate_fp_contract('bitfield-leaf-82AC2810',{'floating_point_contract':'strict'},[{'command':['clang-cl','/fp:strict']}])
         with self.assertRaises(ValueError):p.validate_fp_contract('bitfield-leaf-82AC2810',{},[{'command':['clang-cl']}])

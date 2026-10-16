@@ -120,3 +120,9 @@ rawO2消去回转转换，160项sNaN内存差异；Od与O2strict均通过，通�
 82AC2810真实bnelr+末尾blr整体严格恢复。rlwinm环绕mask跨64bit，不能一概将word操作结果零扩展；原512模型失败经官方ISA+固定Xenia纠正，2048完整状态通过。
 197TU/fp:strict全量编译、58414映射后同21根实际推进826A9EC8原fatal；下一原候选含store与tail ABI，不按getter处理。
 [架构依据与失败](docs/RESEARCH_BITFIELD_LEAF.md)、[结果](docs/PHASE14_RESULTS.md)。
+
+## 第十五阶段：有副作用的条件尾调用
+
+826A9EC8完整原32-byte恢复；写object+108先于beqlr/尾分派，r9保留PPC64 wrapmask高位，store只写低32。
+512null完整返回、2048非null tail ABI入口状态/已写flags通过，原callee0xCCC未在fixture执行；不能以空callee冒充。
+197TU严格重建后真实标题到82A3DEA0原fatal，当前栈不证明826C9920当次执行。[证据与边界](docs/PHASE15_RESULTS.md)。

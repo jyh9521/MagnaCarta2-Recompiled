@@ -1,4 +1,4 @@
-# 第十四阶段之后的实验门槛
+# 第十五阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
@@ -7,7 +7,8 @@
 真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
-- 首先独立验证826A9EC8原32-byte候选（SHA8b4df364b42994f970049966b3a8c5db4528bc3c6a18c3f7cd2a78b35d0501a7，无PDATA）：实际LR826A8158/CTR826A9EC8，caller826A8154经vtable+0x13C。包含object+0x108的store、object+0x80读取、条件return和826C9920尾分派，先验证PPC64环绕mask、两路径完整副作用/tail ABI/callee映射，再hint；不是只读getter，不手写返回。
+- 首先独立验证82A3DEA0原72-byte候选（SHAda78cc530445e6be3717bc6cec9e6cf949e163d65dc481ee5d6f63d4648b708a、无PDATA）：实际LR82A2AC9C/CTR82A3DEA0，r3=4005EEFC/r4=0；原低byte selector/count的unsigned bounds检查、非法full64 FFFFFFFF80070057返回、有效表/vtable尾分派均需完整验证。不能假设selector0有效，先核验边界/两路径/参数重排/寄存器/tail ABI再hint。
+- 826A9EC8原32-byte写入和条件尾调用已strict恢复，2560差分通过（512null完整返回，2048仅外部tail ABI）；197TU/58415映射实际推进82A3DEA0原fatal。当前真实栈不含826C9920，不能宣称其当次进入/完成；fixture也未执行原callee。
 - 82AC2810完整32-byte双return已strict恢复，2048原body差分通过；原512 oracle失败保留。官方ISA+Xenia纠正wrapmask为64bit，低32返回0..3但rawr3可100000001，旧零扩展推断不能再用。197TU严格重建后实际推进826A9EC8原fatal。
 - 82AC1DE8已strict重生、共同58166正文不改，197TU以/fp:strict全量重建并推进新原fatal。原float768差分Od/strict通过；rawO2的160内存差异保留。新profile禁止非strict对象，完整FPSCR硬件等价未证。
 - 原21成员根与无IAT45秒对照均触发82AC1DE8 SDK原fatal；data_party_start原包已按整ISO/member hash追加，旧20根缺包AV保留。

@@ -1,0 +1,3 @@
+# Original state-mutating conditional tail; preserve store, both exits, non-link branch.
+[functions.0x826A9EC8]
+size = 0x20
