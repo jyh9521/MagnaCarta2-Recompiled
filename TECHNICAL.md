@@ -66,3 +66,10 @@ UE3 头区 LZX、FName 和对象表已验证；第三阶段新增 UFunction flag
 4组受控状态验证保持LR/内存并记录vtable+12目标，不执行外部callee；同精确模板/只读引用/边界/缺mapping候选仅1。
 原标题从缺包AV推进到18原成员运行根，工作线程两次触发82C1C1A0原fatal；原caller8286FE88/LR8286FE8C。
 它是比较回调而非同模板虚thunk；当前内部尾块82C1C214已有mapping，不将整个0x88原范围误认全缺失。见docs/PHASE7_RESULTS.md。
+
+## 第八阶段：完整比较入口与native分派
+
+strict恢复C1A0完整0x88范围，原C214内部tail不再单独作为函数；58163共同正文不变，总58164。
+14cases核对32GPR64/LR/CR6/XER.CA/4096B，负结果r3为00000000FFFFFFFF而非64-bit符号扩展，双return均覆盖。
+固定源码禁用了lis/addi回调扫描的证据与17个r6构造site的有限研究见RESEARCH_CALLBACK_DISCOVERY；不夸大GapFill精确原因。
+19原成员运行根实际到达GNatives[52]的82509380尾分派缺口，原caller82517858/LR8251785C；302vs299清单差集保留。

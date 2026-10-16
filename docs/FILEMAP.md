@@ -50,3 +50,10 @@
 - `research/xex/disc1-virtual-thunk.toml`：已实际到达的16-byte原入口metadata。
 - `tools/research/verify_thunk.py` / `tests/test_thunk.py`：有限候选调查与外部分派录制差分。
 - [阶段7结果](PHASE7_RESULTS.md)、[生成实验](EXPERIMENT_THUNK_CODEGEN.md)、[虚分派研究](RESEARCH_VIRTUAL_THUNKS.md)。
+
+## 第八阶段补充
+
+- `research/xex/disc1-compare-callback.toml`：原0x88完整入口范围。
+- `tools/research/verify_compare_callback.py`：原语义/双return/尾块审计/真实生成体差分。
+- `tools/research/audit_callback_sites.py`：有界lis/addi到r6的静态site研究，支持内存XEX展开，不自动hint。
+- [阶段8](PHASE8_RESULTS.md)、[比较重建](EXPERIMENT_COMPARE_CODEGEN.md)、[比较研究](RESEARCH_COMPARE_CALLBACK.md)、[发现研究](RESEARCH_CALLBACK_DISCOVERY.md)。

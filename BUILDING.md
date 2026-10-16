@@ -116,3 +116,10 @@ headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形
 旧生成工具增加固定`--entry-profile virtual-thunk`，默认callback不变；原标题接受第三个精确审计profile。
 从原盘显式staging原6成员及日志请求的8个启动包/4个bik，全部hash验证；不伪造盘上不存在的Movies/*.xxx。
 源码事务使用phase7对应baseline/manifest/verification；恢复副本配旧phase6对象和同一18成员根重现823C2740。
+
+## 第八阶段：完整双返回比较回调
+
+命令见 [比较重建](docs/EXPERIMENT_COMPARE_CODEGEN.md)、[原语义差分](docs/RESEARCH_COMPARE_CALLBACK.md)、[发现机制](docs/RESEARCH_CALLBACK_DISCOVERY.md)、[结果](docs/PHASE8_RESULTS.md)。
+固定`--entry-profile compare`保留旧profiles，包含原0x88范围；C214由strict生成自动恢复为内部label，不手工删除。
+最终19成员根增加原GuidCache.xxx，所有staging仍核对整ISO及逐成员hash；原18根部署AV不隐藏。
+源码事务使用phase8对应baseline/manifest/verification；恢复源码配旧phase7构建和同一19根重现82C1C1A0。

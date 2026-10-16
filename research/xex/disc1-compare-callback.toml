@@ -1,0 +1,6 @@
+# Original comparison callback passed to 8286FD30 and reached at 8286FE88.
+# XEX SHA256: 26146f0ceaeb1945bc8e0031d31bfd7fe929c85a6e9e0992aeaa823968c0750f
+# Range SHA256: 60e3229fb7c29acb4ca50ea10e03bf77af7d9e361a9882d12b2f8e7e9ad3388f
+# Include both returns; do not replace or delete an internal entry by hand.
+[functions.0x82C1C1A0]
+size = 0x88

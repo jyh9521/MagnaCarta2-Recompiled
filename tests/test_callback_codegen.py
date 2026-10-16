@@ -8,6 +8,21 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_compare_profile_range(self):
+        entry,size,digest=p.profile_fields('compare')
+        self.assertEqual((entry,size),(0x82C1C1A0,0x88))
+        self.assertEqual(digest,'60e3229fb7c29acb4ca50ea10e03bf77af7d9e361a9882d12b2f8e7e9ad3388f')
+
+    def test_compare_wrong_hint(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x82C1C1A0]\nsize=0x74','compare')
+
+    def test_compare_generated_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','82C1C1A0'))
+            self.assertTrue(p.verify_entry(root,0x82C1C1A0)['registered'])
+
     def test_virtual_thunk_profile_range(self):
         code=bytes.fromhex('81630000814b000c7d4903a64e800420')
         with patch.object(p,'BASE',0x823C2740):

@@ -50,3 +50,11 @@
 - Movies/*.xxx探测失败不能靠空文件消除：原盘仅有对应bik。正式bik存在后继续保留原探测日志。
 - 新fatal在工作线程，栈没有xstart/main。保留false观测flags，不用父线程历史证明冒充本线程栈证据。
 - 下一比较回调原范围里有已登记尾块82C1C214，入口修复需验证多return和内部入口关系，不能盲目删除现存映射。
+
+## 第八阶段：多return、位模式与筛选偏差
+
+- C214只有原C208内部分支的有界引用证据；strict重生将其保留为内部label。不能只看函数总数不变就说没有修复，也不能手工删除尾块。
+- -1的比较语义不等于64-bit全F；原rlwinm后真实r3.u64是00000000FFFFFFFF。CR6.SO/CA及相等return保持CA必须单独测试。
+- 新mapping入口与内部label最初仅记录，review后加入硬成功守卫及负例；测试编辑曾IndentationError，原日志保留，修复后通过。
+- 原18成员缺GuidCache导致部署AV；只增加hash验证原第19成员，不写空包/目录替代。
+- 原native静态模板解析器以目标已generated-entry为前提，会遗漏真实已注册但尚缺入口的52；61另列为待调查缺口，运行时GNatives是独立见证。

@@ -79,3 +79,9 @@ python -m unittest discover -s tests -p test_stage_runtime_files.py -v
 和`MC2Game/Movies/{CI_01_NBGI,CI_02_Banpresto,CI_03_Softmax,CI_04_Unreal}.bik`。
 整ISO和18成员SHA全部验证，原件不改；不存在的Movies/*.xxx不创建占位。
 只暂存这些实际请求的原成员，不代表完整资源部署或电影播放成功；下一兼容阻塞与失败记录见PHASE7_RESULTS.md。
+
+## 阶段8实际扩展：19个原成员
+
+新比较入口通过后，原18根日志真实请求MC2Game/CookedXenon/GuidCache.xxx而缺失并AV。
+`phase8/stage-root19.json`记录既有staging工具完整命令；新game-root-19保留原18并添加该原包，
+整ISO/19成员hash及输入不变全部通过。旧根/失败不覆盖，不据此宣称所有资产齐全。
