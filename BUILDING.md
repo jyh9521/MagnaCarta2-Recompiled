@@ -109,3 +109,10 @@ headless GPU使用SDK公开C ABI、验证插件ABI/路径/hash，不替换图形
 标题工具接受两个精确审计树身份；单独native实验仍使用旧profile。
 源码事务使用`local/analysis/phase6/baseline`、`baseline_manifest.json`和新`verification`目录，
 `--modified-file tools/research/probe_title_entry.py`。隔离源码恢复后以旧对象实际重现8234FF10失败，主目录保持修改态。
+
+## 第七阶段：虚分派thunk与18成员运行根
+
+命令见 [thunk重建](docs/EXPERIMENT_THUNK_CODEGEN.md)、[原语义与候选调查](docs/RESEARCH_VIRTUAL_THUNKS.md)、[阶段7](docs/PHASE7_RESULTS.md)。
+旧生成工具增加固定`--entry-profile virtual-thunk`，默认callback不变；原标题接受第三个精确审计profile。
+从原盘显式staging原6成员及日志请求的8个启动包/4个bik，全部hash验证；不伪造盘上不存在的Movies/*.xxx。
+源码事务使用phase7对应baseline/manifest/verification；恢复副本配旧phase6对象和同一18成员根重现823C2740。

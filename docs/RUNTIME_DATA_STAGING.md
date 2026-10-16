@@ -71,3 +71,11 @@ python -m unittest discover -s tests -p test_stage_runtime_files.py -v
 实际命令日志与最终 `staging-tests-final.log` 保存在 `local/analysis/phase5/staging-*`；
 本机符号链接创建测试 1 skip，其余 16 项通过；最新清单守卫测试见
 `staging-tests-envelope-guarded.log`，它不改变既有输出清单或已验证成员；游戏输出保持 ignored。
+
+## 阶段7实际扩展：18个明确原成员
+
+`local/analysis/phase7/stage-root18.json`保存完整工具命令；新`game-root-18`保留原6项，并添加日志请求的
+`MC2Game/CookedXenon/{Core,Engine,GameFramework,UnrealScriptTest,IpDrv,Startup_int,OnlineSubsystemLive,MC2Game}.xxx`
+和`MC2Game/Movies/{CI_01_NBGI,CI_02_Banpresto,CI_03_Softmax,CI_04_Unreal}.bik`。
+整ISO和18成员SHA全部验证，原件不改；不存在的Movies/*.xxx不创建占位。
+只暂存这些实际请求的原成员，不代表完整资源部署或电影播放成功；下一兼容阻塞与失败记录见PHASE7_RESULTS.md。

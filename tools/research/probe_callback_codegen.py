@@ -17,27 +17,36 @@ SIZE = 0x30
 RANGE_SHA256 = '5c43c892cc33dcb8b15d083257e0a8211788bb01aaa0698cd379c2164e77665e'
 
 
-def verify_hint(image, text):
-    expected = {'functions': {'0x8234FF10': {'size': SIZE}}}
+def profile_fields(profile):
+    if profile == 'callback':
+        return ENTRY, SIZE, RANGE_SHA256
+    if profile == 'virtual-thunk':
+        return 0x823C2740, 0x10, '0a315417a24fefd102c136c2b181f682cfa3b65422c9cbdaa146fd6caf719265'
+    raise ValueError('unknown entry discovery profile')
+
+
+def verify_hint(image, text, profile='callback'):
+    entry, size, range_hash = profile_fields(profile)
+    expected = {'functions': {f'0x{entry:08X}': {'size': size}}}
     if tomllib.loads(text) != expected:
         raise ValueError('callback hint must contain only the verified entry and size')
-    code = image[ENTRY-BASE:ENTRY-BASE+SIZE]
-    if len(code) != SIZE or hashlib.sha256(code).hexdigest() != RANGE_SHA256:
+    code = image[entry-BASE:entry-BASE+size]
+    if len(code) != size or hashlib.sha256(code).hexdigest() != range_hash:
         raise ValueError('original callback range hash mismatch')
-    return {'entry': ENTRY, 'size': SIZE, 'range_sha256': RANGE_SHA256}
+    return {'entry': entry, 'size': size, 'range_sha256': range_hash}
 
 
-def verify_entry(generated):
+def verify_entry(generated, entry=ENTRY):
     """Require a real generated body and an exact one-to-one registration."""
     generated = Path(generated)
     bodies = []
     for p in generated.glob('*recomp.*.cpp'):
         text = p.read_text(encoding='utf-8')
-        bodies.extend((p, m[0]) for m in re.finditer(r'DEFINE_REX_FUNC\(sub_8234FF10\) \{.*?\n\}',text,re.S))
+        bodies.extend((p, m[0]) for m in re.finditer(rf'DEFINE_REX_FUNC\(sub_{entry:08X}\) \{{.*?\n\}}',text,re.S))
     if len(bodies) != 1 or 'REX_FATAL' in bodies[0][1]:
         raise ValueError('expected one real generated callback body without fatal')
     register = (generated/'mc2_probe_register.cpp').read_text(encoding='utf-8')
-    expected = re.findall(r'registrar->SetFunction\(0x8234FF10,\s*sub_8234FF10\);',register)
+    expected = re.findall(rf'registrar->SetFunction\(0x{entry:08X},\s*sub_{entry:08X}\);',register)
     if len(expected) != 1:
         raise ValueError('expected exact callback function registration')
     p, body = bodies[0]
@@ -47,11 +56,15 @@ def verify_entry(generated):
 def execute(args):
     xex, exe, output = args.xex.resolve(), args.sdk_exe.resolve(), args.output.resolve()
     hints = [ROOT/'research/xex/disc1-control-flow.toml', ROOT/'research/xex/disc1-callback-entry.toml']
+    profile = getattr(args, 'entry_profile', 'callback')
+    profile_fields(profile)
+    if profile == 'virtual-thunk':hints.append(ROOT/'research/xex/disc1-virtual-thunk.toml')
     before = {str(p): digest(p) for p in [xex, exe, args.loader_source.resolve(), *hints]}
     if before[str(xex)] != XEX_SHA256 or before[str(exe)] != SDK_EXE_SHA256:
         raise ValueError('unsupported XEX or SDK executable')
     image = image_from_xex(xex.read_bytes(), args.loader_source)
     proof = verify_hint(image, hints[1].read_text(encoding='utf-8'))
+    if profile == 'virtual-thunk':proof['virtual_thunk'] = verify_hint(image,hints[2].read_text(encoding='utf-8'),profile)
     for p in [xex, exe, args.loader_source.resolve(), *hints]:
         if output == p or output in p.parents or p.parent == output or p.parent in output.parents:
             raise ValueError('output overlaps an input')
@@ -66,14 +79,15 @@ def execute(args):
         if text.count('includes = []') != 1:
             raise ValueError('unexpected generated manifest')
         for p in hints: shutil.copy2(p, project/p.name)
-        text = text.replace('includes = []', 'includes = ["disc1-control-flow.toml", "disc1-callback-entry.toml"]')
+        text = text.replace('includes = []', 'includes = '+json.dumps([p.name for p in hints]))
         manifest.write_text(text, encoding='utf-8')
         steps.append(run_step(exe,['--log-file',output/'codegen.log','codegen',manifest],output,'codegen',1200))
         if steps[-1]['returncode'] == 0:
             proof.update(verify_generated(project/'generated/default-disc1'))
             proof['callback'] = verify_entry(project/'generated/default-disc1')
+            if profile == 'virtual-thunk':proof['virtual_thunk']['generated'] = verify_entry(project/'generated/default-disc1',0x823C2740)
     stable = before == {p:digest(Path(p)) for p in before} and digest(output/'default-disc1.xex') == XEX_SHA256
-    report = dict(proof=proof,steps=steps,input_hashes=before,inputs_unchanged=stable,
+    report = dict(profile=profile,proof=proof,steps=steps,input_hashes=before,inputs_unchanged=stable,
                   success=stable and steps[-1]['returncode']==0,game_execution='NOT TESTED')
     (output/'callback-codegen.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print('CALLBACK_CODEGEN success='+str(report['success']))
@@ -83,6 +97,7 @@ def execute(args):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('xex','sdk-exe','loader-source','output'):p.add_argument('--'+name,required=True,type=Path)
+    p.add_argument('--entry-profile',choices=('callback','virtual-thunk'),default='callback')
     args=p.parse_args(argv)
     return 0 if execute(args)['success'] else 1
 

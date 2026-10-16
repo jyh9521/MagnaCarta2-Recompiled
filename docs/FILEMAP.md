@@ -44,3 +44,9 @@
 - `research/xex/disc1-callback-entry.toml`：原版本48-byte入口发现元数据。
 - `tools/research/probe_callback_codegen.py` / `verify_callback.py`：严格重生与有限PPC/原生成体差分。
 - [阶段6结果](PHASE6_RESULTS.md)、[重生实验](EXPERIMENT_CALLBACK_CODEGEN.md)、[回调研究](RESEARCH_CALLBACK_ENTRY.md)。
+
+## 第七阶段补充
+
+- `research/xex/disc1-virtual-thunk.toml`：已实际到达的16-byte原入口metadata。
+- `tools/research/verify_thunk.py` / `tests/test_thunk.py`：有限候选调查与外部分派录制差分。
+- [阶段7结果](PHASE7_RESULTS.md)、[生成实验](EXPERIMENT_THUNK_CODEGEN.md)、[虚分派研究](RESEARCH_VIRTUAL_THUNKS.md)。

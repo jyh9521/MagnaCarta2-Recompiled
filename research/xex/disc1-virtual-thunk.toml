@@ -1,0 +1,5 @@
+# Original 16-byte virtual tail-dispatch thunk reached at 828C5060.
+# XEX SHA256: 26146f0ceaeb1945bc8e0031d31bfd7fe929c85a6e9e0992aeaa823968c0750f
+# Range SHA256: 0a315417a24fefd102c136c2b181f682cfa3b65422c9cbdaa146fd6caf719265
+[functions.0x823C2740]
+size = 0x10

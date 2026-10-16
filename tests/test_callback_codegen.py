@@ -8,6 +8,24 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_virtual_thunk_profile_range(self):
+        code=bytes.fromhex('81630000814b000c7d4903a64e800420')
+        with patch.object(p,'BASE',0x823C2740):
+            self.assertEqual(p.verify_hint(code,'[functions.0x823C2740]\nsize=0x10','virtual-thunk')['size'],16)
+
+    def test_virtual_thunk_wrong_hint(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x823C2740]\nsize=0x14','virtual-thunk')
+
+    def test_unknown_profile(self):
+        with self.assertRaisesRegex(ValueError,'profile'):p.profile_fields('unverified')
+
+    def test_virtual_thunk_generated_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','823C2740'))
+            self.assertTrue(p.verify_entry(root,0x823C2740)['registered'])
+
     def test_range_and_hint(self):
         code=b'fixture'*8
         with patch.object(p,'BASE',p.ENTRY),patch.object(p,'SIZE',len(code)),patch.object(p,'RANGE_SHA256',hashlib.sha256(code).hexdigest()):

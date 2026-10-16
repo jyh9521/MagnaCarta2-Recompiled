@@ -24,6 +24,9 @@ TITLE_NATIVES guard=1 bound=4096 fallback=3794 int_const=82508E60 add=8250BAF0
 
 
 class TitleEntryTests(unittest.TestCase):
+    def test_virtual_thunk_profile(self):
+        self.assertEqual(p.validate_title_profile({'tree_sha256':p.VIRTUAL_THUNK_GENERATED_TREE}),'virtual-thunk-823C2740')
+
     def test_callback_profile(self):
         self.assertEqual(p.validate_title_profile({'tree_sha256':p.CALLBACK_GENERATED_TREE}),'callback-entry-8234FF10')
 

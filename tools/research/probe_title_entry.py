@@ -131,10 +131,13 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 
 
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
+VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 
 
 def validate_title_profile(identity):
-    """Only the two independently audited original-game discovery profiles."""
+    """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == VIRTUAL_THUNK_GENERATED_TREE:
+        return 'virtual-thunk-823C2740'
     if identity.get('tree_sha256') == CALLBACK_GENERATED_TREE:
         return 'callback-entry-8234FF10'
     link_module.validate_native_profile(identity)

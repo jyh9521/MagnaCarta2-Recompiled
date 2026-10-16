@@ -59,3 +59,10 @@ UE3 头区 LZX、FName 和对象表已验证；第三阶段新增 UFunction flag
 197TU全量重编译/链接与5组原生成体完整受控状态差分通过；未写替代函数、原像或SDK。
 原标题两次到达新823C2740虚分派thunk缺口，caller828C5060/LR828C5064；其16-byte原体没有PDATA/映射。
 当前未执行其下游目标，不把诊断成功等于可玩性；见docs/PHASE6_RESULTS.md。
+
+## 第七阶段：虚thunk缺口解除，比较回调缺口
+
+原16-byte thunk823C2740以版本锁定入口metadata重生。共同58,163函数正文未变，只增加1函数；197TU全量编译/链接。
+4组受控状态验证保持LR/内存并记录vtable+12目标，不执行外部callee；同精确模板/只读引用/边界/缺mapping候选仅1。
+原标题从缺包AV推进到18原成员运行根，工作线程两次触发82C1C1A0原fatal；原caller8286FE88/LR8286FE8C。
+它是比较回调而非同模板虚thunk；当前内部尾块82C1C214已有mapping，不将整个0x88原范围误认全缺失。见docs/PHASE7_RESULTS.md。
