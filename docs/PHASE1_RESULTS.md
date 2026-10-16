@@ -18,7 +18,9 @@
 |全量 UE3 候选头|盘 1 全部 1912、盘 2 全部 2233 为大端版本候选 446/25|PASS（仅头字段）|
 |双盘比较|1631 同内容、3 异内容、382/706 独有；exit=0|PASS|
 |原生代码生成、C++ 编译、逻辑执行、图形、可玩性|均未执行|NOT TESTED|
-|GitHub Actions 各平台矩阵|仅新增配置，未将本地结果视为云端结果|NOT TESTED|
+|GitHub Actions 各平台矩阵|提交 ffc5559 的工作流已完成，conclusion=success|PASS|
+|隔离副本回退|restored=9，removed=30，原始哈希恢复；0 tests / exit=5|PASS（恢复模板状态）|
+|远端干净克隆|43 tests OK；空 catalog 结构校验通过|PASS|
 
 ## 命令与证据
 ```powershell
@@ -31,3 +33,8 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 
 ## 第一轮之后
 当前没有原生运行程序、完整资源解析或正式中文文本。下一轮优先 XEX 可选头/身份、Coalesced 最小记录与包引用图，详见 NEXT_STEPS。
+
+## Git 与云端证据
+首个工程提交 `ffc55593be69d096965789be870877c32dcc73f8` 已推送 main，远端 SHA 与本地一致。
+[GitHub Actions 运行记录](https://github.com/jyh9521/Magna-Carta-2-CN/actions/runs/38904741377)：Windows/Ubuntu、Python 3.12/3.14 四项组合全部成功。
+该云端结果只验证工具，不代表本游戏编译、启动或中文显示。
