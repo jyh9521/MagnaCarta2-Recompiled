@@ -1,5 +1,7 @@
 # 阶段23：原延时路径与计数轮询
 
+> 阶段24修正：稀疏采样不证明同一次wait卡45秒；实际增减callback和队列持续流动。见[阶段24](PHASE24_RESULTS.md)。
+
 ## Verified
 原82869800完整0x90、所有直接分支引用、整数参数/alertable条件独立核验。默认关闭透明host-IAT调度observer及只读caller-frame取样已实现；197个既有strict对象重新核验后重编host并全量链接58417映射，未修改游戏生成体/SDK/资源。
 真实24根最终窗口55个晚期样本确认main parentLR82E2080C，原counter83265218=2、threshold=1、interval=0/alertable=0。原SDK delay持续返回；45秒仍运行的直接原因是原main计数轮询条件未满足，不是一次延时API卡45秒。静态潜在减计数回调82399738已定位，但其实际dispatch/上游为何未降低counter仍未知。

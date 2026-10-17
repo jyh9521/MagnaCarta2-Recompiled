@@ -168,3 +168,7 @@ voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入8
 
 原main轮询83265218，真实晚期2>threshold1，interval0/alert0；潜在减计数82399738静态定位，当前dispatch/上游未释放原因未证。
 [阶段23结果](docs/PHASE23_RESULTS.md)。
+
+
+## 阶段24：计数与真实回调
+[阶段24证据与复现边界](docs/PHASE24_RESULTS.md)：原计数加载0，实际callback持续完成队列项，711/709的余2仅为观察边界；不把晚期2>1采样当固定对象卡死。默认关闭透明RAW observer，保留原body、strict生成体、SDK与24成员资源根；早期AV未重现/未修复，exit26不等于首帧或可玩性。

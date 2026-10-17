@@ -163,3 +163,7 @@ exit26是既有host有限观察终止，不能当guest正常结束或任意timeo
 [阶段23结果](PHASE23_RESULTS.md)。
 
 最终独立审计发现claimed桶全部截断、flags超宽/未知bits与post原参数矛盾可能误报capture；实际24tests/5fail RED保留，补每key已报告桶计数、低8flags和不可变参数配对守卫后24tests GREEN。首轮812测试事务及已恢复227源副本保留，最终817测试源码事务另存verification-final；既有真实raw重解析不得放宽。
+
+
+## 阶段24：计数与真实回调
+[阶段24证据与复现边界](PHASE24_RESULTS.md)：原计数加载0，实际callback持续完成队列项，711/709的余2仅为观察边界；不把晚期2>1采样当固定对象卡死。默认关闭透明RAW observer，保留原body、strict生成体、SDK与24成员资源根；早期AV未重现/未修复，exit26不等于首帧或可玩性。

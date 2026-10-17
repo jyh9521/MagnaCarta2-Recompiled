@@ -4,6 +4,9 @@
 #include "wait_observation.h"
 #include "event_import_trace.h"
 #include "schedule_observation.h"
+#include "counter_observation.h"
+#include "counter_queue_watch.h"
+#include "counter_worker_sample.h"
 #include "panic_observation.h"
 #include <thread>
 #include <rex/cvar.h>
@@ -31,6 +34,23 @@ rex::system::KernelState* kernel_state = nullptr;
 bool wait_sdk_verified = false;
 bool event_trace_requested = false;
 bool schedule_trace_requested = false;
+bool counter_trace_requested = false;
+std::atomic<unsigned> queue_dump_index{0};
+void WriteQueueWatch(const char* reason) {
+ const auto index=queue_dump_index.fetch_add(1);if(index>=4)return;mc2::host::FreezeQueueWatch();
+ char name[64]{};std::snprintf(name,sizeof(name),"queue-watch-%u.txt",index);auto* file=std::fopen(name,"wb");bool okay=file && std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+ if(file){mc2::host::DumpQueueWatch(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
+ std::printf("QUEUE_WATCH_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+}
+std::atomic<unsigned> counter_dump_index{0};
+void WriteCounterTrace(const char* reason) {
+ const auto index=counter_dump_index.fetch_add(1);if(index>=4)return;
+ mc2::host::FreezeCounterLifecycleTrace();
+ char name[64]{};std::snprintf(name,sizeof(name),"counter-trace-%u.txt",index);
+ auto* file=std::fopen(name,"wb");bool okay=file && std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+ if(file){mc2::host::DumpCounterLifecycleTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
+ std::printf("COUNTER_TRACE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+}
 std::atomic<unsigned> schedule_dump_index{0};
 void WriteScheduleTrace(const char* reason) {
   const auto index=schedule_dump_index.fetch_add(1);if(index>=4)return;
@@ -91,6 +111,7 @@ class FatalDiagnosticSink final : public spdlog::sinks::base_sink<std::mutex> {
     NativeState();
     if(event_trace_requested)WriteEventTrace("fault");
     if(schedule_trace_requested)WriteScheduleTrace("fault");
+    if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
   }
   void flush_() override {std::fflush(stdout);}
 };
@@ -294,6 +315,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
   NativeState();
   if(event_trace_requested)WriteEventTrace("fault");
     if(schedule_trace_requested)WriteScheduleTrace("fault");
+    if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
   std::fflush(stdout);
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
 }
@@ -319,6 +341,7 @@ int main(int argc,char** argv) {
     std::printf("TITLE_ROOT %s\n",game_root.string().c_str());
     event_trace_requested=std::getenv("MC2_EVENT_TRACE") && std::strcmp(std::getenv("MC2_EVENT_TRACE"),"1")==0;
     schedule_trace_requested=std::getenv("MC2_SCHEDULE_TRACE") && std::strcmp(std::getenv("MC2_SCHEDULE_TRACE"),"1")==0;
+    counter_trace_requested=std::getenv("MC2_COUNTER_TRACE") && std::strcmp(std::getenv("MC2_COUNTER_TRACE"),"1")==0;
     const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
     if(present) {
       rex::cvar::Init(argc,argv);rex::cvar::ApplyEnvironment();
@@ -379,6 +402,26 @@ int main(int argc,char** argv) {
       std::printf("TITLE_SCHEDULE_TRACE installed=%u code_guard=%u\n",unsigned(installed),unsigned(code));
       if(!installed){WriteScheduleTrace("install");return 36;}
     }
+    {
+      bool code=false,binding=false;
+      if(counter_trace_requested){
+        code=wait_sdk_verified && mc2::host::counter_observation::OriginalBytes({guest_base,0x100001000ULL});
+        binding=true;
+        const uint32_t targets[]={0x82399650,0x82399738,0x822D0A68};
+        PPCFunc* hooks[]={&sub_82399650,&sub_82399738,&sub_822D0A68};
+        PPCFunc* originals[]={&__imp__sub_82399650,&__imp__sub_82399738,&__imp__sub_822D0A68};
+        for(unsigned i=0;i<3;++i){const bool bound=runtime.function_dispatcher()->GetFunction(targets[i])==hooks[i];
+          const bool distinct=hooks[i]!=originals[i];binding=binding&&bound&&distinct;
+          std::printf("COUNTER_BIND target=%08X dispatcher_hook=%u distinct_original=%u\n",targets[i],unsigned(bound),unsigned(distinct));}
+        uint64_t initial=0;const bool known=mc2::host::schedule_observation::Read({guest_base,0x100001000ULL},0x83265218,4,initial);
+        std::printf("COUNTER_INITIAL counter=83265218 word_known=%u value=%08X\n",unsigned(known),unsigned(initial));
+        if(!mc2::host::SetCounterLifecycleHook(&mc2::host::counter_observation::Sample))return 38;
+      }
+      const bool configured=mc2::host::ConfigureCounterLifecycleTrace(code&&binding,counter_trace_requested);
+      std::printf("TITLE_COUNTER_TRACE enabled=%u code_guard=%u binding_guard=%u configured=%u\n",unsigned(counter_trace_requested),unsigned(code),unsigned(binding),unsigned(configured));
+      if(!configured){WriteCounterTrace("install");return 38;}
+      if(!mc2::host::ConfigureQueueWatch(code&&binding,counter_trace_requested))return 39;
+    }
     for(auto ordinal:{0x193,0x59}) {
       auto* exp=runtime.export_resolver()->GetExportByOrdinal("xboxkrnl.exe",uint16_t(ordinal));
       if(exp) std::printf("TITLE_EXPORT ordinal=%04X name=%s type=%u implemented=%u variable=%08X\n",
@@ -409,6 +452,10 @@ int main(int argc,char** argv) {
       observation_seconds=unsigned(parsed);
     }
     std::printf("TITLE_OBSERVATION seconds=%u\n",observation_seconds);
+    std::jthread queue_monitor;
+    if(counter_trace_requested)queue_monitor=std::jthread([&](std::stop_token stop){
+      for(unsigned i=0;i<128&&!stop.stop_requested();++i){mc2::host::StoreQueueWatch(mc2::host::CaptureQueueWatch(guest_base));std::this_thread::sleep_for(std::chrono::milliseconds(500));}
+    });
     auto wait=rex::thread::WaitResult::kTimeout;
     auto observe=[&] {
       wait=rex::thread::Wait(thread->thread(),false,std::chrono::seconds(observation_seconds));
@@ -433,6 +480,7 @@ int main(int argc,char** argv) {
       std::printf("TITLE_SCHEDULE_TRACE restored=%u\n",unsigned(restored));WriteScheduleTrace("boundary");
       if(!restored){std::fflush(stdout);std::_Exit(37);}
     }
+    if(counter_trace_requested){queue_monitor.request_stop();queue_monitor.join();const bool paired=mc2::host::SampleCounterWorkers(guest_base);WriteCounterTrace("boundary");WriteQueueWatch("boundary");if(!paired){std::fflush(stdout);std::_Exit(40);}}
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();
     std::_Exit(wait==rex::thread::WaitResult::kSuccess?0:26);

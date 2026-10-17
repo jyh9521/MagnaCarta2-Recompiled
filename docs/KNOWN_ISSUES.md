@@ -101,3 +101,7 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 24根45秒仍运行已定位main原counter83265218=2>1轮询，尚需追踪实际减计数/producer。CS覆盖有溢出，旧早期坏CS AV未重现/未修复；无首帧。
 [阶段23结果](PHASE23_RESULTS.md)。
+
+
+## 阶段24：计数与真实回调
+[阶段24证据与复现边界](PHASE24_RESULTS.md)：原计数加载0，实际callback持续完成队列项，711/709的余2仅为观察边界；不把晚期2>1采样当固定对象卡死。默认关闭透明RAW observer，保留原body、strict生成体、SDK与24成员资源根；早期AV未重现/未修复，exit26不等于首帧或可玩性。

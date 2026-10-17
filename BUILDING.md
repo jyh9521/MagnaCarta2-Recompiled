@@ -216,3 +216,7 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 
 --trace-schedule默认关闭，原SDK/profile/full body守卫，新增两个host header均进inputs/hash/snapshot。仅重编host并显式链接原197 strict对象，不改SDK/生成体。
 [阶段23结果](docs/PHASE23_RESULTS.md)。
+
+
+## 阶段24：计数与真实回调
+[阶段24证据与复现边界](docs/PHASE24_RESULTS.md)：原计数加载0，实际callback持续完成队列项，711/709的余2仅为观察边界；不把晚期2>1采样当固定对象卡死。默认关闭透明RAW observer，保留原body、strict生成体、SDK与24成员资源根；早期AV未重现/未修复，exit26不等于首帧或可玩性。
