@@ -89,7 +89,7 @@ python -m tools.research.verify_thunk `
 python -m unittest discover -s tests -p test_thunk.py -v
 ```
 
-重跑选择不存在的新目录；省略 generated/sdk/compiler/vcvars 四项只做原静态检查，不冒称生成体执行。
+重跑选择不存在的新目录；省略 generated/sdk/compiler/vcvars 四项只做原静态检查，不标记为生成体执行。
 公开合成测试 **15 tests / OK**，覆盖 pattern、边界、代码 section、只读引用、异常表排除、
 缺 mapping、null dispatch 记录、无效内存和外部调用边界。负例明确报错，无静默 fallback。
 实际子实验未出现额外编译/执行失败；`thunk-static-first`、`thunk-generated-first` 及最终

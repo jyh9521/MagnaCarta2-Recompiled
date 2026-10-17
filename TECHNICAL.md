@@ -124,7 +124,7 @@ rawO2消去回转转换，160项sNaN内存差异；Od与O2strict均通过，通�
 ## 第十五阶段：有副作用的条件尾调用
 
 826A9EC8完整原32-byte恢复；写object+108先于beqlr/尾分派，r9保留PPC64 wrapmask高位，store只写低32。
-512null完整返回、2048非null tail ABI入口状态/已写flags通过，原callee0xCCC未在fixture执行；不能以空callee冒充。
+512null完整返回、2048非null tail ABI入口状态/已写flags通过，原callee0xCCC未在fixture执行；空callee不构成原callee执行证据。
 197TU严格重建后真实标题到82A3DEA0原fatal，当前栈不证明826C9920当次执行。[证据与边界](docs/PHASE15_RESULTS.md)。
 
 ## 第十六阶段 — 2026-10-17

@@ -34,7 +34,7 @@ runtime DLL 固定 SHA256
 `context()`、`window()`、阻塞 `Pump()`、跨线程 `RequestStop()` 和 UI 线程 `Shutdown()`。
 session 不拥有 graphics/runtime；context 必须比后者活得久。
 `RequestStop()` 仅排队 `RequestDeferredQuit()`，不拆 GPU/window。
-用户关闭请求也只退出循环并否决立即关闭；调用者先停止活跃 guest/GPU，再调用 `Shutdown()`。
+窗口关闭请求也只退出循环并否决立即关闭；调用者先停止活跃 guest/GPU，再调用 `Shutdown()`。
 独立实验没有 guest，可以正常 detach、close、销毁 HWND、shutdown graphics。
 标题仍活跃时的有界进程终止不等同这条正常清理路径。
 
@@ -89,7 +89,7 @@ protected `Window::presenter()`/`HasSurface()`；修正为只用公共调用，�
 ## 证明上限与标题集成
 
 Verified：真实非空 SDK presenter、有效隐藏 HWND、公开 `SetPresenter` 已调用、
-官方 UI 循环运行和正常清理。`binding_requested=1` 不冒充受保护 getter 的读取结果。
+官方 UI 循环运行和正常清理。`binding_requested=1` 不等同于受保护 getter 的读取结果。
 本轮没有公开 surface getter，日志亦没有 swapchain/呈现成功的正见证，故
 **surface_verified=false、first_frame_verified=false**。不推断此前标题 wait 由 presenter 缺失造成。
 根代理已完成同一 session 的真实标题有界集成实验；实际 swap、等待对象与线程现场，

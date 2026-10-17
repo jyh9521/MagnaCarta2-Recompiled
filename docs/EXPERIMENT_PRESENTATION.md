@@ -39,5 +39,5 @@ python -m tools.research.probe_title_entry `
 原入口样本仍按20秒诊断窗口结束、exit26；完整标题正常关闭不属于本轮证明。
 
 源码回退前保存baseline/manifest；使用`scripts/verify_stage.py`执行基线/修改/隔离回退与恢复测试。
-实际行为回退必须用恢复源码+旧phase10构建/树+同一20原成员根，不能拿新二进制冒充回退。
+实际行为回退必须用恢复源码+旧phase10构建/树+同一20原成员根，新二进制不作为旧行为回退的验证对象。
 验证结果、失败与下一证据门槛见[阶段11](PHASE11_RESULTS.md)。

@@ -2,14 +2,14 @@
 
 ## 原范围与语义（Verified / 静态）
 
-本阶段在当前 `MagnaCarta2-Recompiled` 实体仓库执行。工具先对用户提供的Disc1 XEX、固定loader源和解码image作SHA守卫；不使用旧私有image.bin，不写原像或密钥。
+本阶段在当前 `MagnaCarta2-Recompiled` 实体仓库执行。工具先对本地Disc1 XEX、固定loader源和解码image作SHA守卫；不使用旧私有image.bin，不写原像或密钥。
 
 `82B7CCD0..82B7CCD8` 恰8bytes：`806300344E800020`，SHA256 `bbf1454f181f2d9d96316fad7d3c753d45df4678c1bafd0fe0217f84fa9b906f`，即：
 
 1. `lwz r3,0x34(r3)`：读取原r3低32bit加34后的BE32，零扩展至完整64bit r3。
 2. `blr`：正常返回，LR/CTR寄存器值不写回改变。
 
-原image SHA256 `d18d49fb2960426715ba17d61d069cce42b1eadac153af13c9395cd42b1773e9`。没有包含该入口的PDATA；前16bytes=`806300384800D2B4806300384800D40C`，前一兄弟尾部为直接branch；后16bytes=`548B033E396B001B556A083C7D6B5214`，从82B7CCD8开始另一段操作。全部邻居字节及各自hash保存于original报告并守卫。8byte是该已知入口的保守完整叶范围，不冒称PDATA或完整类边界。
+原image SHA256 `d18d49fb2960426715ba17d61d069cce42b1eadac153af13c9395cd42b1773e9`。没有包含该入口的PDATA；前16bytes=`806300384800D2B4806300384800D40C`，前一兄弟尾部为直接branch；后16bytes=`548B033E396B001B556A083C7D6B5214`，从82B7CCD8开始另一段操作。全部邻居字节及各自hash保存于original报告并守卫。8byte是该已知入口的保守完整叶范围，不标记为PDATA或完整类边界。
 
 本项目32bit guest地址合同的有效地址为：
 

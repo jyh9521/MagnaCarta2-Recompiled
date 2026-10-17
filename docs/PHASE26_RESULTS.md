@@ -8,7 +8,7 @@
 
 ## Verified：完整原语义和SDK接口
 独立核验原827B4B40完整50C、827B4938完整208、82868178完整C，共456个BE32字守卫；支持版本由完整XEX/SDK/GPU/strict tree身份锁定。原adapter把r4输出地址移至r5、r4设1并尾调XamInputGetState；原import记录不是普通PPC指令，未盲解前8字节。
-消费caller仅status0后读取out+4的BE16并以mask0x10归一为0/255，keyindex5，user0..3，LR827B4D10。helper状态地址为(obj.low32+0x4AC+0xC0*user)，旧/新阈值0x1E；原内部可通过对象vtable+10分派press/release/repeat。RAW观察器只记录完整原body进入/返回与存储sideeffect，没有直接trace该虚拟callback，不冒充其执行日志。
+消费caller仅status0后读取out+4的BE16并以mask0x10归一为0/255，keyindex5，`user0..3`，LR827B4D10。helper状态地址为`(obj.low32+0x4AC+0xC0*user)`，旧/新阈值0x1E；原内部可通过对象vtable+10分派press/release/repeat。RAW观察器只记录完整原body进入/返回与存储sideeffect，没有直接trace该虚拟callback，不等同于其执行日志。
 SDK InputSystem::AddDriver只移动unique_ptr，不代替Setup；新driver先Setup成功再AddDriver。保留CreateDefaultInputSystem/原SlotAssignment/其他driver，不替换IInputSystem、不手写原vtable/GNatives、不创建系统虚拟设备。synthetic设备由原SlotAssignment馈入user0，原MergeInto OR按钮并取packet最大值，所以必须核对原adapter实际合并结果，不能只看driver内部pressed计数。
 
 ## 诊断合同与可逆性

@@ -51,7 +51,7 @@ signal/refcount/producer全部unknown。父Python先核验实际发行DLL SHA再
 
 保留失败：standalone两轮protected API编译错、引号/测试入口错误、mock期待hex错误；
 标题第一次user32未链接的LNK2019/LNK1120及partial-map解析错误；全树相等断言对3个元数据差异的失败。
-没有修改SDK、补空stub、吞fatal、手写原GNatives或强制唤醒事件。
+没有修改SDK、补空stub、忽略fatal、手写原GNatives或强制唤醒事件。
 `local/analysis/phase11/`保存所有命令/输入hash/逐字日志/退出码、基线与原独立证据、真实运行及回退；
 `verification/`含MODIFIED_FILE.py、DIFF_FILE.patch、VERIFICATION.txt、可执行ROLLBACK.sh。完整原资产/生成源/对象/二进制/日志ignored。
 下一项需追原Event创建/传递/唤醒链并独立验证真实swap/可见呈现；当前仍未验收首帧、输入、音频、地图/战斗、存档或换盘。

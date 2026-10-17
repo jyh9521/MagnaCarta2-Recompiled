@@ -37,11 +37,11 @@ python -m tools.research.probe_title_entry `
 
 输出目录必须新建，重跑换名字；默认20秒，`--observe-seconds 45`用于更长有界观察，上限60。
 省略`--trace-events`是无hook对照，事件内存与SDK行为不被观测器代替。
-每份trace是独立缓冲文件，run.txt只给reason/path/success；不要合并并发FAULT与boundary快照冒充单份完整记录。
+每份trace是独立缓冲文件，run.txt只给reason/path/success；并发FAULT与boundary快照应分别记录，合并结果不构成单份完整快照。
 
 原第21成员的部署命令在`phase12/stage-root21.json`，保留20旧成员并追加
 `MC2Game/CookedXenon/data_party_start.xxx`，原ISO全hash/成员hash与输入不变均需通过。
-在新game-root-21使用45秒窗口，trace与无hook控制均实测原82AC1DE8 fatal，不吞该失败。
+在新game-root-21使用45秒窗口，trace与无hook控制均实测原82AC1DE8 fatal，保留该失败及原退出状态。
 
 原调用点/ABI：[研究](RESEARCH_EVENT_IMPORT_SITES.md)；IAT、差分与保护恢复：[观测器](RESEARCH_EVENT_IMPORT_TRACE.md)。
 原资源部署、完整结果和回退：[阶段12](PHASE12_RESULTS.md)。生成代码、原像、原资源、EXE和完整trace只留ignored local。

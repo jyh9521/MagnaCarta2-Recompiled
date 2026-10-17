@@ -26,7 +26,7 @@
 
 ## 继续早期AV调查
 固定observer源码与实际编译snapshot均be2f8eae789e70c62c6b445e234a6172b2751e0c969cd2fe24c8bf3b2891a2b3，SDK实际导出408F80/fault408F95/24bytes及原caller128bytes契约独立再次核对。五个child均有正确SDKattestation，critical flag1，独立解析与raw一致：5/5 not_observed，零CRITICAL行，全部实际故障都是WRITE guest3而非临界区READ。
-本次没有新r29、入口对象+8、r11/r30或CS前缀读取证据，未重现/未修复先前坏CS指针AV，也未建立其资源因果。复用既有契约/fixture证据，不重复合成fixture冒充真实AV。
+本次没有新r29、入口对象+8、r11/r30或CS前缀读取证据，未重现/未修复先前坏CS指针AV，也未建立其资源因果。复用既有契约/fixture证据，不将重复合成fixture视为真实AV复现。
 
 ## 离线分类跨字段校验
 deployment_evidence保持只读API，新增9test methods：真实RED22tests/26fail后GREEN22tests。必须让native退出C0000409、SDK corroboration/fatal stack/无AV及无timeout等字段一致；panic须C0000005/guest3 WRITE/SDK同故障、固定caller/完整UTF16BE hex/text/count/固定原formatter消息与同一filename一致。typed bool/int与run_record退出矛盾均保守未定；不靠残留target或success字段下结论。
@@ -37,5 +37,5 @@ deployment_evidence保持只读API，新增9test methods：真实RED22tests/26fa
 ```powershell
 python -m tools.research.deployment_evidence --baseline-root ROOT22 --modified-root ROOT23 --member MC2Game/CookedXenon/PreF_VJuto_Base2.xxx --sha256 d5b57c3af82e17d6ad69478790d09a9b74d3cd55bba2a87639114c05285a22ca
 ```
-真实入口沿probe_title_entry的阶段20固定profile，启用--capture-panic和--capture-critical-section。配对试验应先验证已有完整host-link/inputs manifest、同EXE/map/SDK/GPU，再复制同EXE到新日志目录并使用link_module.run_record；仅改变MC2_GAME_ROOT，保留每次原stdout/native exit和原输入前后inventory，不以重新链接另一个EXE冒充单变量。
+真实入口沿probe_title_entry的阶段20固定profile，启用--capture-panic和--capture-critical-section。配对试验应先验证已有完整host-link/inputs manifest、同EXE/map/SDK/GPU，再复制同EXE到新日志目录并使用link_module.run_record；仅改变MC2_GAME_ROOT，保留每次原stdout/native exit和原输入前后inventory，重新链接另一个EXE不构成同EXE单变量对照。
 完整精确执行命令、环境、raw、hash、独立原资源/AV/next-blocker报告保存在ignored local/analysis/phase21/；公共仓库只保存工具、测试及研究，不提交原资源/生成代码/二进制。

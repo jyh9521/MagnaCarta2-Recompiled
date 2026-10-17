@@ -40,7 +40,7 @@ LR=82869BC0; CTR=8248B100
 
 首次运行helper exit1/旧report误把可选文件探测失败称为precede fault，完整结果保留。
 只修正报告逻辑：`bounded_observation=true`独立于`diagnostic_success=false`、`game_boot_success=false`和`shutdown_verified=false`。
-复跑helper0表示完整有界观测且身份守卫通过；实际子进程仍26，不改游戏/SDK或吞fatal。
+复跑helper0表示完整有界观测且身份守卫通过；实际子进程仍26，不改游戏/SDK或忽略fatal。
 
 ## 验证与回退
 

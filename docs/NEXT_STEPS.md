@@ -27,7 +27,7 @@
 - SDK真实presenter/隐藏HWND/UI loop保留，下一显示实验需正向swap/可见首帧证据；当前新阻塞优先按原叶边界/语义推进，不伪造事件唤醒。
 - 61原44-byte体256后缀/状态差分通过，仅新增其hint；实际302非fallback目标全部mapped，但真实suffix/具体下游未记录，不等于302实现逐一验收。01旧模板变体仍待通用解析恢复。
 - 新r6比较回调调查17sites/15targets均已映射；映射不代表逐个执行/完整语义验证。不要混淆GNatives与83250980另一尾分派表。
-- 保留各旧fatal、缺包/GuidCache/TitleMap部署AV、合成harness页映射AV和旧61原fatal及当前等待边界；原数据/旧构建不改，不以空stub或吞fatal推进。
+- 保留各旧fatal、缺包/GuidCache/TitleMap部署AV、合成harness页映射AV和旧61原fatal及当前等待边界；原数据/旧构建不改，不以空stub或忽略fatal推进。
 - 核验SEH funclet共享寄存器、异常路径和更多间接调用/函数边界；当前27case不覆盖全部58162函数。
 - 明确SDK文件系统、两盘XEX/资源映射、系统服务、线程与初始化最早失败点，再考虑真实启动。
 

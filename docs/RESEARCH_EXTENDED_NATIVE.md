@@ -38,7 +38,7 @@ r10=`FFFFFFFF83250D80`、r7=`FFFFFFFF83251180`，r11/CTR 为零扩展 target。
 只接受精确原模板；未知指令、缺失/非法 byte、越出定义 guest 范围的读取会明确失败。
 byte-addressed memory 和寄存器输入先复制，唯一允许写入的是 frame `+12` 四字节。
 单元测试还核验 cursor=`FFFFFFFF` 时 r9=`0000000100000000`、写回 word=0；
-这是 oracle 边界测试，不冒称该额外边界已在真实标题执行。
+这是 oracle 边界测试，未验证该额外边界在真实标题中的执行。
 
 ## Verified：真实新生成体、256/256 suffix
 

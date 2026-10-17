@@ -4,7 +4,7 @@
 
 Verified：原 Disc1 XEX、loader 的既有 SHA 守卫通过后，`82AC1DE8..82AC1DFC` 恰为20bytes：`c0030030d0040000c0030034d00500004e800020`，SHA256 `579d0af704a9e2c35ba6dc55ffe769344f780cf91ddc302e77aa72da6071ab53`。五条指令依次是 `lfs f0,0x30(r3)`、`stfs f0,0(r4)`、`lfs f0,0x34(r3)`、`stfs f0,0(r5)`、`blr`。
 
-没有包含此入口的原 PDATA。保守20-byte leaf 边界由实际结尾 BLR、前一兄弟尾跳 `82AC1DE4 bctr`、后一零 word `82AC1DFC` 及 `82AC1E00` 独立短叶支持，不冒称 PDATA/整个类边界。阶段12实际 fatal 的 CTR=`82AC1DE8`、LR=`8266CC78`；原 `8266CC74 bctrl` 从 object vtable+0x20 取目标，caller PDATA=`8266C0A8..8266CD80`。完整证据仍保留在 `local/analysis/phase12/next-blocker-original.json`。
+没有包含此入口的原 PDATA。保守20-byte leaf 边界由实际结尾 BLR、前一兄弟尾跳 `82AC1DE4 bctr`、后一零 word `82AC1DFC` 及 `82AC1E00` 独立短叶支持，不标记为 PDATA/整个类边界。阶段12实际 fatal 的 CTR=`82AC1DE8`、LR=`8266CC78`；原 `8266CC74 bctrl` 从 object vtable+0x20 取目标，caller PDATA=`8266C0A8..8266CD80`。完整证据仍保留在 `local/analysis/phase12/next-blocker-original.json`。
 
 本工具不加 hint、不改生成树或 SDK；独立新树入口恢复由另一个有守卫生成实验负责。叶夹具成功不是完整标题、资源加载、可玩或 Xenon 硬件验收。
 

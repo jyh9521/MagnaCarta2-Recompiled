@@ -23,7 +23,7 @@
 新边界是仍运行的标题线程/有限观察。精确PE call与原PPC/IAT核验，采样涉及原82869850→82E8DF4C的KeDelayExecutionThread路径；不能仅用nearest symbol或多个短暂停线程样本宣称死锁。第二次运行的三个样本分别落在正常临界区等待、延时返回后及普通计算路径，未观察到稳定单一阻塞。正常CS调用的原822D2670/LR822D2674和r3=4000077C与旧坏指针00430036/旧LR823BF2B8不同，不是早期AV重现。首样本r3=0仅支持当次零延时，不代表后续全部延时参数。保留SDK缺资源和NtQueryInformationFile(XFileXctdCompressionInformation) unimplemented记录，它们不是已证下一fatal；图形pipeline创建也不是呈现首帧。下一阶段应独立验证原延时/调度路径及其调用条件，区分可进展循环、真实等待与尚未部署资源，保持原调度/事件语义，不强行唤醒或跳过检查。
 
 ## 早期AV与回退
-精确SDK READ CS+18/LR823BF2B8 observer持续开启；本组实际未重现早期AV，没有新的r29入口对象/+8/r11/r30读取实证，也没有修复结论。沿用已核验原caller与固定SDK bytes契约，不以合成fixture冒充真实复现。
+精确SDK READ CS+18/LR823BF2B8 observer持续开启；本组实际未重现早期AV，没有新的r29入口对象/+8/r11/r30读取实证，也没有修复结论。沿用已核验原caller与固定SDK bytes契约，合成fixture不构成真实复现。
 源码隔离回退恢复全部225原文件hash并移除2新文档，主227文件保持修改态。恢复源码下另实际重放23根，原voc panic恢复；资源回退并非只看静态diff。原失败及有限观察退出均保留，无原包/生成体/二进制入库。
 
 ## 复现

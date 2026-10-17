@@ -2,12 +2,12 @@
 
 Xbox 360《MagnaCarta 2》原生重编译、Windows x64 移植研究与可复用本地化工程。
 原名 `Magna-Carta-2-CN`；简体中文本地化保留为子项目，不改变现有 locale/数据格式。
-目标是用户自备原版数据 + 本项目工具/兼容运行时；不是 Xenia 启动器。
+运行以本地原版数据与本项目工具/兼容运行时为基础；不是 Xenia 启动器。
 
 ## 当前状态（2026-10-17，第十七阶段）
 - 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
 - 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
-- 已勘测：用户提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
+- 已勘测：本地提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
 - 已修复三处 REX_FATAL 条件分支及五组 SEH 边界；真实生成模块 **197/197 TU 全量 Clang 编译通过**，两叶函数 27 组合成输入与独立 PPC oracle 一致。
 - 已解析七定义包 **12901 UFunction** 的 native index/flags 与字节码 framing，量化 3056 项 native 声明；未恢复兼容 native 实现。
 - 全部 197 对象已显式链接为 Windows x64 宿主；SDK 初始化、58,408 项函数映射复核、内存分配读写释放与关闭通过。
@@ -50,7 +50,7 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 ## 贡献与发布
 提交只包含自编工具、文档和经授权的数据；原版资源不进入仓库。
 原始模板改写前已在本地证据目录保留逐文件哈希和副本。
-后续发布将验证用户原版版本，构建可复现的补丁，不分发完整商业游戏。
+后续发布将验证原版数据的版本，构建可复现的补丁，不分发完整商业游戏。
 
 ## 第十六阶段 — 2026-10-17
 

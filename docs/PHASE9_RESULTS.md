@@ -40,7 +40,7 @@ host最近前置符号只作函数级证据；原`82508228 bctrl`与现场LR独�
 目标原完整0x2C/11指令，无PDATA/当前生成登记；它将从frame+12读取下一byte、前移cursor，
 再尾分派`GNatives[0x100+byte]`并保持LR。
 该入口本体尚未执行；caller消费的61不是未知下一byte，不猜扩展槽、下游目标或opcode符号名。
-本阶段未给61加hint，未吞原fatal或写原vtable/GNatives；下一项先补原语义/副作用差分再严格恢复。
+本阶段未给61加hint，未忽略原fatal或写原vtable/GNatives；下一项先补原语义/副作用差分再严格恢复。
 
 ## 测试、回退和证据
 

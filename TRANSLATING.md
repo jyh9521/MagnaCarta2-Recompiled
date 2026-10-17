@@ -11,7 +11,7 @@
 id 必须稳定唯一，建议使用版本指纹 + 包路径 + 对象标识 + 字段索引，而不是译文或易变的行号。
 resource 保留精确资源路径；context 保存场景/对象；source_locale 必须来自解析证据。
 status 只用 untranslated、draft、reviewed。reviewed 要求非空译文与人工审核者；自动化工具不替代人工审核。
-Coalesced 原文候选提取已实现，输出仅在 local/analysis；游戏包对象文本提取尚待完善，不能用假造句子填充正式库。
+Coalesced 原文候选提取已实现，输出仅在 local/analysis；游戏包对象文本提取尚待完善，正式库仅接收与源文对应且通过审核的译文。
 
 ## 工作流程
 只读提取到被忽略的 source → 确认许可与公开范围 → 稳定 ID → 术语审核 → 草稿 → 人工审核 → 实机排版。

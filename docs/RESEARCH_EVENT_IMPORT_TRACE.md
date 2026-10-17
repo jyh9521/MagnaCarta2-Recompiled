@@ -23,7 +23,7 @@ false attestation 在解析和写入前拒绝。支持 DLL 中实际导出、宿
 |`__imp__NtWaitForSingleObjectEx`|`0041D840`|
 
 `NtResetEvent` 在支持 DLL 导出和已检查宿主导入中均不存在。
-`KeResetEvent`、`ResetEvent` 是不同入口，未冒充替代。
+`KeResetEvent`、`ResetEvent` 是不同入口，未按可互换入口处理。
 
 ## 防御性安装、恢复与接口
 
@@ -56,7 +56,7 @@ bool EventTraceMemoryReadActive();
 记录包括 host thread ID、PPCContext 地址、LR/SP、完整 64-bit r3..r10 参数及 r3 返回。
 pre 还用公开 `CaptureStackBackTrace` 取得最多 16 个 native PC；不在线解析符号。
 输出当前 EXE module base/size，PC 在其中才输出 RVA，便于离线结合本次 host.map 解析。
-不把原生栈 PC 直接冒充 guest 地址。
+不把原生栈 PC 直接视为 guest 地址。
 
 wrapper 不打印、不进行文件 I/O、不申请项目侧动态内存、不调用 SDK KernelState/对象方法，
 也不查询 signal state 或等待/置位/清除事件。公开 Win32 thread ID、backtrace、内存元数据读取

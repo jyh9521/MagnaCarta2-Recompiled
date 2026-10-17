@@ -20,7 +20,7 @@ python -m tools.research.compile_module --generated local/analysis/phase3/branch
 ```
 
 默认 2 并发，可选 1–4；默认每 TU 600 秒超时，超时记录 `124`，启动错误 `127`。
-每个 TU 即便失败也保留日志，并继续其余单元；无旧 object 复用、无增量命中冒充全量。
+每个 TU 即便失败也保留日志，并继续其余单元；未复用旧 object，增量命中不计为全量重编译。
 CLI 在有失败、缺对象或编译期间输入变化时返回 1；全部成功且输入未变才返回 0。
 同一输入/路径 `/Brepro` 编译不承诺跨主机、跨绝对路径重现相同 object。
 

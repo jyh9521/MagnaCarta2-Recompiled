@@ -1,7 +1,7 @@
 # 阶段27：原A确认链与下一个真实分派阻塞
 
 ## Verified：原始输入语义
-本阶段从固定原XEX重新解码并核验827B4B40完整0x50C、827B4938完整0x208、82868178完整0xC；456个原BE32字与现有守卫完全对应。原caller于827B4DCC取SDK成功返回的buttons半字之0x1000位（PPC bit19），在827B4DDC传keyindex10，于827B4DE8调用helper，原返回LR为827B4DEC；按位是否置位传r7=255/0。A状态地址为helper入口对象low32+0x4C0+0xC0*user，仅user0..3、普通RAM可读。SDK按钮位、helper幅值和内部press/release事件编号不是同一字段。
+本阶段从固定原XEX重新解码并核验827B4B40完整0x50C、827B4938完整0x208、82868178完整0xC；456个原BE32字与现有守卫完全对应。原caller于827B4DCC取SDK成功返回的buttons半字之0x1000位（PPC bit19），在827B4DDC传keyindex10，于827B4DE8调用helper，原返回LR为827B4DEC；按位是否置位传r7=255/0。A状态地址为`helper入口对象low32+0x4C0+0xC0*user`，仅`user0..3`、普通RAM可读。SDK按钮位、helper幅值和内部press/release事件编号不是同一字段。
 原Coalesced A→SubmitListSelection绑定与原XboxTypeS_A名字槽提供静态配置佐证；尚未直接跟踪原UI虚拟接收者或NewGame具体UFunction，不能用配置名称代替实际调用日志。
 
 ## Verified：真实入口推进与保留失败

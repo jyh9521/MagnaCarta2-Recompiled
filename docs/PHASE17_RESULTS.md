@@ -21,7 +21,7 @@ completed_without_fault仅在实际exit0、全部逐例记录和最终释放完�
 同一21原成员根/45秒/真实presenter/无hook：基线旧phase16模块82B7CCD0原fatal（C0000409/3221226505）；新模块推进到原82390A70常量写guest3，触发C0000005/3221225477，诊断CLI均exit0。
 新阻塞不是另一未登记入口：原PDATA82390A20范围0x64，82390A6C为li r8,13、82390A70原91000003为stw r8,3(0)，直接绝对地址3。实际PE faultRVA06FA37C4的mov [rax+3],ecx与base100000000/r8吻合，LR82390A6C与原前call82870B78吻合。原显式fail-fast路径与实际fault已独立关联；不是普通对象null+字段store，也不是通过补hint就该继续的目标。
 已定位exact native caller callRVA0641BDCF→06FA34F0，返回0641BDD4，与原824844F0 call/LR824844F4对应。原82484494读取BEword[r26]，824844A4与9E2A83C1 unsigned比较；相等跳过panic，非等路径落入本call。原常量及现有原Coalesced.int重新解析得到Core/Errors/BinaryFormat静态格式 `The file '%s' contains unrecognizable data`。
-这是静态分支/格式来源，不是运行时最终message/filename/headerword捕获。忠实执行原store也不排除更早SDK、I/O或生成语义错误导致坏输入；缺WoodSword的因果关系尚未知。当前未部署资源、未添加trace/改fatal/吞异常。
+这是静态分支/格式来源，不是运行时最终message/filename/headerword捕获。忠实执行原store也不排除更早SDK、I/O或生成语义错误导致坏输入；缺WoodSword的因果关系尚未知。当前未部署资源、未添加trace、未修改fatal，异常保持原传播路径。
 旧未登记fatal消失并进入原显式panic，不等于已记录本函数标题实际返回值或全部调用点验收。GPU depth target不是首帧，缺原WoodSword包仍是单独部署观察，未为推进本阶段增加资源。
 AMD64 PE、197对象、全部58170函数map、三个host header快照及原299 indexed-native最终效果独立核验；该native效果不是逐ctor跟踪。
 原SDK1193文件、14组2758对象与生成树、两张完整ISO重新hash不变。

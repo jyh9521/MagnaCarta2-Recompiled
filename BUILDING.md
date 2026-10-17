@@ -1,5 +1,7 @@
 # 构建与复现
 
+任务收尾包含[本地维护](docs/LOCAL_MAINTENANCE.md)：保留当前依赖、原始输入和唯一证据，按哈希清理重复输出；历史输出在复跑前按清理清单恢复。
+
 ## 当前可执行成果
 基础研究工具使用 Python 3.12+、Git；标准库，无 pip 安装步骤。第四/五阶段新增可选 Windows SDK 宿主链接/装载/有界标题诊断，不是可玩游戏程序。
 在项目根目录执行 `python -m unittest discover -s tests -v`。

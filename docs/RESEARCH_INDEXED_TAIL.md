@@ -8,7 +8,7 @@
 8943003c548b063e7ca92b787cc533787f0b5040419800103c608007606300574e80002081430024556b18387ce63b787d244b787c6b502e81630000814b00107d4903a64e800420
 ```
 
-前一word=`4E800420 bctr`，后一word=`8943003C lbz r10,0x3c(r3)`；目标无包含PDATA。完整范围包含invalid-path的BLR和valid-path末尾BCTR，不按第一个返回截断，不冒称PDATA范围。
+前一word=`4E800420 bctr`，后一word=`8943003C lbz r10,0x3c(r3)`；目标无包含PDATA。完整范围包含invalid-path的BLR和valid-path末尾BCTR，不按第一个返回截断，不标记为PDATA范围。
 
 |阶段|精确状态与顺序|
 |---|---|
@@ -24,7 +24,7 @@ oracle只接受原18-word模板、32项unsigned64 GPR、合法CR/SO/CTR和显式
 
 ## 范围合并不是代码消失
 
-本轮新完整生成入口 `sub_82A3DEA0` 包含唯一 `loc_82A3DEC4:`，原valid block `82A3DEC4..82A3DEE8` 的36bytes仍在该body中。先前生成分析曾把这段单列为 `sub_82A3DEC4`；完整72byte范围使该宿主函数名/独立mapping被内部label取代。不能把旧C++名字消失直接说成原代码删除，也不能仅凭本差分就断言没人引用DEC4；原引用、PDATA及profile约束由独立范围合并审查处理。本工具不改生成树/hint或SDK。
+本轮新完整生成入口 `sub_82A3DEA0` 包含唯一 `loc_82A3DEC4:`，原valid block `82A3DEC4..82A3DEE8` 的36bytes仍在该body中。先前生成分析曾把这段单列为 `sub_82A3DEC4`；完整72byte范围使该宿主函数名/独立mapping被内部label取代。旧C++名称消失不等于原代码被删除，本差分也不足以证明DEC4不存在引用；原引用、PDATA及profile约束由独立范围合并审查处理。本工具不改生成树/hint或SDK。
 
 ## 标准库穷举与实际SDK差分
 

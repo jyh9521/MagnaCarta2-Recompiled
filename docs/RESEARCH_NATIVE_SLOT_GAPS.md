@@ -80,11 +80,11 @@ TITLE_NATIVES guard=1 bound=4096 fallback=3794 int_const=82508E60 add=8250BAF0
 工具 `tools/research/reconcile_native_slots.py` 只读取显式五件输入及可选 generated register；不依赖本地原像文件、数据库、私有 API 或目录猜测。输入角色如下：
 
 - `--static-report`：由 [native registration 流程](RESEARCH_NATIVE_REGISTRATION.md) 重建或提供的**历史 299 模板清单**；严格检查 schema/profile、原像身份、299 唯一 index/initializer、地址对齐/原可执行段、source slot 范围及全部 template evidence 字段。
-- `--snapshot`：由 [实际入口探针](EXPERIMENT_NATIVE_GATEWAY.md) 的真实运行产生的 `title-natives.bin`；只接受固定 4096 大端槽长度，不接受凭数值列表冒充快照。
+- `--snapshot`：由 [实际入口探针](EXPERIMENT_NATIVE_GATEWAY.md) 的真实运行产生的 `title-natives.bin`；只接受固定 4096 大端槽长度，数值列表不作为运行时快照输入。
 - `--runtime-report`、`--run-report`、`--run-log`：同次运行的 `title-entry.json`、`run.json`、`run.txt`。核对快照/日志 size 与 SHA、原 XEX、真实启动/输入稳定 flags、进程 exit status、4096/guard/fallback/int_const/add 摘要和唯一实际日志行。
 - `--generated-register`：可选，只报告 mapping 状态，不将 mapping 当执行。仅接受明确 `SetFunction(address, sub_address)` 地址一致/无重复的条目。
 
-快照和运行报告不是公开仓库预装文件；clean checkout 使用者先按链接的公开工具从用户原 XEX/资源复建并运行探针，将输出路径传入即可。也可对已有本地证据作明确输入复核；工具没有默读旧 phase 目录。
+快照和运行报告不是公开仓库预装文件；干净检出后，按链接中的公开工具从本地原 XEX/资源复建并运行探针，将输出路径传入即可。也可对已有本地证据作明确输入复核；工具没有默读旧 phase 目录。
 
 实际本轮命令：
 

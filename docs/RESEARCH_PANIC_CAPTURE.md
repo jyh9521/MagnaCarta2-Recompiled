@@ -17,7 +17,7 @@
 `src/host/panic_observation.h`只提供ReadBytes/ReadWord/ReadUtf16，无游戏地址、PPCContext写入或原表构造。VirtualQuery先拒绝guard/noaccess，ReadProcessMemory只读；检查guest/host溢出、4GiB+1000跨度、E0000000物理bias跨界。失败清空全部前缀；原UTF16只按0000终止，不做字符替换。
 真实Windows独立harness通过51checks，输入逐字节相同，guard页保护不变；raw RPM跨noaccess在本机返回0bytes，不能宣称观察到非零partial。partial结果分类与清理另由原helper受控测试覆盖。API不保证线程原子快照、任意MMIO或所有异常处理器环境适用性。
 宿主仅在显式MC2_CAPTURE_PANIC=1、原write guest3、LR82390A6C及17处装载原指令匹配时捕获；完整模块和XEX身份仍由既有profile/hash合同守卫。捕获前后PPCContext逐byte不变，原EXCEPTION_CONTINUE_SEARCH保留。
-严格parser拒绝重复/畸形记录、长短不一致、错误UTF16、非终止/截断、word与原hex不符；默认关闭。CLI显式请求却未得到有效捕获时exit1，不以原诊断fault成功冒充捕获成功。
+严格parser拒绝重复/畸形记录、长短不一致、错误UTF16、非终止/截断、word与原hex不符；默认关闭。CLI显式请求却未得到有效捕获时exit1，诊断流程通过不等同于捕获成功。
 
 ## 证据边界
 实际message把WoodSword路径与本次panic直接关联，较阶段17前置缺包日志更强；部署缺失、原资源身份、SDK读取/错误传播和原加载逻辑的因果链仍须分别检验。未部署该资源、未改fatal、未新增入口hint，仍未到首帧或可玩状态。

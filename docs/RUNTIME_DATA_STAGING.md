@@ -1,6 +1,6 @@
 # 显式原始运行数据暂存
 
-`tools/research/stage_runtime_files.py` 从用户提供的 ISO 和已有文件清单，
+`tools/research/stage_runtime_files.py` 从本地原始 ISO 和已有文件清单，
 流式提取明确选中的成员到一个**尚不存在**的输出目录。工具不生成替代资源、目录占位或空包，
 也不改变游戏资源。原文件、完整数据目录和 staging 输出不提交 Git。
 

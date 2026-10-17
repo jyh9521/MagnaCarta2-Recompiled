@@ -91,7 +91,7 @@ python -m tools.research.verify_compare_callback `
 python -m unittest discover -s tests -p test_compare_callback.py -v
 ```
 
-再次运行须使用新的输出目录。省略四个 toolchain 参数只做原指令/引用审计，不冒称执行生成体。
+再次运行须使用新的输出目录。省略四个 toolchain 参数只做原指令/引用审计，不标记为生成体执行结果。
 最终 `.json` 包含原范围 hash、逐输入 oracle 寄存器/flags/trace、完整引用审计、真实编译命令、
 literal/expected 输出和退出码；日志为 `compare-generated-mapping-guarded.log` 与
 `compare-tests-mapping-guarded-final.log`。全部原像、生成代码、EXE 与实验报告留在 ignored `local/analysis/phase8/`。

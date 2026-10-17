@@ -15,4 +15,4 @@ pre/post保留原r3..r10、context、host线程、LR/SP、native tick、唯一ca
 
 ## 捕获合同
 SDK RawImage为R8G8B8X8，stride可含padding，最后一行无需padding。PPM只写RGB；全黑合法图片也可captured，但0非黑像素不伪报可见内容。readback成功、PPM写入成功、独立像素/hash校验、实际内容查看以及可见present是不同证据层。
-SDK readback可能等待GPU fence；不加主动Refresh、不造帧、不延长诊断timeout冒充修复。单进程超时保留原失败和readback前timeline，窗口仍隐藏，readback不证明可见present/交互。
+SDK readback可能等待GPU fence；不主动调用Refresh或生成替代帧；延长诊断timeout不构成修复证据。单进程超时保留原失败和readback前timeline，窗口仍隐藏，readback不证明可见present/交互。

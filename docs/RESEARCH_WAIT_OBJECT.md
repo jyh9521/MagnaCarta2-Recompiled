@@ -40,7 +40,7 @@ header 的第四参是**父进程验证证明**：入口探针在构建前核对
 |Thread|`thread_id()`、原子 `is_running()`|线程是否活锁、当前等待依赖、未来进度|
 |其它类型|通用字段|没有为未知类型扩大私有 layout 读取|
 
-pointer_ref_count 与 ObjectTableEntry.handle_ref_count 在官方头中为 private 且无只读 getter。本工具不使用 guest `X_OBJECT_HEADER` 的计数字段冒充实际宿主引用数。`X_DISPATCH_HEADER` 的 wait-list 字段还用于运行时 handle/signature stash，不能把它们直接当完整 Windows waiter 链。
+pointer_ref_count 与 ObjectTableEntry.handle_ref_count 在官方头中为 private 且无只读 getter。guest `X_OBJECT_HEADER` 的计数字段不作为实际宿主引用数的读取来源。`X_DISPATCH_HEADER` 的 wait-list 字段还用于运行时 handle/signature stash，不能把它们直接当完整 Windows waiter 链。
 
 输出以 `TITLE_WAIT_OBJECT` 开头；`event_signal_known=0`、`semaphore_count_known=0`、`refcount_known=0`、`producer_known=0` 恒定显式保留。`event_type` 等默认数值只在对应 `_known=1` 时具有观察意义；`status` 不是 observed 时，所有默认字段都不作为事实解释。
 
@@ -71,7 +71,7 @@ pointer_ref_count 与 ObjectTableEntry.handle_ref_count 在官方头中为 priva
 
 `python -m unittest discover -s tests -p test_wait_observation.py -v`：8 项。默认无 C++ 编译器 PATH 时，7 个源码合同检查通过、1 个合成编译执行测试明确 skip；没有把 skip 当执行证明。
 
-本机另使用既有 VS x64 环境与便携 Clang 20.1.8，临时在**该测试进程 PATH** 加入编译器，8 项全部通过，无全局 PATH 改动。合成对象表测试覆盖 SDK 未证明/无 kernel/非法 handle 不查表、not-found、typed Event/Semaphore/Thread 字段、event signal 保持、busy-lock 不等待、名称中的换行有界编码。它是自制 API mock，不冒充真实 SDK 对象执行。
+本机另使用既有 VS x64 环境与便携 Clang 20.1.8，临时在**该测试进程 PATH** 加入编译器，8 项全部通过，无全局 PATH 改动。合成对象表测试覆盖 SDK 未证明/无 kernel/非法 handle 不查表、not-found、typed Event/Semaphore/Thread 字段、event signal 保持、busy-lock 不等待、名称中的换行有界编码。它是自制 API mock，不等同于真实 SDK 对象执行。
 
 此外，`wait_observation.h` 使用真实 SDK 全部头单独 compile-only，`exit=0` 且诊断日志为空。这个检查只证明实际 SDK/编译器接口兼容；实际 `F80000AC` 对象身份必须由根阶段调用后输出核验。
 

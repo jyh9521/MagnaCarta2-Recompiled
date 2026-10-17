@@ -15,7 +15,7 @@
 下一项在新独立根做该单成员部署A/B及实际行为回退，不直接改当前22根。与WoodSword已证受控因果不同，本次新文件的缺部署尚未通过干预建立零头唯一因果；postfault不是比较瞬间原子快照。未部署它或跳过原panic。
 
 ## 早期AV、失败与回退
-精确只读observer与严格parser接线完成，独立SDK/XEX字节审查无阻断；12tests/14mode合成私有页fixture通过，但不冒充真实AV复现。两次修改后真实入口均not_observed；原坏CS指针的上游对象/初始化/并发写历史仍未证，未修复。
+精确只读observer与严格parser接线完成，独立SDK/XEX字节审查无阻断；12tests/14mode合成私有页fixture通过，但不等同于真实AV复现。两次修改后真实入口均not_observed；原坏CS指针的上游对象/初始化/并发写历史仍未证，未修复。
 所有metadata RED、生成体模板首次拒绝、坏XEX拒绝、profile RED/GREEN及原native失败保留；一次私有patch脚本因预期两守卫相邻（实际中间有FP校验）断言失败，未写源码，分行精确修改后guard测试通过。
 根770测试(skip2)、catalog及源码隔离732→770→732回退验证；恢复215原文件hash并移除8新增，主223源码保持修改态。真实行为回退使用恢复源码/旧197模块/同22根，重现82E078C0原fatal，不删新模块或原资源。
 精确BASELINE/MODIFIED/ROLLBACK命令/输入/字面输出/exit、四件套在ignored local/analysis/phase20/verification/。远端、新clone及四项CI交付另核验。尚无首帧、操作、音频、战斗、存档、换盘或可玩性验收。

@@ -30,7 +30,7 @@ python -m tools.research.link_module --build-dir local/analysis/phase3/module-mo
 本次输出 `HOST_LINK objects=197 mappings=58408 inputs_unchanged=True success=True`，exit=0。
 独立编译入口、真实链接、真实运行各 exit=0。`host-link.json` 保存每一步真实 argv、
 工作目录、标准输入 DEVNULL、日志 SHA、退出码和 EXE/map 身份；`inputs.json` 保存输入身份。
-逐 TU 已有对象在链接前后 SHA/大小相同，没有重编旧对象冒充本次链接成果。
+逐 TU 已有对象在链接前后 SHA/大小相同，已有对象未重新编译，相关结果仅用于链接验证。
 
 运行实际输出包含：
 

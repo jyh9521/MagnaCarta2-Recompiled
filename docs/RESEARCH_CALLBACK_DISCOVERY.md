@@ -85,7 +85,7 @@ python -m tools.research.audit_callback_sites --xex local/analysis/phase2/defaul
 python -m unittest discover -s tests -p test_callback_sites.py -v
 ```
 
-主复现输入为用户提供的原版 XEX，不依赖旧 phase3 的私有映像文件。原 XEX 从用户 ISO 只读提取的完整命令及固定 SHA 见 [路线 A](EXPERIMENT_ROUTE_A.md)；固定 Xenia 源码的本地准备方式沿用 [原映像实验](EXPERIMENT_XEX_IMAGE.md)。`--xex` 与 `--loader-source` 路径复用已有 hash-locked `image_from_xex()`，只在内存展开并再次核对完整映像 SHA，不输出映像或密钥；该真实输入路径需 `cryptography`，合成测试仅需标准库。`--image` 仍可供已有原映像研究复用，与 `--xex` 互斥。生成树参数只用于对照 mapping，省略 `--generated` 仍可从原 XEX 独立恢复候选；生成树可从既有严格重生流程重建，不要求复制私有生成源。公开仓库只提交研究工具、合成测试和本文。
+主复现输入为本地原版 XEX，不依赖旧 phase3 的私有映像文件。原 XEX 从原始 ISO 只读提取的完整命令及固定 SHA 见 [路线 A](EXPERIMENT_ROUTE_A.md)；固定 Xenia 源码的本地准备方式沿用 [原映像实验](EXPERIMENT_XEX_IMAGE.md)。`--xex` 与 `--loader-source` 路径复用已有 hash-locked `image_from_xex()`，只在内存展开并再次核对完整映像 SHA，不输出映像或密钥；该真实输入路径需 `cryptography`，合成测试仅需标准库。`--image` 仍可供已有原映像研究复用，与 `--xex` 互斥。生成树参数只用于对照 mapping，省略 `--generated` 仍可从原 XEX 独立恢复候选；生成树可从既有严格重生流程重建，不要求复制私有生成源。公开仓库只提交研究工具、合成测试和本文。
 
 18 项自制标准库测试覆盖高/低半字有符号组合、目标参数、相对/绝对 branch、无 link/无关 call 排除、r6/source 覆盖、未知 opcode、调用破坏、窗口上限、越界对齐、入链分支与错误映像 hash、两种 CLI 输入合同及互斥/缺参拒绝；全部 `OK / exit=0`。拒绝案例是预期 fail-closed，不是据错误输入继续猜候选。
 

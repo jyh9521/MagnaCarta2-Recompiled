@@ -32,9 +32,9 @@
 - GetExecutableModule的object_ref若跨Runtime.Shutdown存活，历史诊断会在清理时AV；先释放该引用再关闭，保留失败原日志。
 - 无audio_factory曾导致SDK音频对象空指针；无graphics消费者会使游戏在ringbuffer读指针固定时轮询。正式音频与真实GPU配置后这些早期阻塞已解除。
 - 20秒观察结束不是死锁定位。三次栈/寄存器/原循环条件及读写指针观测才支持当时GPU等待结论，后续真实GPU执行又反证其并非永久游戏锁死。
-- 缺TOC/Coalesced是局部部署问题，按原ISO成员哈希补齐后再找兼容缺口，不能用缺资产崩溃冒充最终成果。
+- 缺TOC/Coalesced是局部部署问题，按原ISO成员哈希补齐后再找兼容缺口，缺资产崩溃不构成最终成果。
 - `xstart`是原82868EC0生成body，不是SDK替代函数；仅查`sub_82868EC0`会误判。最终真实fatal栈与linker map均覆盖原入口。
-- 原SDKfatal fastfail未必经过VEH；额外只读日志sink记录fatal时PPC和调用栈，保持原abort，不以吞异常/返回成功实现“修复”。
+- 原SDKfatal fastfail未必经过VEH；额外只读日志sink记录fatal时PPC和调用栈，保持原abort，保留异常传播与原返回状态。
 
 ## 第六阶段：发现hint不等于修复所有间接调用
 
@@ -48,7 +48,7 @@
 - 精确4指令虚thunk扫描仅1个候选，不覆盖其他寄存器/比较回调，不自动批量hint。外部dispatch录制不是执行未知callee。
 - 新代码通过旧阻塞后，6成员根缺电影/启动包而AV guest3；保留此部署失败，补齐18原成员后再认定真实兼容缺口。
 - Movies/*.xxx探测失败不能靠空文件消除：原盘仅有对应bik。正式bik存在后继续保留原探测日志。
-- 新fatal在工作线程，栈没有xstart/main。保留false观测flags，不用父线程历史证明冒充本线程栈证据。
+- 新fatal在工作线程，栈没有xstart/main。保留false观测flags，父线程历史证明不构成本线程栈证据。
 - 下一比较回调原范围里有已登记尾块82C1C214，入口修复需验证多return和内部入口关系，不能盲目删除现存映射。
 
 ## 第八阶段：多return、位模式与筛选偏差
@@ -70,7 +70,7 @@
 ## 第十阶段：观测窗口不是故障证明
 
 - 原61fatal消失后20秒仍运行，子进程诊断exit26，不是游戏正常退出，也不是父进程timeout124。
-- 旧report曾因可选文件探测失败误称precede fault，但该run无exception/fatal；首次report/exit1保留。新增bounded_observation独立字段与负例，diagnostic_success/boot仍false，不吞fatal或改游戏。
+- 旧report曾因可选文件探测失败误称precede fault，但该run无exception/fatal；首次report/exit1保留。新增bounded_observation独立字段与负例，diagnostic_success/boot仍false，不忽略fatal或改游戏。
 - 三个相同等待采样与持续GPU日志并不证明死锁；无限timeout原静态链也不证明实际等待对象种类或生产者。
 - 256后缀完全覆盖单字节输入，但仅在全合成16KB页执行原体并record尾目标；不是原游戏GNatives夹具或真实下游验收。
 - unittest点名tests模块与直接执行local私有脚本分别遇ModuleNotFoundError；改用discover及根runpy入口，失败与修复命令保留。
@@ -128,7 +128,7 @@ word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而
 
 阶段17首个GitHub运行38981548880在Windows/Python3.12因hint-chain自制digest mock按未规范路径字符串识别SDK而失败，另一Windows矩阵被fail-fast取消；Linux两项通过。通过显式inputs/../inputs路径在本机复现同样exit1后，仅规范mock两端路径，保留路径别名回归；生产XEX/SDK哈希守卫、生成模块和真实运行输入不改。原CI日志和本机red/green记录均保留。
 
-外部云盘可能在原ISO旁创建非UTF8上传进度sidecar；源码清单必须排除这种私有元数据，不能将其送入文本diff/回退事务。阶段17保留该失败，仅加入精确扩展名ignore规则，不删除用户文件。
+外部云盘可能在原ISO旁创建非UTF8上传进度sidecar；源码清单必须排除这种私有元数据，不能将其送入文本diff/回退事务。阶段17保留该失败，仅加入精确扩展名ignore规则，未删除原有输入文件。
 
 ## 第十八阶段 — 2026-10-17
 

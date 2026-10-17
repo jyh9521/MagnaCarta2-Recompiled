@@ -60,7 +60,7 @@ python tools/research/verify_branch_ranges.py --xex local/analysis/phase2/defaul
 - 阶段 2 原始三条 `REX_FATAL`、MSVC 失败、两入口 hint 及 397 文件生成记录全部保留。
 - `local/analysis/phase3/branches/`：先仅纠正两个 early-return 范围的严格重生迭代；包含原始控制流配置快照、codegen 日志、PPC/PDATA 独立验证 JSON。
 - `local/analysis/phase3/branches-bounded/`：追加 SEH PDATA 范围的第二次严格重生；包含独立配置副本、命令、退出码、持续时间与日志。
-- 全模块基线构建与错误日志见 [模块构建实验](EXPERIMENT_MODULE_BUILD.md)。所有失败均保留，未把 exit=0 生成冒充可编译、可链接或游戏运行成功。
+- 全模块基线构建与错误日志见 [模块构建实验](EXPERIMENT_MODULE_BUILD.md)。所有失败均保留，未把 exit=0 生成视为可编译、可链接或游戏运行成功。
 
 ### 第一轮：三处分支修复已验证
 

@@ -2,7 +2,7 @@
 
 ## B1（Verified PASS）
 
-输入为用户双ISO和第一阶段成员清单，无商业UE3源码。固定解析器0.2.0与libmspack 55d501976171397ccd5d5a7a1ca7da065b1d9a06。真实MSVC x64编译了LZX DLL；Windows宿主Python调用它解压原版包。没有执行XEX，不是Xbox CPU JIT/解释。
+输入为本地双ISO和第一阶段成员清单，无商业UE3源码。固定解析器0.2.0与libmspack 55d501976171397ccd5d5a7a1ca7da065b1d9a06。真实MSVC x64编译了LZX DLL；Windows宿主Python调用它解压原版包。没有执行XEX，不是Xbox CPU JIT/解释。
 
 对照为自制UE3包：截断、错误版本/清单/hash、越界引用、outer环、表重叠、损坏framing均测试拒绝。盘1的1912、盘2的2233包全部得到有效name/import/export表。指标见[RESEARCH_UE3.md](RESEARCH_UE3.md)。local/analysis/phase2/ue3-disc1.json、ue3-disc2.json、ue3-summary.json保存本地证据；原始对象明细/资源不提交。
 

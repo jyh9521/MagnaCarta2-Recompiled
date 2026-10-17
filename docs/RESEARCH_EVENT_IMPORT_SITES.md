@@ -103,7 +103,7 @@ proof = match_caller_lr(registry, "NtCreateEvent", caller_lr)
 
 ## 复现与失败记录
 
-干净 checkout 按既有原 XEX 提取、锁 loader、严格生成流程准备用户输入，然后显式提供五个路径；不依赖旧私有 image.bin：
+干净 checkout 按既有原 XEX 提取、锁 loader、严格生成流程准备原版输入，然后显式提供五个路径；不依赖旧私有 image.bin：
 
 ```powershell
 python -m tools.research.verify_event_import_sites --xex local/analysis/phase2/default-disc1.xex --loader-source local/upstream/xenia/xex_module.cc --generated-register local/analysis/phase11/strict-codegen/project/generated/default-disc1/mc2_probe_register.cpp --sdk-runtime local/upstream/rexglue/sdk/win-amd64/bin/rexruntime.dll --output local/analysis/event-import-reproduction/registry.json

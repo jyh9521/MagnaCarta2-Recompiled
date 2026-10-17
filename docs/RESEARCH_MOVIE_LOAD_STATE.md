@@ -4,7 +4,7 @@
 
 本页的 **Verified-static** 表示本地固定原镜像和既有strict生成体的静态观察，不代表游戏已经执行了该路径。原XEX为 `local/analysis/phase2/default-disc1.xex`，SHA-256 `26146f0ceaeb1945bc8e0031d31bfd7fe929c85a6e9e0992aeaa823968c0750f`；已解码、未修改的私有映像为 `local/analysis/phase5/startup-private-image.bin`，20,119,552字节，SHA-256 `d18d49fb2960426715ba17d61d069cce42b1eadac153af13c9395cd42b1773e9`。本次以hash锁定的 `tools.research.verify_branch_ranges.image_from_xex` 从原XEX独立重新解码，输出 `SNAPSHOT_IDENTICAL True`，exit0；并非只信任历史snapshot。原文件及生成代码保持ignored，不随本页提交。
 
-本次直接尝试REA `open_binary` 打开该映像，返回 `target_unavailable` / `unsupported PE architecture` / `retryable:false`，未创建成功会话，未得到REA分析Evidence ID。服务器返回的是同文件的历史junction路径 `C:\Users\noway\Downloads\MagnaCarta2-Recompiled\local\analysis\phase5\startup-private-image.bin`。未安装或修改分析环境。以下证据来自hash核对、原PE异常表、原PPC指令及既有生成体交叉阅读，不冒称REA反编译证据。
+本次直接尝试REA `open_binary` 打开该映像，返回 `target_unavailable` / `unsupported PE architecture` / `retryable:false`，未创建成功会话，未得到REA分析Evidence ID。服务器返回的是同文件的历史junction路径 `C:\Users\noway\Downloads\MagnaCarta2-Recompiled\local\analysis\phase5\startup-private-image.bin`。未安装或修改分析环境。以下证据来自hash核对、原PE异常表、原PPC指令及既有生成体交叉阅读，不标记为REA反编译证据。
 
 ## Verified-static：完整原范围
 
@@ -49,7 +49,7 @@
 
 ## 默认关闭透明observer建议与边界
 
-最小目标集为`8248FED8,82490CF0,827B6148,82490708,824909B8,82490C78,82491630,82491930,82491BD8`。每项先核完整PDATA范围hash，核SDK两份登记所指向的同一原函数，再以wrapper调用原函数，记录前后r3/LR及有限参数；默认关闭，启用时不替换返回值、不写guest字段、不吞异常、不改变资源查找。
+最小目标集为`8248FED8,82490CF0,827B6148,82490708,824909B8,82490C78,82491630,82491930,82491BD8`。每项先核完整PDATA范围hash，核SDK两份登记所指向的同一原函数，再以wrapper调用原函数，记录前后r3/LR及有限参数；默认关闭，启用时不替换返回值、不写guest字段、不抑制异常传播、不改变资源查找。
 
 只对已确认movie入口（CF0、三open、tick、cleanup、next）保存入口r3作为movie指针。候选快照字段为`+0x38,+0x40,+0x44,+0x50,+0x54,+0x58,+0x64,+0x74,+0x78,+0x7C,+0x84,+0xB0,+0xB8`。应先以SDK已映射页面/范围读守卫验证每一个访问；读取失败记录“未采集”而非分配页面、补零或修改执行。CF0 r5是UTF-16字符串指针，open r4也是路径指针；827B6148 r4则是FString结构，不能用同一解码规则。静态字段偏移可用，不代表每次r3指针均有效。
 
