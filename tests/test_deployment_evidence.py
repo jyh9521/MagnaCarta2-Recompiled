@@ -106,6 +106,22 @@ class DeploymentEvidenceTests(unittest.TestCase):
             with self.assertRaises(ValueError):summarize_trials(bad,[],[],MEMBER)
         with self.assertRaises(ValueError):summarize_trials([],[],[],MEMBER,identity_verified=1)
 
+    def test_heap_termination_without_capture_remains_unresolved(self):
+        value=report('av')
+        value.update(exit_status=0xC0000374,exception=None,run_record={'exit_status':0xC0000374})
+        result=summarize_trials(report(),[report('other'),value],report(),MEMBER,identity_verified=True)
+        self.assertFalse(result['limited_deployment_association'])
+        row=result['trials']['modified'][1]
+        self.assertEqual(row['observation'],'other_failure_or_observation_unresolved')
+        self.assertFalse(row['different_positive_failure'])
+
+    def test_heap_exit_does_not_validate_stale_panic_capture(self):
+        value=report()
+        value.update(exit_status=0xC0000374,run_record={'exit_status':0xC0000374})
+        result=summarize_trials(value,report('other'),report(),MEMBER,identity_verified=True)
+        self.assertFalse(result['trials']['baseline'][0]['specified_member_panic'])
+        self.assertFalse(result['limited_deployment_association'])
+
 
 class CrossFieldConsistencyTests(unittest.TestCase):
     def classification(self, value):

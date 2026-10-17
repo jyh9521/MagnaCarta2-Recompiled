@@ -2,7 +2,7 @@
 
 |项目|状态|原因/下一验收|
 |---|---|---|
-|Windows 原生运行|标题初始化部分通过|8234FF10/823C2740已严格重生；C1A0完整比较回调已恢复；52网关已恢复；61扩展入口已恢复；82AC1DE8原浮点叶已恢复；82AC2810双return已恢复；826A9EC8条件tail已恢复；82A3DEA0索引tail已恢复；82B7CCD0原word-load叶已恢复；当前原82390A70显式panic写guest3/C0000005，错误message与触发条件待查，尚不可玩|
+|Windows 原生运行|标题初始化部分通过|8234FF10/823C2740已严格重生；C1A0完整比较回调已恢复；52网关已恢复；61扩展入口已恢复；82AC1DE8原浮点叶已恢复；82AC2810双return已恢复；826A9EC8条件tail已恢复；82A3DEA0索引tail已恢复；82B7CCD0原word-load叶已恢复；当前有效Cinook补回样本到02_village_ter01原panic/guest3；另有无捕获C0000374未决，详见阶段33，尚不可玩|
 |中文显示/字体/换行|NOT TESTED|资源编码及回写尚待调查|
 |文本提取/回写|部分实现|Coalesced 候选提取与内存往返完成；对象文本/游戏部署回写未完成|
 |跨盘游戏依赖|部分实现|已有包表引用/文件候选图，动态加载与换盘语义未验证|
@@ -140,3 +140,8 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 ## 阶段32：下一包失败仍保留
 
 `02_Village_Collision.xxx`的原包验证、两轮单成员交叉及实际删除回退见[阶段32研究](RESEARCH_COLLISION_DEPLOYMENT.md)。补回后推进到`CinookIsland_CompTuto_01.xxx`原panic；仅支持固定输入下的有限因果贡献，不代表下一包已验证、地图完成或可玩性。原生失败、无有效readback和历史失败记录保留。
+
+
+## 阶段33：下一包及堆终止仍未解决
+
+`CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。

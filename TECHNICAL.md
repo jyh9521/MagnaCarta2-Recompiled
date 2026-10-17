@@ -210,3 +210,8 @@ observer记录worker/start、伴随文本容器、三open、tick、cleanup/playl
 ## 阶段32：Collision可逆失败边界
 
 `02_Village_Collision.xxx`的原包验证、两轮单成员交叉及实际删除回退见[阶段32研究](docs/RESEARCH_COLLISION_DEPLOYMENT.md)。补回后推进到`CinookIsland_CompTuto_01.xxx`原panic；仅支持固定输入下的有限因果贡献，不代表下一包已验证、地图完成或可玩性。原生失败、无有效readback和历史失败记录保留。
+
+
+## 阶段33：有条件的加载推进
+
+`CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](docs/RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。

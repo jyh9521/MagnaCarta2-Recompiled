@@ -4,7 +4,11 @@ Xbox 360《MagnaCarta 2》原生重编译、Windows x64 移植研究与可复用
 原名 `Magna-Carta-2-CN`；简体中文本地化保留为子项目，不改变现有 locale/数据格式。
 运行以本地原版数据与本项目工具/兼容运行时为基础；不是 Xenia 启动器。
 
-## 当前状态（2026-10-17，第十七阶段）
+## 当前状态（2026-10-18，阶段33）
+
+`CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](docs/RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。 尚无玩家发布包、地图完成或可玩性验收。
+
+## 历史技术总览（截至2026-10-17，第十七阶段）
 - 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
 - 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
 - 已勘测：本地提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
@@ -77,3 +81,8 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 ## 阶段32：Collision单成员部署
 
 `02_Village_Collision.xxx`的原包验证、两轮单成员交叉及实际删除回退见[阶段32研究](docs/RESEARCH_COLLISION_DEPLOYMENT.md)。补回后推进到`CinookIsland_CompTuto_01.xxx`原panic；仅支持固定输入下的有限因果贡献，不代表下一包已验证、地图完成或可玩性。原生失败、无有效readback和历史失败记录保留。
+
+
+## 阶段33：Cinook单成员与混合失败
+
+`CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](docs/RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。
