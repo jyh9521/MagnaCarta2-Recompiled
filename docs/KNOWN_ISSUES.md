@@ -113,3 +113,7 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 ## 阶段26更新
 [原START链与主菜单](PHASE26_RESULTS.md)：有限synthetic START已通过官方SDK/原consumer进入New Game菜单，同设备neutral控制/实际回退仍Press START。默认driver不变，自动输入不是物理/可见窗口/玩法验收；oldword幅度FF与SDK按钮mask0x0010（bit4）区分，原vtablecallback未直接观察。保留失败和原源码回退证据。
+
+
+## 阶段27：A确认进展与当前失败
+真实A已到原SDK/原helper，确认路径触发8233D3D8未登记原fatal，尚未正常进入可玩流程。native C0000409、图像未捕获、早期CS AV未重现/未修复均明确保留；不是物理输入或可见窗口验收。 见[阶段27](PHASE27_RESULTS.md)。

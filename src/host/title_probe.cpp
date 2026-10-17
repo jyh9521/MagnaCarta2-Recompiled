@@ -45,16 +45,21 @@ bool capture_guest_output_requested = false;
 bool input_trace_requested=false;
 bool scripted_start_requested=false;
 bool scripted_neutral_requested=false;
+bool scripted_confirm_requested=false;
+bool scripted_confirm_neutral_requested=false;
 std::atomic<unsigned> input_dump_index{0};
 void WriteInputTrace(const char* reason){
  const auto index=input_dump_index.fetch_add(1);if(index>=4)return;
- mc2::host::FreezeInputStateTrace();mc2::host::FreezeStartEventTrace();
+ mc2::host::FreezeInputStateTrace();mc2::host::FreezeStartEventTrace();mc2::host::FreezeConfirmEventTrace();
  char name[64]{};std::snprintf(name,sizeof(name),"input-state-%u.txt",index);auto* file=std::fopen(name,"wb");bool okay=file&&std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
  if(file){mc2::host::DumpInputStateTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
  std::printf("INPUT_STATE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
  std::snprintf(name,sizeof(name),"start-event-%u.txt",index);file=std::fopen(name,"wb");okay=file&&std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
  if(file){mc2::host::DumpStartEventTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
  std::printf("START_EVENT_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+ if(input_trace_requested){std::snprintf(name,sizeof(name),"confirm-event-%u.txt",index);file=std::fopen(name,"wb");okay=file&&std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+ if(file){mc2::host::DumpConfirmEventTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
+ std::printf("CONFIRM_EVENT_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));}
  if(scripted_start_requested)mc2::host::DumpScriptedController();
 }
 
@@ -382,6 +387,9 @@ int main(int argc,char** argv) {
     capture_guest_output_requested=std::getenv("MC2_CAPTURE_GUEST_OUTPUT") && std::strcmp(std::getenv("MC2_CAPTURE_GUEST_OUTPUT"),"1")==0;
     scripted_start_requested=std::getenv("MC2_SCRIPTED_START") && std::strcmp(std::getenv("MC2_SCRIPTED_START"),"1")==0;
     scripted_neutral_requested=std::getenv("MC2_SCRIPTED_NEUTRAL") && std::strcmp(std::getenv("MC2_SCRIPTED_NEUTRAL"),"1")==0;
+    scripted_confirm_requested=std::getenv("MC2_SCRIPTED_CONFIRM") && std::strcmp(std::getenv("MC2_SCRIPTED_CONFIRM"),"1")==0;
+    scripted_confirm_neutral_requested=std::getenv("MC2_SCRIPTED_CONFIRM_NEUTRAL") && std::strcmp(std::getenv("MC2_SCRIPTED_CONFIRM_NEUTRAL"),"1")==0;
+    if((scripted_confirm_requested&&!scripted_start_requested)||(scripted_confirm_neutral_requested&&!scripted_confirm_requested))return 45;
     input_trace_requested=scripted_start_requested || (std::getenv("MC2_TRACE_INPUT") && std::strcmp(std::getenv("MC2_TRACE_INPUT"),"1")==0);
     const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
     if(present) {
@@ -400,7 +408,7 @@ int main(int argc,char** argv) {
     config.input_factory=REX_INPUT_BACKEND(rex::input::CreateDefaultInputSystem);
     if(scripted_start_requested)config.input_factory=[](bool tool_mode)->std::unique_ptr<rex::system::IInputSystem>{
       if(tool_mode)return {};auto input=rex::input::CreateDefaultInputSystem(tool_mode);if(!input)return {};
-      auto driver=mc2::host::MakeScriptedController(&mc2::host::scripted_controller::Now,scripted_neutral_requested);if(!driver)return {};const auto setup=driver->Setup();
+      auto driver=mc2::host::MakeScriptedController(&mc2::host::scripted_controller::Now,scripted_neutral_requested,scripted_confirm_requested,scripted_confirm_neutral_requested);if(!driver)return {};const auto setup=driver->Setup();
       std::printf("SCRIPTED_CONTROLLER_SETUP status=%08X input_source=synthetic setup_before_add=1 default_drivers_retained=1\n",unsigned(setup));
       if(setup)return {};input->AddDriver(std::move(driver));return input;
     };
@@ -497,7 +505,7 @@ int main(int argc,char** argv) {
         for(unsigned i=0;i<2;++i){const bool bound=runtime.function_dispatcher()->GetFunction(targets[i])==hooks[i],distinct=hooks[i]!=originals[i];binding=binding&&bound&&distinct;
           std::printf("INPUT_BIND target=%08X dispatcher_hook=%u distinct_original=%u\n",targets[i],unsigned(bound),unsigned(distinct));}
       }
-      const bool configured=mc2::host::ConfigureInputStateTrace(code&&binding,input_trace_requested)&&mc2::host::ConfigureStartEventTrace(code&&binding,input_trace_requested);
+      const bool configured=mc2::host::ConfigureInputStateTrace(code&&binding,input_trace_requested)&&mc2::host::ConfigureStartEventTrace(code&&binding,input_trace_requested)&&mc2::host::ConfigureConfirmEventTrace(code&&binding,input_trace_requested);
       std::printf("TITLE_INPUT_TRACE enabled=%u code_guard=%u binding_guard=%u configured=%u\n",unsigned(input_trace_requested),unsigned(code),unsigned(binding),unsigned(configured));
       if(!configured){WriteInputTrace("install");return 43;}
     }
@@ -524,6 +532,7 @@ int main(int argc,char** argv) {
     if(scripted_start_requested){const bool armed=wait_sdk_verified&&mc2::host::ArmScriptedController();
       std::printf("TITLE_SCRIPTED_START enabled=1 input_source=synthetic armed=%u sdk_guard=%u neutral_only=%u\n",unsigned(armed),unsigned(wait_sdk_verified),unsigned(scripted_neutral_requested));if(!armed)return 44;
     }else std::puts("TITLE_SCRIPTED_START enabled=0 input_source=default");
+    std::printf("TITLE_SCRIPTED_CONFIRM enabled=%u sdk_guard=%u\n",unsigned(scripted_confirm_requested),unsigned(wait_sdk_verified));
     launch_phase=2;
     status=thread->Resume();
     std::printf("TITLE_RESUMED status=%08X\n",unsigned(status));if(status)return 25;

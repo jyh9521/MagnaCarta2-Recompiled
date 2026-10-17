@@ -11,7 +11,7 @@ class StartInputObservationTests(unittest.TestCase):
     def test_readonly_guard(self):
         s=HEADER.read_text(encoding='utf-8');self.assertIn('schedule_observation::Read',s);self.assertIn('word!=g[1]',s);self.assertNotIn('REX_STORE',s);self.assertNotIn('WriteProcessMemory',s)
     def test_integration_inputs_hashed(self):
-        s=(ROOT/'tools/research/probe_title_entry.py').read_text(encoding='utf-8');self.assertIn("('input_state_trace.h','start_event_trace.h','start_input_observation.h','scripted_controller_probe.h')",s);self.assertIn("dependencies.append(args.source.parent/'guest_output_capture.h')",s)
+        s=(ROOT/'tools/research/probe_title_entry.py').read_text(encoding='utf-8');self.assertIn("['input_state_trace.h','start_event_trace.h','start_input_observation.h','scripted_controller_probe.h']",s);self.assertIn("input_observer_headers(args.source)",s);self.assertIn("dependencies.extend(input_headers)",s);self.assertIn("dependencies.append(args.source.parent/'guest_output_capture.h')",s)
     @unittest.skipUnless(os.name=='nt'and(ROOT/'local/upstream/rexglue/sdk/win-amd64/include').exists(),'local Windows SDK fixture')
     def test_native_guard_pages(self):
         from tools.research.compile_module import vc_environment

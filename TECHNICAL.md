@@ -180,3 +180,7 @@ voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入8
 
 ## 阶段26更新
 [原START链与主菜单](docs/PHASE26_RESULTS.md)：有限synthetic START已通过官方SDK/原consumer进入New Game菜单，同设备neutral控制/实际回退仍Press START。默认driver不变，自动输入不是物理/可见窗口/玩法验收；oldword幅度FF与SDK按钮mask0x0010（bit4）区分，原vtablecallback未直接观察。保留失败和原源码回退证据。
+
+
+## 阶段27：原A输入与新分派边界
+原mask1000/key10/LR827B4DEC已验，原helper A存储0→255→0。确认后实际虚调8233D3D8（callerLR8252FA78）无生成登记；只读完整证据与下一叶读取验证分开。 见[阶段27](docs/PHASE27_RESULTS.md)。

@@ -246,6 +246,16 @@ def validate_fp_contract(profile, inputs, records):
             raise ValueError('discovery object lacks exact strict FP contract')
 
 
+def input_observer_headers(source):
+    """Bind observer dependencies to this host snapshot, including old hosts."""
+    source=Path(source)
+    if '#include "start_input_observation.h"'not in source.read_text(encoding='utf-8-sig'):return [],False
+    names=['input_state_trace.h','start_event_trace.h','start_input_observation.h','scripted_controller_probe.h']
+    confirm='#include "confirm_event_trace.h"'in(source.parent/'start_event_trace.h').read_text(encoding='utf-8-sig')
+    if confirm:names.append('confirm_event_trace.h')
+    return [source.parent/name for name in names],confirm
+
+
 def execute(args):
     seconds=getattr(args,'observe_seconds',20)
     if not 20<=seconds<=60:raise ValueError('observation must be 20..60 seconds')
@@ -253,6 +263,10 @@ def execute(args):
     schedule=getattr(args,'trace_schedule',False)
     counter=getattr(args,'trace_counter',False)
     scripted_start=getattr(args,'scripted_start',False)
+    scripted_confirm=getattr(args,'scripted_confirm',False)
+    scripted_confirm_neutral=getattr(args,'scripted_confirm_neutral',False)
+    if scripted_confirm_neutral and not scripted_confirm:raise ValueError('confirmation-only neutral control requires confirmation mode')
+    if scripted_confirm and not scripted_start:raise ValueError('confirmation requires the scripted START experiment')
     scripted_neutral=getattr(args,'scripted_controller_neutral',False)
     if scripted_neutral and not scripted_start:raise ValueError('neutral control requires the synthetic controller experiment')
     input_trace=getattr(args,'trace_input',False) or scripted_start
@@ -286,6 +300,8 @@ def execute(args):
     overrides['MC2_COUNTER_TRACE']='1' if counter else '0'
     overrides['MC2_TRACE_INPUT']='1' if input_trace else '0'
     overrides['MC2_SCRIPTED_START']='1' if scripted_start else '0'
+    overrides['MC2_SCRIPTED_CONFIRM_NEUTRAL']='1' if scripted_confirm_neutral else '0'
+    overrides['MC2_SCRIPTED_CONFIRM']='1' if scripted_confirm else '0'
     overrides['MC2_SCRIPTED_NEUTRAL']='1' if scripted_neutral else '0'
     overrides['MC2_FRAME_TIMELINE']='1' if timeline else '0'
     overrides['MC2_CAPTURE_GUEST_OUTPUT']='1' if capture_guest else '0'
@@ -310,9 +326,11 @@ def execute(args):
     has_capture_header='#include "guest_output_capture.h"' in args.source.read_text(encoding='utf-8-sig')
     if capture_guest and not has_capture_header:raise ValueError('guest output capture requires the SDK readback observer')
     if has_capture_header:dependencies.append(args.source.parent/'guest_output_capture.h')
-    has_input_header='#include "start_input_observation.h"' in args.source.read_text(encoding='utf-8-sig')
+    input_headers,has_confirm_header=input_observer_headers(args.source)
+    has_input_header=bool(input_headers)
     if input_trace and not has_input_header:raise ValueError('input tracing requires the verified original state/consumer observer')
-    if has_input_header:dependencies.extend(args.source.parent/name for name in ('input_state_trace.h','start_event_trace.h','start_input_observation.h','scripted_controller_probe.h'))
+    dependencies.extend(input_headers)
+    if scripted_confirm and not has_confirm_header:raise ValueError('confirmation requires the verified A consumer observer')
     assets=[]
     if args.gpu:
         overrides['MC2_GPU_PLUGIN']='xenos';assets=[args.sdk/'bin/rexgpu-xenos.dll']
@@ -359,10 +377,11 @@ def execute(args):
     report['queue_watch'],report['queue_watches']=read_queue_watches(run_text,output,requested=counter)
     report['frame_timeline'],report['frame_timelines']=read_frame_timelines(run_text,output,requested=timeline)
     report['guest_output_capture']=parse_guest_output_capture(run_text,output,requested=capture_guest)
-    report['input_traces']=read_input_traces(run_text,output,requested=input_trace)
-    report['scripted_controller']=parse_scripted_controller(run_text,requested=scripted_start)
+    report['input_traces']=read_input_traces(run_text,output,requested=input_trace,confirm_requested=input_trace and has_confirm_header)
+    report['scripted_controller']=parse_scripted_controller(run_text,requested=scripted_start,confirm_requested=scripted_confirm,confirm_neutral=scripted_confirm_neutral)
     report['input_trace_requested']=input_trace
     report['scripted_start_requested']=scripted_start
+    report['scripted_confirm_requested']=scripted_confirm
     report['game_input_before']=root_before
     report['game_input_after']=inventory(root)
     report['game_input_unchanged']=report['game_input_before']==report['game_input_after'] and digest(args.xex)==XEX_SHA256
@@ -390,6 +409,8 @@ def execute(args):
         report['bounded_observation']=False;report['diagnostic_success']=False
     if input_trace and not all(report['input_traces'][k]['capture_verified']for k in ['input_state','start_event']):
         report['bounded_observation']=False;report['diagnostic_success']=False
+    if input_trace and has_confirm_header and not report['input_traces']['confirm_event']['capture_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
     if scripted_start and not report['scripted_controller']['capture_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
     if timeline and not report['frame_timeline']['capture_verified']:
@@ -414,6 +435,8 @@ def main(argv=None):
     parser.add_argument('--observe-seconds',type=int,default=20,help='bounded diagnostic window, 20..60 seconds')
     parser.add_argument('--capture-critical-section',action='store_true',help='optional bounded read-only observation of the exact original SDK AV; absence is not failure')
     parser.add_argument('--capture-panic',action='store_true',help='opt-in bounded original-panic read-only observation; never resumes a fault')
+    parser.add_argument('--scripted-confirm-neutral',action='store_true',help='keep same START+A capabilities and START pulse, but suppress A; requires --scripted-confirm')
+    parser.add_argument('--scripted-confirm',action='store_true',help='finite original A-mask confirmation after scripted START; requires --scripted-start')
     parser.add_argument('--scripted-controller-neutral',action='store_true',help='same synthetic device and capabilities, but keep all controls neutral for causal comparison')
     parser.add_argument('--scripted-start',action='store_true',help='opt-in finite synthetic controller START pulse; original game input consumer stays unchanged')
     parser.add_argument('--trace-input',action='store_true',help='transparent original SDK state adapter and START consumer observation')

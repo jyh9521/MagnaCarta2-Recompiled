@@ -18,8 +18,8 @@ def parse_input_trace(text,kind='INPUT_STATE',requested=False):
     result=dict(status='disabled'if not requested else'invalid_capture',capture_verified=False,errors=[],entries=[],pending=[],transitions=[],storage_complete=False,coverage_complete=False,physical_input_verified=False,event_callback_verified=False)
     if not requested:return result
     try:
-        if kind not in {'INPUT_STATE','START_EVENT'}:raise ValueError('trace kind')
-        start=kind=='START_EVENT';capacity=16384 if start else 8192;lines=text.splitlines()
+        if kind not in {'INPUT_STATE','START_EVENT','CONFIRM_EVENT'}:raise ValueError('trace kind')
+        start=kind!='INPUT_STATE';confirm=kind=='CONFIRM_EVENT';key=10 if confirm else 5;caller=0x827B4DEC if confirm else 0x827B4D10;capacity=16384 if start else 8192;lines=text.splitlines()
         if [x for x in lines if x.startswith('TITLE_WAIT_SDK')]!=['TITLE_WAIT_SDK parent_attested=1']:raise ValueError('SDK attestation')
         if [x for x in lines if x.startswith('TITLE_INPUT_TRACE')]!=['TITLE_INPUT_TRACE enabled=1 code_guard=1 binding_guard=1 configured=1']:raise ValueError('code/configuration guard')
         binds=[fields(x,hexextra={'target'})for x in lines if x.startswith('INPUT_BIND')]
@@ -43,21 +43,21 @@ def parse_input_trace(text,kind='INPUT_STATE',requested=False):
             expected|={'phase','obj','key','opaque','new_value','old_known','old_word','old_status','result'}if start else{'state_address','status','captured','read_status','hex'}
             if set(x)!=expected or not x['seq']or not x['call']or x['call']>h['calls']or x['seq']>min(h['reserved'],capacity)or x['seq']in seq or x['thread']>0xFFFFFFFF:raise ValueError('entry contract')
             if start:
-                address=(x['obj']&0xFFFFFFFF)+0x4AC+x['user']*0xC0
+                address=(x['obj']&0xFFFFFFFF)+(0x4C0 if confirm else 0x4AC)+x['user']*0xC0
                 ordinary=0x10000<=address<=0x7F000000-4
                 if x['old_known'] and not ordinary:raise ValueError('oldword address')
                 if not x['old_known']:
                     expected_status='address-overflow'if address>0xFFFFFFFC else'outside-ram'if not ordinary else None
                     if expected_status and x['old_status']!=expected_status or not expected_status and x['old_status']in {'address-overflow','outside-ram'}:raise ValueError('oldword failure address')
-                if x['phase']not in {'pre','post'}or x['user']>3 or x['key']&0xFFFFFFFF!=5 or x['old_known']not in(0,1)or x['old_word']>0xFFFFFFFF:raise ValueError('START filter/word')
-                if x['phase']=='pre'and x['lr']!=0x827B4D10:raise ValueError('original caller')
+                if x['phase']not in {'pre','post'}or x['user']>3 or x['key']&0xFFFFFFFF!=key or x['old_known']not in(0,1)or x['old_word']>0xFFFFFFFF:raise ValueError('START filter/word')
+                if x['phase']=='pre'and x['lr']!=caller:raise ValueError('original caller')
                 if x['old_known']and x['old_status']!='ok' or not x['old_known']and(x['old_word']or x['old_status']not in FAIL|{'outside-ram','address-overflow'}):raise ValueError('oldword validity')
                 token=(x['call'],x['phase'])
             else:
                 if x['captured']not in(0,16):raise ValueError('state size')
                 if x['captured']==16:
                     if x['status']!=0 or x['read_status']!='ok'or not re.fullmatch('[0-9A-Fa-f]{32}',x['hex'])or not 0x10000<=x['state_address']<=0x7F000000-16:raise ValueError('successful state contract')
-                    raw=bytes.fromhex(x['hex']);x.update(packet_number=int.from_bytes(raw[:4],'big'),buttons=int.from_bytes(raw[4:6],'big'),start_pressed=bool(raw[5]&0x10))
+                    raw=bytes.fromhex(x['hex']);x.update(packet_number=int.from_bytes(raw[:4],'big'),buttons=int.from_bytes(raw[4:6],'big'),start_pressed=bool(raw[5]&0x10),confirm_pressed=bool(raw[4]&0x10))
                 elif x['hex']!='-'or(x['status']!=0 and x['read_status']!='not-read-status')or(x['status']==0 and x['read_status']not in FAIL|{'outside-ordinary-ram'}):raise ValueError('unknown state contract')
                 token=x['call']
             if token in events:raise ValueError('duplicate call phase')
@@ -78,10 +78,11 @@ def parse_input_trace(text,kind='INPUT_STATE',requested=False):
     except(ValueError,KeyError,TypeError)as exc:result['errors'].append(str(exc))
     return result
 
-def read_input_traces(run_text,output,requested=False):
+def read_input_traces(run_text,output,requested=False,confirm_requested=False):
     results={}
-    for kind,marker,stem in [('INPUT_STATE','INPUT_STATE_FILE','input-state'),('START_EVENT','START_EVENT_FILE','start-event')]:
-        result=parse_input_trace(run_text,kind,requested);captures=[];errors=[];seen=set()
+    for kind,marker,stem in [('INPUT_STATE','INPUT_STATE_FILE','input-state'),('START_EVENT','START_EVENT_FILE','start-event'),('CONFIRM_EVENT','CONFIRM_EVENT_FILE','confirm-event')]:
+        enabled=confirm_requested if kind=='CONFIRM_EVENT'else requested
+        result=parse_input_trace(run_text,kind,enabled);captures=[];errors=[];seen=set()
         for line in run_text.splitlines():
             if not line.startswith(marker):continue
             match=re.fullmatch(marker+r' reason=(\w+) path=('+stem+r'-\d+\.txt) success=([01])',line)
@@ -92,9 +93,9 @@ def read_input_traces(run_text,output,requested=False):
             if success!='1'or not path.is_file():errors.append('failed/missing file');continue
             try:raw=path.read_bytes()
             except OSError:errors.append('file read failed');continue
-            parsed=parse_input_trace(run_text+'\n'+raw.decode('utf-8',errors='replace'),kind,requested);parsed.update(reason=reason,path=str(path),sha256=hashlib.sha256(raw).hexdigest());captures.append(parsed)
+            parsed=parse_input_trace(run_text+'\n'+raw.decode('utf-8',errors='replace'),kind,enabled);parsed.update(reason=reason,path=str(path),sha256=hashlib.sha256(raw).hexdigest());captures.append(parsed)
             if not parsed['capture_verified']:errors.extend(parsed['errors']or['disabled capture'])
-        if requested and not captures:errors.append('no captured file provenance')
+        if enabled and not captures:errors.append('no captured file provenance')
         if captures:result=dict(captures[-1])
         if errors:result.update(status='invalid_capture',capture_verified=False,errors=errors)
         results[kind.lower()]=result;results[kind.lower()+'_captures']=captures
@@ -103,7 +104,7 @@ def read_input_traces(run_text,output,requested=False):
 
 
 
-def parse_scripted_controller(text,requested=False):
+def parse_scripted_controller(text,requested=False,confirm_requested=False,confirm_neutral=False):
     result=dict(status='disabled'if not requested else'invalid_capture',capture_verified=False,errors=[],physical_input_verified=False)
     if not requested:return result
     try:
@@ -118,11 +119,25 @@ def parse_scripted_controller(text,requested=False):
         if len(records)!=1 or unknown:raise ValueError('unique scripted record')
         x=fields(records[0],{'input_source'},{'device'});expected={'input_source','automatic_only','physical_verified','made','setup','armed','neutral_only','device','pulse_start_ms','pulse_width_ms','arm_tick','polls','pressed_polls','released_polls','packet','first_tick','last_tick','capabilities','keystroke_polls','key_down','key_up','empty','vibration','left','right','errors','setup_calls'}
         if set(x)!=expected or (x['input_source'],x['automatic_only'],x['physical_verified'],x['made'],x['setup'],x['armed'],x['device'],x['pulse_start_ms'],x['pulse_width_ms'],x['setup_calls'])!=('synthetic',1,0,1,1,1,0x5343524950540001,25000,500,1)or x['neutral_only']!=config['neutral_only']:raise ValueError('synthetic driver contract')
-        if x['pressed_polls']+x['released_polls']>x['polls']or x['key_down']>1 or x['key_up']>x['key_down']or x['empty']+x['key_down']+x['key_up']!=x['keystroke_polls']or max(x['left'],x['right'])>65535 or x['packet']not in (1,2,3):raise ValueError('driver accounting')
+        cr={}
+        confirms=[q for q in lines if q.startswith('SCRIPTED_CONFIRM ')]
+        config_lines=[q for q in lines if q.startswith('TITLE_SCRIPTED_CONFIRM')]
+        if not confirm_requested and (confirms or config_lines not in ([],['TITLE_SCRIPTED_CONFIRM enabled=0 sdk_guard=1'])):raise ValueError('unrequested confirm mode')
+        if confirm_requested:
+            if [q for q in lines if q.startswith('TITLE_SCRIPTED_CONFIRM')]!=['TITLE_SCRIPTED_CONFIRM enabled=1 sdk_guard=1']or len(confirms)!=1:raise ValueError('confirm configuration')
+            cr=fields(confirms[0]);expected_cr={'enabled','neutral_only','confirm_neutral','confirm_start_ms','confirm_width_ms','confirm_polls','confirm_released_polls','a_key_down','a_key_up'}
+            if set(cr)!=expected_cr or(cr['enabled'],cr['neutral_only'],cr['confirm_start_ms'],cr['confirm_width_ms'])!=(1,x['neutral_only'],32000,500):raise ValueError('confirm schedule contract')
+            if cr['confirm_neutral']not in(0,1)or cr['confirm_neutral']!=int(confirm_neutral):raise ValueError('confirm control mode')
+            if cr['confirm_neutral']and any(cr[q]for q in ['confirm_polls','confirm_released_polls','a_key_down','a_key_up']):raise ValueError('suppressed confirm')
+            if cr['confirm_released_polls']>x['released_polls']or cr['a_key_down']>1 or cr['a_key_up']>cr['a_key_down']:raise ValueError('confirm counters')
+            if x['neutral_only']and any(cr[q]for q in ['confirm_polls','confirm_released_polls','a_key_down','a_key_up']):raise ValueError('neutral confirm')
+        a_polls=cr.get('confirm_polls',0);a_down=cr.get('a_key_down',0);a_up=cr.get('a_key_up',0)
+        if x['pressed_polls']+x['released_polls']+a_polls>x['polls']or x['key_down']>1 or x['key_up']>x['key_down']or x['empty']+x['key_down']+x['key_up']+a_down+a_up!=x['keystroke_polls']or max(x['left'],x['right'])>65535 or x['packet']not in ((1,2,3,4,5)if confirm_requested else(1,2,3)):raise ValueError('driver accounting')
         if x['polls']and x['first_tick']>x['last_tick']or not x['polls']and(x['first_tick']or x['last_tick']):raise ValueError('poll clock')
         if x['neutral_only']and(x['pressed_polls']or x['released_polls']or x['key_down']or x['key_up']or x['packet']!=1):raise ValueError('neutral control')
-        if x['packet']!=(3 if x['released_polls']else 2 if x['pressed_polls']else 1):raise ValueError('packet phase')
+        expected_packet=5 if cr.get('confirm_released_polls',0)else 4 if a_polls else 3 if x['released_polls']else 2 if x['pressed_polls']else 1
+        if x['packet']!=expected_packet:raise ValueError('packet phase')
         if not x['vibration']and(x['left']or x['right']):raise ValueError('uncalled vibration state')
-        result.update(status='observed',capture_verified=True,record=x,configuration=config)
+        result.update(status='observed',capture_verified=True,record=x,configuration=config,confirm_record=cr)
     except(ValueError,KeyError,TypeError)as exc:result['errors'].append(str(exc))
     return result

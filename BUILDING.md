@@ -228,3 +228,7 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 
 ## 阶段26更新
 [原START链与主菜单](docs/PHASE26_RESULTS.md)：有限synthetic START已通过官方SDK/原consumer进入New Game菜单，同设备neutral控制/实际回退仍Press START。默认driver不变，自动输入不是物理/可见窗口/玩法验收；oldword幅度FF与SDK按钮mask0x0010（bit4）区分，原vtablecallback未直接观察。保留失败和原源码回退证据。
+
+
+## 阶段27：A确认诊断
+固定输入与197strict对象下显式--scripted-start --scripted-confirm，控制用--scripted-confirm-neutral；后者保留同capabilities及START，仅抑制A。当前确认分支遇原8233D3D8缺登记fatal/C0000409；wrapper预期失败验证0不等于游戏正常退出。 见[阶段27](docs/PHASE27_RESULTS.md)。

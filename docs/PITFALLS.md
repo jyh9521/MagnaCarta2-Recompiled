@@ -175,3 +175,9 @@ exit26是既有host有限观察终止，不能当guest正常结束或任意timeo
 
 ## 阶段26更新
 [原START链与主菜单](PHASE26_RESULTS.md)：有限synthetic START已通过官方SDK/原consumer进入New Game菜单，同设备neutral控制/实际回退仍Press START。默认driver不变，自动输入不是物理/可见窗口/玩法验收；oldword幅度FF与SDK按钮mask0x0010（bit4）区分，原vtablecallback未直接观察。保留失败和原源码回退证据。
+
+
+## 阶段27：确认控制与历史源码依赖
+全neutral会一并阻止START，不能代替同caps START-only的A因果对照。历史273源码无confirm header，新工具按实际include能力判断，不能强制新增依赖。fatal前无readback不等于黑屏；缺资源警告也不是当前未登记目标的既定因果。 见[阶段27](PHASE27_RESULTS.md)。
+
+阶段27实际A-on2原fatal未执行正常清理，schedule parser保留`IAT restoration not verified`/capture_verified=false；私有对照runner沿用正常45秒退出的全诊断断言因此失败。失败原日志不改，不重跑已完成的A-on2；修正私有runner的适用条件后只续最后A-off2。该窗口A/state/helper/fatal身份独立核验；不能声称其IAT恢复或完整schedule验证通过，进程结束与源码隔离/原宿主重编回退分别记账。

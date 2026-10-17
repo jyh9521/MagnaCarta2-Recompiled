@@ -4,6 +4,7 @@
 #include <rex/hook.h>
 #include <rex/ppc/func.h>
 #include "panic_observation.h"
+#include "confirm_event_trace.h"
 #include <array>
 #include <atomic>
 #include <cerrno>
@@ -71,4 +72,5 @@ inline void DumpStartEventTrace(FILE* output=stdout){using namespace start_event
  std::fprintf(output,"START_EVENT_ENTRY slot=%zu seq=%llu call=%llu phase=%s thread=%u context=%llX lr=%llX sp=%llX obj=%llX key=%llX user=%llX opaque=%llX new_value=%llX old_known=%u old_word=%08X old_status=%s tick_ms=%llu result=%llX\n",i,(unsigned long long)e.seq,(unsigned long long)e.call,e.post?"post":"pre",e.thread,(unsigned long long)e.context,(unsigned long long)e.lr,(unsigned long long)e.sp,(unsigned long long)e.args[0],(unsigned long long)e.args[1],(unsigned long long)e.args[2],(unsigned long long)e.args[3],(unsigned long long)e.args[4],unsigned(e.old_known),e.old_word,e.old_status,(unsigned long long)e.tick,(unsigned long long)e.result);}}
 } // namespace mc2::host
 REX_EXTERN(__imp__sub_827B4938);
-REX_HOOK_RAW(sub_827B4938){mc2::host::start_event_trace::Invoke(ctx,base,&__imp__sub_827B4938);}
+namespace mc2::host {inline void ConfirmThenOriginal(PPCContext& ctx,uint8_t* base){confirm_event_trace::Invoke(ctx,base,&__imp__sub_827B4938);}}
+REX_HOOK_RAW(sub_827B4938){mc2::host::start_event_trace::Invoke(ctx,base,&mc2::host::ConfirmThenOriginal);}
