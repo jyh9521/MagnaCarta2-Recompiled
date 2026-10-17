@@ -1,4 +1,4 @@
-# 第二十四阶段之后的实验门槛
+# 第二十五阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
@@ -7,6 +7,7 @@
 真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
+- 阶段25通过原SDK读回1280×720标题guest-output并实际查看，确认韩文MagnaCarta II/Press START Button。真实main/poll/render-candidate pre/post持续返回，8286E618纯虚路径未执行。下一项独立核验START输入/状态转换及可见窗口/实际present，不再以稀疏counter2或无日志推断标题未渲染。见[阶段25](PHASE25_RESULTS.md)。
 - 阶段24实际确认原callback持续执行：711inc/711reservation/709dec，余2为流动队列边界项；稀疏2>1不再解释为同一次wait卡45秒。下一项对原main每轮完成、8277B6D8→8244A360/8286E618的实际返回与提交/呈现建立时间轴。不要强减counter；旧AV未修复。见[阶段24](PHASE24_RESULTS.md)。
 - 延时/正常CS观测已推进：原82869800完整0x90和调用条件验证；真实main parentLR82E2080C在采样时原counter83265218=2>1进行零延时轮询，非一次delay卡45秒。下一项追踪82399650原增计数/82399738潜在回调的实际dispatch与counter生命周期，不伪造完成或强减counter。正常CS/早期坏CS分开，CS keyoverflow不宣称全覆盖。见[阶段23](PHASE23_RESULTS.md)。
 - voc原包单成员部署完成：同EXE23→24→23→24→23，三次23根voc原panic、两次24根45秒仍running/host exit26，两个实际回退恢复原panic。当前不是新fatal，而是调度/有限观察边界；精确采样涉及82869850→82E8DF4C/KeDelayExecutionThread。先独立验证原循环/延时条件，不把缺资源warnings、pipeline或无panic当首帧。见[阶段22](PHASE22_RESULTS.md)。

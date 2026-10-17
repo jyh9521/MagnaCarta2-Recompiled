@@ -7,6 +7,8 @@
 #include "counter_observation.h"
 #include "counter_queue_watch.h"
 #include "counter_worker_sample.h"
+#include "frame_timeline_observation.h"
+#include "guest_output_capture.h"
 #include "panic_observation.h"
 #include <thread>
 #include <rex/cvar.h>
@@ -35,6 +37,17 @@ bool wait_sdk_verified = false;
 bool event_trace_requested = false;
 bool schedule_trace_requested = false;
 bool counter_trace_requested = false;
+bool timeline_requested = false;
+bool capture_guest_output_requested = false;
+std::atomic<unsigned> timeline_dump_index{0};
+void WriteFrameTimeline(const char* reason) {
+ const auto index=timeline_dump_index.fetch_add(1);if(index>=4)return;
+ mc2::host::FreezeFrameTimeline();char name[64]{};std::snprintf(name,sizeof(name),"frame-timeline-%u.txt",index);
+ auto* file=std::fopen(name,"wb");bool okay=file && std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+ if(file){mc2::host::DumpFrameTimeline(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
+ std::printf("FRAME_TIMELINE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+}
+
 std::atomic<unsigned> queue_dump_index{0};
 void WriteQueueWatch(const char* reason) {
  const auto index=queue_dump_index.fetch_add(1);if(index>=4)return;mc2::host::FreezeQueueWatch();
@@ -112,6 +125,7 @@ class FatalDiagnosticSink final : public spdlog::sinks::base_sink<std::mutex> {
     if(event_trace_requested)WriteEventTrace("fault");
     if(schedule_trace_requested)WriteScheduleTrace("fault");
     if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
+    if(timeline_requested)WriteFrameTimeline("fault");
   }
   void flush_() override {std::fflush(stdout);}
 };
@@ -316,6 +330,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
   if(event_trace_requested)WriteEventTrace("fault");
     if(schedule_trace_requested)WriteScheduleTrace("fault");
     if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
+    if(timeline_requested)WriteFrameTimeline("fault");
   std::fflush(stdout);
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
 }
@@ -342,6 +357,8 @@ int main(int argc,char** argv) {
     event_trace_requested=std::getenv("MC2_EVENT_TRACE") && std::strcmp(std::getenv("MC2_EVENT_TRACE"),"1")==0;
     schedule_trace_requested=std::getenv("MC2_SCHEDULE_TRACE") && std::strcmp(std::getenv("MC2_SCHEDULE_TRACE"),"1")==0;
     counter_trace_requested=std::getenv("MC2_COUNTER_TRACE") && std::strcmp(std::getenv("MC2_COUNTER_TRACE"),"1")==0;
+    timeline_requested=std::getenv("MC2_FRAME_TIMELINE") && std::strcmp(std::getenv("MC2_FRAME_TIMELINE"),"1")==0;
+    capture_guest_output_requested=std::getenv("MC2_CAPTURE_GUEST_OUTPUT") && std::strcmp(std::getenv("MC2_CAPTURE_GUEST_OUTPUT"),"1")==0;
     const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
     if(present) {
       rex::cvar::Init(argc,argv);rex::cvar::ApplyEnvironment();
@@ -422,6 +439,24 @@ int main(int argc,char** argv) {
       if(!configured){WriteCounterTrace("install");return 38;}
       if(!mc2::host::ConfigureQueueWatch(code&&binding,counter_trace_requested))return 39;
     }
+    {
+      bool code=false,binding=false;
+      if(timeline_requested){
+        code=wait_sdk_verified && mc2::host::frame_timeline_observation::OriginalBytes({guest_base,0x100001000ULL});binding=true;
+        const uint32_t targets[]={0x8277B6D8,0x8244A360,0x8286E618,0x82E20568,0x82399778};
+        PPCFunc* hooks[]={&sub_8277B6D8,&sub_8244A360,&sub_8286E618,&sub_82E20568,&sub_82399778};
+        PPCFunc* originals[]={&__imp__sub_8277B6D8,&__imp__sub_8244A360,&__imp__sub_8286E618,&__imp__sub_82E20568,&__imp__sub_82399778};
+        for(unsigned i=0;i<5;++i){const bool bound=runtime.function_dispatcher()->GetFunction(targets[i])==hooks[i];
+          const bool distinct=hooks[i]!=originals[i];binding=binding&&bound&&distinct;
+          std::printf("TIMELINE_BIND target=%08X dispatcher_hook=%u distinct_original=%u\n",targets[i],unsigned(bound),unsigned(distinct));}
+      }
+      const bool configured=mc2::host::ConfigureFrameTimeline(code&&binding,timeline_requested);
+      std::printf("TITLE_FRAME_TIMELINE enabled=%u code_guard=%u binding_guard=%u configured=%u\n",unsigned(timeline_requested),unsigned(code),unsigned(binding),unsigned(configured));
+      if(!configured){WriteFrameTimeline("install");return 41;}
+      const bool capture_ready=!capture_guest_output_requested || (wait_sdk_verified&&present&&runtime.graphics_system()&&runtime.graphics_system()->presenter());
+      std::printf("TITLE_GUEST_OUTPUT_CAPTURE enabled=%u sdk_guard=%u configured=%u\n",unsigned(capture_guest_output_requested),unsigned(wait_sdk_verified),unsigned(capture_ready));
+      if(!capture_ready)return 42;
+    }
     for(auto ordinal:{0x193,0x59}) {
       auto* exp=runtime.export_resolver()->GetExportByOrdinal("xboxkrnl.exe",uint16_t(ordinal));
       if(exp) std::printf("TITLE_EXPORT ordinal=%04X name=%s type=%u implemented=%u variable=%08X\n",
@@ -461,6 +496,11 @@ int main(int argc,char** argv) {
       wait=rex::thread::Wait(thread->thread(),false,std::chrono::seconds(observation_seconds));
       std::printf("TITLE_WAIT result=%u running=%u\n",unsigned(wait),unsigned(thread->is_running()));
       if(wait!=rex::thread::WaitResult::kSuccess)SampleThread(thread.get());
+      if(capture_guest_output_requested){
+        if(timeline_requested)WriteFrameTimeline("pre_readback"); // Keep completed evidence if the SDK fence wait never returns.
+        const auto start=GetTickCount64();mc2::host::CaptureGuestOutput(runtime.graphics_system()->presenter(),"guest-output.ppm");
+        std::printf("GUEST_OUTPUT_CAPTURE_TIMING elapsed_ms=%llu scheduling_perturbed=1 visible_present_proof=0\n",(unsigned long long)(GetTickCount64()-start));
+      }
       if(present)presentation.RequestStop();
     };
     if(present) {
@@ -481,6 +521,7 @@ int main(int argc,char** argv) {
       if(!restored){std::fflush(stdout);std::_Exit(37);}
     }
     if(counter_trace_requested){queue_monitor.request_stop();queue_monitor.join();const bool paired=mc2::host::SampleCounterWorkers(guest_base);WriteCounterTrace("boundary");WriteQueueWatch("boundary");if(!paired){std::fflush(stdout);std::_Exit(40);}}
+    if(timeline_requested && timeline_dump_index.load()==0)WriteFrameTimeline("boundary");
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();
     std::_Exit(wait==rex::thread::WaitResult::kSuccess?0:26);

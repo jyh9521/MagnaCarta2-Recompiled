@@ -17,6 +17,8 @@ from tools.research.event_trace_report import parse_event_trace
 from tools.research.schedule_trace_report import parse_schedule_trace
 from tools.research.counter_trace_report import parse_counter_trace
 from tools.research.queue_watch_report import read_queue_watches
+from tools.research.frame_timeline_report import read_frame_timelines
+from tools.research.guest_output_capture_report import parse_guest_output_capture
 from tools.research.panic_capture_report import parse_panic_capture
 from tools.research.critical_section_capture_report import parse_critical_section_capture
 from tools.research.compile_module import digest, inventory, vc_environment
@@ -249,9 +251,12 @@ def execute(args):
     trace=getattr(args,'trace_events',False)
     schedule=getattr(args,'trace_schedule',False)
     counter=getattr(args,'trace_counter',False)
+    timeline=getattr(args,'trace_frame_timeline',False)
+    capture_guest=getattr(args,'capture_guest_output',False)
     capture_panic=getattr(args,'capture_panic',False)
     capture_critical=getattr(args,'capture_critical_section',False)
     present=getattr(args,'present',False)
+    if capture_guest and not present:raise ValueError('guest output capture requires the real presenter')
     if present and not args.gpu:raise ValueError('presentation requires the real GPU plugin')
     sdk_runtime=args.sdk/'bin/rexruntime.dll'
     if digest(sdk_runtime)!=WAIT_SDK_SHA256:raise ValueError('wait observation requires the verified SDK runtime DLL')
@@ -259,7 +264,7 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
-    validate_capture_profile(profile,capture_panic or schedule or counter,capture_critical)
+    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest,capture_critical)
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
@@ -273,6 +278,8 @@ def execute(args):
     overrides['MC2_EVENT_TRACE']='1' if trace else '0'
     overrides['MC2_SCHEDULE_TRACE']='1' if schedule else '0'
     overrides['MC2_COUNTER_TRACE']='1' if counter else '0'
+    overrides['MC2_FRAME_TIMELINE']='1' if timeline else '0'
+    overrides['MC2_CAPTURE_GUEST_OUTPUT']='1' if capture_guest else '0'
     overrides['MC2_CAPTURE_PANIC']='1' if capture_panic else '0'
     overrides['MC2_CAPTURE_CRITICAL_SECTION']='1' if capture_critical else '0'
     overrides['MC2_PRESENTATION']='1' if present else '0'
@@ -288,6 +295,12 @@ def execute(args):
     has_counter_header='#include "counter_observation.h"' in args.source.read_text(encoding='utf-8-sig')
     if counter and not has_counter_header:raise ValueError('counter trace requires original-body-gated RAW observation host')
     if has_counter_header:dependencies.extend(args.source.parent/name for name in ('counter_lifecycle_trace.h','counter_observation.h','counter_queue_watch.h','counter_worker_sample.h'))
+    has_timeline_header='#include "frame_timeline_observation.h"' in args.source.read_text(encoding='utf-8-sig')
+    if timeline and not has_timeline_header:raise ValueError('timeline requires full original-body-gated RAW observation')
+    if has_timeline_header:dependencies.extend(args.source.parent/name for name in ('frame_timeline_trace.h','frame_timeline_observation.h'))
+    has_capture_header='#include "guest_output_capture.h"' in args.source.read_text(encoding='utf-8-sig')
+    if capture_guest and not has_capture_header:raise ValueError('guest output capture requires the SDK readback observer')
+    if has_capture_header:dependencies.append(args.source.parent/'guest_output_capture.h')
     assets=[]
     if args.gpu:
         overrides['MC2_GPU_PLUGIN']='xenos';assets=[args.sdk/'bin/rexgpu-xenos.dll']
@@ -332,6 +345,8 @@ def execute(args):
         parsed.update(reason=reason,path=str(path),sha256=digest(path));report['counter_traces'].append(parsed)
     report['counter_trace']=report['counter_traces'][-1] if report['counter_traces'] else parse_counter_trace(run_text,requested=counter)
     report['queue_watch'],report['queue_watches']=read_queue_watches(run_text,output,requested=counter)
+    report['frame_timeline'],report['frame_timelines']=read_frame_timelines(run_text,output,requested=timeline)
+    report['guest_output_capture']=parse_guest_output_capture(run_text,output,requested=capture_guest)
     report['game_input_before']=root_before
     report['game_input_after']=inventory(root)
     report['game_input_unchanged']=report['game_input_before']==report['game_input_after'] and digest(args.xex)==XEX_SHA256
@@ -357,6 +372,10 @@ def execute(args):
     if trace and not report['event_trace']['capture_verified']:report['bounded_observation']=False
     if schedule and not report['schedule_trace']['capture_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
+    if timeline and not report['frame_timeline']['capture_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
+    if capture_guest and not report['guest_output_capture']['attempt_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
     if counter and not report['queue_watch']['capture_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
     if counter and not report['counter_trace']['capture_verified']:
@@ -375,6 +394,8 @@ def main(argv=None):
     parser.add_argument('--observe-seconds',type=int,default=20,help='bounded diagnostic window, 20..60 seconds')
     parser.add_argument('--capture-critical-section',action='store_true',help='optional bounded read-only observation of the exact original SDK AV; absence is not failure')
     parser.add_argument('--capture-panic',action='store_true',help='opt-in bounded original-panic read-only observation; never resumes a fault')
+    parser.add_argument('--trace-frame-timeline',action='store_true',help='transparent original tick/poll/render-candidate call intervals; never frame acceptance')
+    parser.add_argument('--capture-guest-output',action='store_true',help='one bounded-process public SDK guest-output GPU readback; not visible presentation proof')
     parser.add_argument('--trace-counter',action='store_true',help='transparent strong RAW hooks of original increment/reservation/decrement bodies')
     parser.add_argument('--trace-schedule',action='store_true',help='bounded transparent original delay/critical-section host-IAT observation')
     parser.add_argument('--trace-events',action='store_true',help='transparent scoped host IAT trace of four original SDK event imports')

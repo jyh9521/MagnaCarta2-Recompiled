@@ -172,3 +172,7 @@ voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入8
 
 ## 阶段24：计数与真实回调
 [阶段24证据与复现边界](docs/PHASE24_RESULTS.md)：原计数加载0，实际callback持续完成队列项，711/709的余2仅为观察边界；不把晚期2>1采样当固定对象卡死。默认关闭透明RAW observer，保留原body、strict生成体、SDK与24成员资源根；早期AV未重现/未修复，exit26不等于首帧或可玩性。
+
+
+## 阶段25更新
+[时间轴与真实标题guest-output](docs/PHASE25_RESULTS.md)：原SDK已读回并查看1280×720韩文标题/Press START Button，不是仅GPU初始化；可见present、输入与可玩性仍未验收。8286E618是原purecall错误路径，不因非原子队列头读到基表就认定实际执行。独立默认关闭trace/capture，保留原body/SDK/资源及失败。
