@@ -19,6 +19,7 @@ from tools.research.counter_trace_report import parse_counter_trace
 from tools.research.queue_watch_report import read_queue_watches
 from tools.research.frame_timeline_report import read_frame_timelines
 from tools.research.guest_output_capture_report import parse_guest_output_capture
+from tools.research.input_trace_report import read_input_traces,parse_scripted_controller
 from tools.research.panic_capture_report import parse_panic_capture
 from tools.research.critical_section_capture_report import parse_critical_section_capture
 from tools.research.compile_module import digest, inventory, vc_environment
@@ -251,11 +252,16 @@ def execute(args):
     trace=getattr(args,'trace_events',False)
     schedule=getattr(args,'trace_schedule',False)
     counter=getattr(args,'trace_counter',False)
+    scripted_start=getattr(args,'scripted_start',False)
+    scripted_neutral=getattr(args,'scripted_controller_neutral',False)
+    if scripted_neutral and not scripted_start:raise ValueError('neutral control requires the synthetic controller experiment')
+    input_trace=getattr(args,'trace_input',False) or scripted_start
     timeline=getattr(args,'trace_frame_timeline',False)
     capture_guest=getattr(args,'capture_guest_output',False)
     capture_panic=getattr(args,'capture_panic',False)
     capture_critical=getattr(args,'capture_critical_section',False)
     present=getattr(args,'present',False)
+    if scripted_start and not present:raise ValueError('scripted input experiment requires the real title presenter')
     if capture_guest and not present:raise ValueError('guest output capture requires the real presenter')
     if present and not args.gpu:raise ValueError('presentation requires the real GPU plugin')
     sdk_runtime=args.sdk/'bin/rexruntime.dll'
@@ -264,7 +270,7 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
-    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest,capture_critical)
+    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest or input_trace,capture_critical)
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
@@ -278,6 +284,9 @@ def execute(args):
     overrides['MC2_EVENT_TRACE']='1' if trace else '0'
     overrides['MC2_SCHEDULE_TRACE']='1' if schedule else '0'
     overrides['MC2_COUNTER_TRACE']='1' if counter else '0'
+    overrides['MC2_TRACE_INPUT']='1' if input_trace else '0'
+    overrides['MC2_SCRIPTED_START']='1' if scripted_start else '0'
+    overrides['MC2_SCRIPTED_NEUTRAL']='1' if scripted_neutral else '0'
     overrides['MC2_FRAME_TIMELINE']='1' if timeline else '0'
     overrides['MC2_CAPTURE_GUEST_OUTPUT']='1' if capture_guest else '0'
     overrides['MC2_CAPTURE_PANIC']='1' if capture_panic else '0'
@@ -301,6 +310,9 @@ def execute(args):
     has_capture_header='#include "guest_output_capture.h"' in args.source.read_text(encoding='utf-8-sig')
     if capture_guest and not has_capture_header:raise ValueError('guest output capture requires the SDK readback observer')
     if has_capture_header:dependencies.append(args.source.parent/'guest_output_capture.h')
+    has_input_header='#include "start_input_observation.h"' in args.source.read_text(encoding='utf-8-sig')
+    if input_trace and not has_input_header:raise ValueError('input tracing requires the verified original state/consumer observer')
+    if has_input_header:dependencies.extend(args.source.parent/name for name in ('input_state_trace.h','start_event_trace.h','start_input_observation.h','scripted_controller_probe.h'))
     assets=[]
     if args.gpu:
         overrides['MC2_GPU_PLUGIN']='xenos';assets=[args.sdk/'bin/rexgpu-xenos.dll']
@@ -347,6 +359,10 @@ def execute(args):
     report['queue_watch'],report['queue_watches']=read_queue_watches(run_text,output,requested=counter)
     report['frame_timeline'],report['frame_timelines']=read_frame_timelines(run_text,output,requested=timeline)
     report['guest_output_capture']=parse_guest_output_capture(run_text,output,requested=capture_guest)
+    report['input_traces']=read_input_traces(run_text,output,requested=input_trace)
+    report['scripted_controller']=parse_scripted_controller(run_text,requested=scripted_start)
+    report['input_trace_requested']=input_trace
+    report['scripted_start_requested']=scripted_start
     report['game_input_before']=root_before
     report['game_input_after']=inventory(root)
     report['game_input_unchanged']=report['game_input_before']==report['game_input_after'] and digest(args.xex)==XEX_SHA256
@@ -372,6 +388,10 @@ def execute(args):
     if trace and not report['event_trace']['capture_verified']:report['bounded_observation']=False
     if schedule and not report['schedule_trace']['capture_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
+    if input_trace and not all(report['input_traces'][k]['capture_verified']for k in ['input_state','start_event']):
+        report['bounded_observation']=False;report['diagnostic_success']=False
+    if scripted_start and not report['scripted_controller']['capture_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
     if timeline and not report['frame_timeline']['capture_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
     if capture_guest and not report['guest_output_capture']['attempt_verified']:
@@ -394,6 +414,9 @@ def main(argv=None):
     parser.add_argument('--observe-seconds',type=int,default=20,help='bounded diagnostic window, 20..60 seconds')
     parser.add_argument('--capture-critical-section',action='store_true',help='optional bounded read-only observation of the exact original SDK AV; absence is not failure')
     parser.add_argument('--capture-panic',action='store_true',help='opt-in bounded original-panic read-only observation; never resumes a fault')
+    parser.add_argument('--scripted-controller-neutral',action='store_true',help='same synthetic device and capabilities, but keep all controls neutral for causal comparison')
+    parser.add_argument('--scripted-start',action='store_true',help='opt-in finite synthetic controller START pulse; original game input consumer stays unchanged')
+    parser.add_argument('--trace-input',action='store_true',help='transparent original SDK state adapter and START consumer observation')
     parser.add_argument('--trace-frame-timeline',action='store_true',help='transparent original tick/poll/render-candidate call intervals; never frame acceptance')
     parser.add_argument('--capture-guest-output',action='store_true',help='one bounded-process public SDK guest-output GPU readback; not visible presentation proof')
     parser.add_argument('--trace-counter',action='store_true',help='transparent strong RAW hooks of original increment/reservation/decrement bodies')

@@ -109,3 +109,7 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 ## 阶段25更新
 [时间轴与真实标题guest-output](PHASE25_RESULTS.md)：原SDK已读回并查看1280×720韩文标题/Press START Button，不是仅GPU初始化；可见present、输入与可玩性仍未验收。8286E618是原purecall错误路径，不因非原子队列头读到基表就认定实际执行。独立默认关闭trace/capture，保留原body/SDK/资源及失败。
+
+
+## 阶段26更新
+[原START链与主菜单](PHASE26_RESULTS.md)：有限synthetic START已通过官方SDK/原consumer进入New Game菜单，同设备neutral控制/实际回退仍Press START。默认driver不变，自动输入不是物理/可见窗口/玩法验收；oldword幅度FF与SDK按钮mask0x0010（bit4）区分，原vtablecallback未直接观察。保留失败和原源码回退证据。

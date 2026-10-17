@@ -9,6 +9,9 @@
 #include "counter_worker_sample.h"
 #include "frame_timeline_observation.h"
 #include "guest_output_capture.h"
+#include "scripted_controller_probe.h"
+#include "start_input_observation.h"
+#include <rex/input/input_system.h>
 #include "panic_observation.h"
 #include <thread>
 #include <rex/cvar.h>
@@ -39,6 +42,22 @@ bool schedule_trace_requested = false;
 bool counter_trace_requested = false;
 bool timeline_requested = false;
 bool capture_guest_output_requested = false;
+bool input_trace_requested=false;
+bool scripted_start_requested=false;
+bool scripted_neutral_requested=false;
+std::atomic<unsigned> input_dump_index{0};
+void WriteInputTrace(const char* reason){
+ const auto index=input_dump_index.fetch_add(1);if(index>=4)return;
+ mc2::host::FreezeInputStateTrace();mc2::host::FreezeStartEventTrace();
+ char name[64]{};std::snprintf(name,sizeof(name),"input-state-%u.txt",index);auto* file=std::fopen(name,"wb");bool okay=file&&std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+ if(file){mc2::host::DumpInputStateTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
+ std::printf("INPUT_STATE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+ std::snprintf(name,sizeof(name),"start-event-%u.txt",index);file=std::fopen(name,"wb");okay=file&&std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+ if(file){mc2::host::DumpStartEventTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
+ std::printf("START_EVENT_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+ if(scripted_start_requested)mc2::host::DumpScriptedController();
+}
+
 std::atomic<unsigned> timeline_dump_index{0};
 void WriteFrameTimeline(const char* reason) {
  const auto index=timeline_dump_index.fetch_add(1);if(index>=4)return;
@@ -126,6 +145,7 @@ class FatalDiagnosticSink final : public spdlog::sinks::base_sink<std::mutex> {
     if(schedule_trace_requested)WriteScheduleTrace("fault");
     if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
     if(timeline_requested)WriteFrameTimeline("fault");
+    if(input_trace_requested)WriteInputTrace("fault");
   }
   void flush_() override {std::fflush(stdout);}
 };
@@ -331,6 +351,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
     if(schedule_trace_requested)WriteScheduleTrace("fault");
     if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
     if(timeline_requested)WriteFrameTimeline("fault");
+    if(input_trace_requested)WriteInputTrace("fault");
   std::fflush(stdout);
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
 }
@@ -359,6 +380,9 @@ int main(int argc,char** argv) {
     counter_trace_requested=std::getenv("MC2_COUNTER_TRACE") && std::strcmp(std::getenv("MC2_COUNTER_TRACE"),"1")==0;
     timeline_requested=std::getenv("MC2_FRAME_TIMELINE") && std::strcmp(std::getenv("MC2_FRAME_TIMELINE"),"1")==0;
     capture_guest_output_requested=std::getenv("MC2_CAPTURE_GUEST_OUTPUT") && std::strcmp(std::getenv("MC2_CAPTURE_GUEST_OUTPUT"),"1")==0;
+    scripted_start_requested=std::getenv("MC2_SCRIPTED_START") && std::strcmp(std::getenv("MC2_SCRIPTED_START"),"1")==0;
+    scripted_neutral_requested=std::getenv("MC2_SCRIPTED_NEUTRAL") && std::strcmp(std::getenv("MC2_SCRIPTED_NEUTRAL"),"1")==0;
+    input_trace_requested=scripted_start_requested || (std::getenv("MC2_TRACE_INPUT") && std::strcmp(std::getenv("MC2_TRACE_INPUT"),"1")==0);
     const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
     if(present) {
       rex::cvar::Init(argc,argv);rex::cvar::ApplyEnvironment();
@@ -374,6 +398,13 @@ int main(int argc,char** argv) {
     config.kernel_init=rex::kernel::InitializeKernel;
     config.audio_factory=REX_AUDIO_BACKEND(rex::audio::sdl::SDLAudioSystem);
     config.input_factory=REX_INPUT_BACKEND(rex::input::CreateDefaultInputSystem);
+    if(scripted_start_requested)config.input_factory=[](bool tool_mode)->std::unique_ptr<rex::system::IInputSystem>{
+      if(tool_mode)return {};auto input=rex::input::CreateDefaultInputSystem(tool_mode);if(!input)return {};
+      auto driver=mc2::host::MakeScriptedController(&mc2::host::scripted_controller::Now,scripted_neutral_requested);if(!driver)return {};const auto setup=driver->Setup();
+      std::printf("SCRIPTED_CONTROLLER_SETUP status=%08X input_source=synthetic setup_before_add=1 default_drivers_retained=1\n",unsigned(setup));
+      if(setup)return {};input->AddDriver(std::move(driver));return input;
+    };
+
     const auto* gpu=std::getenv("MC2_GPU_PLUGIN");
     if(gpu && *gpu) {
       // Public SDK plugin ABI; keep its library loaded for the process lifetime.
@@ -457,6 +488,19 @@ int main(int argc,char** argv) {
       std::printf("TITLE_GUEST_OUTPUT_CAPTURE enabled=%u sdk_guard=%u configured=%u\n",unsigned(capture_guest_output_requested),unsigned(wait_sdk_verified),unsigned(capture_ready));
       if(!capture_ready)return 42;
     }
+    {
+      bool code=false,binding=false;
+      if(input_trace_requested){
+        code=wait_sdk_verified&&mc2::host::start_input_observation::OriginalBytes({guest_base,0x100001000ULL});binding=true;
+        const uint32_t targets[]={0x82868178,0x827B4938};
+        PPCFunc* hooks[]={&sub_82868178,&sub_827B4938};PPCFunc* originals[]={&__imp__sub_82868178,&__imp__sub_827B4938};
+        for(unsigned i=0;i<2;++i){const bool bound=runtime.function_dispatcher()->GetFunction(targets[i])==hooks[i],distinct=hooks[i]!=originals[i];binding=binding&&bound&&distinct;
+          std::printf("INPUT_BIND target=%08X dispatcher_hook=%u distinct_original=%u\n",targets[i],unsigned(bound),unsigned(distinct));}
+      }
+      const bool configured=mc2::host::ConfigureInputStateTrace(code&&binding,input_trace_requested)&&mc2::host::ConfigureStartEventTrace(code&&binding,input_trace_requested);
+      std::printf("TITLE_INPUT_TRACE enabled=%u code_guard=%u binding_guard=%u configured=%u\n",unsigned(input_trace_requested),unsigned(code),unsigned(binding),unsigned(configured));
+      if(!configured){WriteInputTrace("install");return 43;}
+    }
     for(auto ordinal:{0x193,0x59}) {
       auto* exp=runtime.export_resolver()->GetExportByOrdinal("xboxkrnl.exe",uint16_t(ordinal));
       if(exp) std::printf("TITLE_EXPORT ordinal=%04X name=%s type=%u implemented=%u variable=%08X\n",
@@ -477,6 +521,9 @@ int main(int argc,char** argv) {
     if(event_trace_requested)std::printf("TITLE_MAIN_THREAD host=%lu context=%016llX guest=%u\n",
       GetThreadId(static_cast<HANDLE>(thread->thread()->native_handle())),
       static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(context)),thread->thread_id());
+    if(scripted_start_requested){const bool armed=wait_sdk_verified&&mc2::host::ArmScriptedController();
+      std::printf("TITLE_SCRIPTED_START enabled=1 input_source=synthetic armed=%u sdk_guard=%u neutral_only=%u\n",unsigned(armed),unsigned(wait_sdk_verified),unsigned(scripted_neutral_requested));if(!armed)return 44;
+    }else std::puts("TITLE_SCRIPTED_START enabled=0 input_source=default");
     launch_phase=2;
     status=thread->Resume();
     std::printf("TITLE_RESUMED status=%08X\n",unsigned(status));if(status)return 25;
@@ -497,6 +544,7 @@ int main(int argc,char** argv) {
       std::printf("TITLE_WAIT result=%u running=%u\n",unsigned(wait),unsigned(thread->is_running()));
       if(wait!=rex::thread::WaitResult::kSuccess)SampleThread(thread.get());
       if(capture_guest_output_requested){
+        if(input_trace_requested)WriteInputTrace("pre_readback");
         if(timeline_requested)WriteFrameTimeline("pre_readback"); // Keep completed evidence if the SDK fence wait never returns.
         const auto start=GetTickCount64();mc2::host::CaptureGuestOutput(runtime.graphics_system()->presenter(),"guest-output.ppm");
         std::printf("GUEST_OUTPUT_CAPTURE_TIMING elapsed_ms=%llu scheduling_perturbed=1 visible_present_proof=0\n",(unsigned long long)(GetTickCount64()-start));
@@ -522,6 +570,7 @@ int main(int argc,char** argv) {
     }
     if(counter_trace_requested){queue_monitor.request_stop();queue_monitor.join();const bool paired=mc2::host::SampleCounterWorkers(guest_base);WriteCounterTrace("boundary");WriteQueueWatch("boundary");if(!paired){std::fflush(stdout);std::_Exit(40);}}
     if(timeline_requested && timeline_dump_index.load()==0)WriteFrameTimeline("boundary");
+    if(input_trace_requested && input_dump_index.load()==0)WriteInputTrace("boundary");
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();
     std::_Exit(wait==rex::thread::WaitResult::kSuccess?0:26);
