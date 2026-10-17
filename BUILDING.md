@@ -206,3 +206,8 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 
 23根仅新增PreF，五次配对复用同一已核验阶段20 EXE/SDK/GPU；游戏代码未改，不重复生成/编译未变模块。保留parent输入、actual loaded DLL路径及run前后inventory；只改变MC2_GAME_ROOT。
 [阶段21结果](docs/PHASE21_RESULTS.md)。
+
+## 第二十二阶段 — 2026-10-17
+
+24根只追加voc；23/24交错保持同EXE，host exit26表示45秒有限观察，非成功启动或父进程timeout。重新核验197 strict对象/全链接，不为资源变化重编游戏。
+[阶段22结果](docs/PHASE22_RESULTS.md)。

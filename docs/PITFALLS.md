@@ -151,3 +151,8 @@ clrlwi生成可能优化为u32&1，严格body提取器若预期通用rotate必�
 
 残留unregistered target/success不能压过timeout、任意AV或矛盾退出码；消息text必须与原UTF16 hex/count及完整filename一致。22/23原生exit均C0000005，但错误文件可逆改变才是本次干预证据。所有不一致记录保持unknown，不伪装推进。
 [阶段21结果](PHASE21_RESULTS.md)。
+
+## 第二十二阶段 — 2026-10-17
+
+exit26是既有host有限观察终止，不能当guest正常结束或任意timeout推进。原panic可逆消失不等于下一fatal已定位；故障分类器仍unknown，不为了结果放宽守卫。
+[阶段22结果](PHASE22_RESULTS.md)。

@@ -1,4 +1,4 @@
-# 第二十一阶段之后的实验门槛
+# 第二十二阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
@@ -7,6 +7,7 @@
 真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
+- voc原包单成员部署完成：同EXE23→24→23→24→23，三次23根voc原panic、两次24根45秒仍running/host exit26，两个实际回退恢复原panic。当前不是新fatal，而是调度/有限观察边界；精确采样涉及82869850→82E8DF4C/KeDelayExecutionThread。先独立验证原循环/延时条件，不把缺资源warnings、pipeline或无panic当首帧。见[阶段22](PHASE22_RESULTS.md)。
 - PreF原包单成员部署已完成：同EXE22→23→22→23→22三次PreFpanic/两次voc_bt_juto_0.xxx原panic，资源实际回退均恢复PreF。23根保持部署态，下一项先独立原voc成员身份/加载条件，再新资源根单成员A/B及实际回退；本次已核验其原SHA/strict summary和23根缺失，不直接改23根或跳过原panic。见[阶段21](PHASE21_RESULTS.md)。
 - 另保留早期AV：SDK RtlEnterCriticalSection_entry精确读CS+18，原入口对象字段+8再加4产生坏参数；原对象/写入历史未捕获。阶段21精确只读observer持续开启，五次真实运行not_observed；未宣称修复或资源唯一因果；若重现，限定记录原r29对象/r11/r30，不伪造CS。
 - 82B7CCD0完整8-byte BE32读取/零扩展已strict恢复，1536实际body完整正常返回通过（8页/fullcontext/MXCSR，EA wrap与physical bias分开验证），58169共同body不改，197TU全量strict编译/58416映射链接完成；字段/标题实际返回值未知。

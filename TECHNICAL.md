@@ -158,3 +158,8 @@ unsigned byte bounds检查之前已有r9/r5变化；非法full64错误返回，�
 
 同EXE22-23-22-23-22把PreF部署与指定原panic可逆关联，下一文件为voc_bt_juto_0.xxx。原生退出码都C0000005，必须核验message/filename/原caller和跨字段一致性，不只看exit。
 [阶段21结果](docs/PHASE21_RESULTS.md)。
+
+## 第二十二阶段 — 2026-10-17
+
+voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入82869850→82E8DF4C/KeDelayExecutionThread。bounded observation与新fatal分开，未证死锁/首帧。
+[阶段22结果](docs/PHASE22_RESULTS.md)。

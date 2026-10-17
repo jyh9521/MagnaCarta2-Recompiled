@@ -91,3 +91,8 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 23根两次停于voc_bt_juto_0.xxx原BinaryFormat panic；其原ISO成员有效但缺部署，尚未做该成员因果干预。早期CS AV五次not_observed，无根因/修复证据。无可玩性。
 [阶段21结果](PHASE21_RESULTS.md)。
+
+## 第二十二阶段 — 2026-10-17
+
+24根两次45秒仍running，exit26；当前延时/调度采样边界未证死锁。多项资源缺失与文件查询unimplemented保留，未建立其唯一因果；早期CS AV未重现/未修复，无首帧验收。
+[阶段22结果](PHASE22_RESULTS.md)。
