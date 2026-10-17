@@ -200,3 +200,8 @@ observer记录worker/start、伴随文本容器、三open、tick、cleanup/playl
 ## 阶段30单成员地图包隔离
 
 `02_Village_Persistent.xxx`的原包校验、单成员部署、串行交叉实验及实际行为回退见[独立研究](docs/RESEARCH_VILLAGE_DEPLOYMENT.md)。原panic文件名变化与正常加载完成分别记账；原生失败和无有效readback的样本保留，不以缺失日志消失作为可玩性证据。
+
+
+## 阶段31：Test_PathNode独立隔离
+
+原包单成员干预、串行交叉与实际删除回退见[阶段31研究](docs/RESEARCH_PATHNODE_DEPLOYMENT.md)。指定包panic的可逆变化与加载完成分别记账；保留原生失败、无有效readback及弱快照，后续明确失败为`02_Village_Collision.xxx`，未作为已验证根因或可玩性证据。

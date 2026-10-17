@@ -57,3 +57,6 @@ python -m tools.maintenance.cleanup_workspace restore --report local/maintenance
 
 
 阶段30收尾按原报告选择性恢复1份历史EXE并核验与活动EXE完整SHA256相等；实验完成后追加保护当前`phase30/root-village`。本次退休21份精确重复二进制，释放729869560字节；删除1份可重建字节码缓存，释放4452字节。报告位于`local/analysis/phase30/cleanup-report.json`；活动程序、修改根及两张原ISO校验保持不变。实际删除新增地图包的回退运行保留原地图包panic，当前修改根仍保留新增包。
+
+
+阶段31收尾追加保护`local/analysis/phase31/root-pathnode`；退休23份精确重复二进制，累计删除字节数730131704（含恢复验证后再次退休的131072字节，不等同于净节省）；删除139份可重建字节码缓存，释放2170262字节。历史EXE选择性恢复1份并核验活动hash；本轮清理后另恢复1份原成员并核验SHA256，再退休其重复副本。原始ISO、活动EXE、修改根、唯一研究及失败日志保留，修改根仍部署Test_PathNode；实际删除回退恢复原Test_PathNode panic。计划、恢复与两次清理报告保留于ignored `local/analysis/phase31/`。
