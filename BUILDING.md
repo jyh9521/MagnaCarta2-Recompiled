@@ -196,3 +196,8 @@ word-leaf固定原8-byte入口与全hint守卫链，197对象全部继承strict 
 
 独立根22只新增原WoodSword；同一完整EXE在21/22根交错运行，不靠重新链接改变失败位置。新deployment_evidence CLI仅只读比较，不运行标题；真实执行仍沿probe_title_entry完整hash/strict合同。
 [阶段19结果](docs/PHASE19_RESULTS.md)。
+
+## 第二十阶段 — 2026-10-17
+
+byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象strict FP；197TU新全量编译。CLI --capture-critical-section可选，not_observed不是失败；--capture-panic也仅允许word/byte这两个已核验原caller profiles，未知树仍拒绝。
+[阶段20结果](docs/PHASE20_RESULTS.md)。

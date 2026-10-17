@@ -29,6 +29,8 @@ volatile LONG launch_phase = 0;
 rex::system::KernelState* kernel_state = nullptr;
 bool wait_sdk_verified = false;
 bool event_trace_requested = false;
+thread_local bool critical_capture_active = false;
+std::atomic<unsigned> critical_capture_count{0};
 std::atomic<unsigned> event_dump_index{0};
 void WriteEventTrace(const char* reason) {
   const auto index=event_dump_index.fetch_add(1);
@@ -175,7 +177,79 @@ void ObserveOriginalPanic(const EXCEPTION_RECORD& record,const PPCContext& c) {
   std::printf("PANIC_CAPTURE_END context_unchanged=%u resumes_guest=0\n",unsigned(std::memcmp(&before,&c,sizeof(c))==0));
 }
 
+
+// Opt-in post-fault observation only. Never alter guest/context state or recover AVs.
+bool CriticalDataRange(uint32_t address,size_t count) {
+  const uint64_t end=uint64_t(address)+count;
+  return count && count<=64 && address>=0x10000 &&
+    ((address<0x7F000000 && end<=0x7F000000) ||
+     (address>=0x82000000 && end<=0x83330000)); // Exclude MMIO and physical aliases.
+}
+bool CriticalCallerMatches(po::GuestView view) {
+  static constexpr uint8_t expected[]={0x7D,0x88,0x02,0xA6,0x48,0x4B,0x01,0x89,0x3B,0xE1,0xFF,0x40,0x94,0x21,0xFF,0x40,0x81,0x63,0x00,0x08,0x7C,0x7D,0x1B,0x78,0x7C,0x9C,0x23,0x78,0x3B,0xCB,0x00,0x04,0x7C,0xBB,0x2B,0x78,0x7F,0xC3,0xF3,0x78,0x7C,0xDA,0x33,0x78,0x91,0x7F,0x00,0x60,0x7C,0xF9,0x3B,0x78,0x7D,0x18,0x43,0x78,0x7D,0x37,0x4B,0x78,0x48,0xAC,0xEB,0x39,0x7F,0x0A,0xC3,0x78,0x92,0xE1,0x00,0x54,0x39,0x20,0x00,0x00,0x7F,0x28,0xCB,0x78,0x38,0xE0,0x00,0x00,0x7F,0x46,0xD3,0x78,0x7F,0x65,0xDB,0x78,0x7F,0x84,0xE3,0x78,0x7F,0xA3,0xEB,0x78,0x4B,0xFF,0xF7,0x15,0x7C,0x7D,0x1B,0x78,0x7F,0xC3,0xF3,0x78,0x48,0xAC,0xEB,0x15,0x7F,0xA3,0xEB,0x78,0x38,0x3F,0x00,0xC0,0x48,0x4B,0x01,0x60};
+  auto actual=po::ReadBytes(view,0x823BF278,sizeof(expected));
+  return actual.status==po::Status::ok && actual.captured==sizeof(expected) &&
+    std::memcmp(actual.bytes.data(),expected,sizeof(expected))==0;
+}
+bool CriticalSdkBytes(uintptr_t entry) {
+  static constexpr uint8_t expected[]={0x56,0x57,0x53,0x48,0x83,0xEC,0x30,0x48,0x89,0xCE,0xE8,0x91,0x40,0xE4,0xFF,0x8B,0x78,0x58,0x48,0x8B,0x0E,0x8B,0x41,0x18};
+  uint8_t actual[sizeof(expected)]{};SIZE_T received=0;
+  return entry && po::detail::Preflight(entry,sizeof(expected))==po::Status::ok &&
+    ReadProcessMemory(GetCurrentProcess(),reinterpret_cast<const void*>(entry),actual,sizeof(actual),&received) &&
+    received==sizeof(actual) && std::memcmp(actual,expected,sizeof(expected))==0;
+}
+void PrintCriticalRead(const char* tag,po::GuestView view,uint32_t address,size_t count,bool word) {
+  po::Result value{};value.guest=address;value.requested=count;
+  if(CriticalDataRange(address,count))value=word?po::ReadWord(view,address):po::ReadBytes(view,address,count);
+  else value.status=po::Status::outside_span;
+  std::printf("CRITICAL_READ tag=%s guest=%08X requested=%zu status=%s captured=%zu word_known=%u word=%08X hex=",
+    tag,value.guest,value.requested,po::StatusName(value.status),value.captured,unsigned(value.word_known),value.word);
+  for(size_t i=0;i<value.captured;++i)std::printf("%02X",unsigned(value.bytes[i]));
+  std::printf("\n");
+}
+void ObserveCriticalSectionFault(const EXCEPTION_RECORD& record,const PPCContext& c,const CONTEXT* host_context) {
+  const char* requested=std::getenv("MC2_CAPTURE_CRITICAL_SECTION");
+  if(!requested || std::strcmp(requested,"1")!=0 || critical_capture_active)return;
+  if(record.ExceptionCode!=EXCEPTION_ACCESS_VIOLATION || record.NumberParameters<2 ||
+      record.ExceptionInformation[0]!=0 || c.lr!=0x823BF2B8)return;
+  if(critical_capture_count.fetch_add(1)>=4)return;
+  critical_capture_active=true;
+  struct Reset {~Reset(){critical_capture_active=false;}} reset;
+  PPCContext before;std::memcpy(&before,&c,sizeof(c));
+  CONTEXT host_before{};if(host_context)std::memcpy(&host_before,host_context,sizeof(host_before));
+  po::GuestView view{guest_base,0x100001000ULL};
+  auto module=GetModuleHandleA("rexruntime.dll");
+  const auto entry=reinterpret_cast<uintptr_t>(module?GetProcAddress(module,
+    "?RtlEnterCriticalSection_entry@xboxkrnl@kernel@rex@@YAXV?$MappedPtr@UX_RTL_CRITICAL_SECTION@xboxkrnl@kernel@rex@@@3@@Z"):nullptr);
+  const bool sdk_pc=wait_sdk_verified && module && entry==reinterpret_cast<uintptr_t>(module)+0x408F80 &&
+    reinterpret_cast<uintptr_t>(record.ExceptionAddress)==entry+0x15;
+  const bool sdk_bytes=sdk_pc && CriticalSdkBytes(entry);
+  const bool caller_bytes=sdk_bytes && c.lr==0x823BF2B8 && CriticalCallerMatches(view);
+  const auto base=reinterpret_cast<uintptr_t>(guest_base);
+  const bool host_range=guest_base && base<=UINTPTR_MAX-uint64_t(c.r3.u32)-0x18;
+  const bool host_fault=host_range && record.ExceptionCode==EXCEPTION_ACCESS_VIOLATION &&
+    record.NumberParameters>=2 && record.ExceptionInformation[0]==0 &&
+    record.ExceptionInformation[1]==base+uint64_t(c.r3.u32)+0x18;
+  const bool host_rcx=host_range && host_context && host_context->Rcx==base+uint64_t(c.r3.u32);
+  const bool match=sdk_pc && sdk_bytes && caller_bytes && host_fault && host_rcx;
+  std::printf("CRITICAL_GATE requested=1 matched=%u sdk_pc=%u sdk_bytes=%u caller_bytes=%u host_fault=%u host_rcx=%u lr=%08X\n",
+    unsigned(match),unsigned(sdk_pc),unsigned(sdk_bytes),unsigned(caller_bytes),unsigned(host_fault),unsigned(host_rcx),unsigned(c.lr));
+  if(match){
+    std::printf("CRITICAL_PPC r3=%016llX r11=%016llX r29=%016llX r30=%016llX\n",
+      static_cast<unsigned long long>(c.r3.u64),static_cast<unsigned long long>(c.r11.u64),
+      static_cast<unsigned long long>(c.r29.u64),static_cast<unsigned long long>(c.r30.u64));
+    const uint64_t field=uint64_t(c.r29.u32)+8;
+    PrintCriticalRead("entry_word",view,field<=UINT32_MAX?uint32_t(field):0,4,true);
+    PrintCriticalRead("entry_prefix",view,c.r29.u32,64,false);
+    PrintCriticalRead("critical_prefix",view,c.r3.u32,32,false);
+  }
+  std::printf("CRITICAL_CAPTURE_END context_unchanged=%u host_context_unchanged=%u resumes_guest=0\n",
+    unsigned(std::memcmp(&before,&c,sizeof(c))==0),
+    unsigned(!host_context || std::memcmp(&host_before,host_context,sizeof(host_before))==0));
+}
+
 LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
+  if(critical_capture_active)return EXCEPTION_CONTINUE_SEARCH;
   if(mc2::host::EventTraceMemoryReadActive())return EXCEPTION_CONTINUE_SEARCH;
   auto* record = pointers->ExceptionRecord;
   if (!launch_phase || (record->ExceptionCode != EXCEPTION_ACCESS_VIOLATION &&
@@ -204,6 +278,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
     std::printf("TITLE_PPC r1=%08X r3=%08X r4=%08X lr=%08X ctr=%08X\n",
       c->r1.u32,c->r3.u32,c->r4.u32,unsigned(c->lr),c->ctr.u32);
     ObserveOriginalPanic(*record,*c);
+    ObserveCriticalSectionFault(*record,*c,pointers->ContextRecord);
   }
   NativeState();
   if(event_trace_requested)WriteEventTrace("fault");

@@ -8,6 +8,49 @@ from tools.research import probe_callback_codegen as p
 
 
 class CallbackCodegenTests(unittest.TestCase):
+    def test_byte_flag_profile(self):
+        self.assertEqual(p.profile_fields('byte-flag-leaf'),(0x82E078C0,12,'647f0e9b625de7198c3695d9dc3bda6707c347a543408d0d1f510d4baed5fa1c'))
+
+    def test_byte_flag_exact_hint(self):
+        with patch.object(p,'BASE',0x82E078C0):
+            self.assertEqual(p.verify_hint(bytes.fromhex('896321ac556307fe4e800020'),'[functions.0x82E078C0]\nsize=12','byte-flag-leaf')['size'],12)
+
+    def test_byte_flag_no_truncation(self):
+        with self.assertRaisesRegex(ValueError,'hint'):
+            p.verify_hint(b'','[functions.0x82E078C0]\nsize=8','byte-flag-leaf')
+
+    def test_byte_flag_wrong_bytes(self):
+        with self.assertRaisesRegex(ValueError,'range hash'):
+            p.verify_hint(bytes(12),'[functions.0x82E078C0]\nsize=12','byte-flag-leaf')
+
+    def test_byte_flag_registration(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            for path in root.iterdir():path.write_text(path.read_text().replace('8234FF10','82E078C0'))
+            self.assertTrue(p.verify_entry(root,0x82E078C0)['registered'])
+
+    def test_byte_flag_inherits_every_hint(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);meta=root/'meta/research/xex';meta.mkdir(parents=True)
+            for source in (p.ROOT/'research/xex').glob('disc1-*.toml'):
+                (meta/source.name).write_bytes(source.read_bytes())
+            inputs=root/'inputs';inputs.mkdir();xex=inputs/'input.xex';xex.write_bytes(b'fixture')
+            exe=inputs/'sdk.exe';exe.write_bytes(b'fixture');exe=inputs/'..'/'inputs'/'sdk.exe'
+            loader=inputs/'loader.cc';loader.write_bytes(b'fixture')
+            def digest(path):
+                return p.SDK_EXE_SHA256 if Path(path).resolve()==exe.resolve() else p.XEX_SHA256
+            def hint(image,text,profile='callback'):
+                return {'profile':profile}
+            args=SimpleNamespace(xex=xex,sdk_exe=exe,loader_source=loader,output=root/'out',entry_profile='byte-flag-leaf')
+            with patch.object(p,'ROOT',root/'meta'),patch.object(p,'digest',side_effect=digest),patch.object(p,'image_from_xex',return_value=b''),patch.object(p,'verify_hint',side_effect=hint) as guard,patch.object(p,'run_step',return_value={'returncode':1}):
+                result=p.execute(args)
+            self.assertFalse(result['success'])
+            self.assertEqual(result['proof']['indexed_tail']['profile'],'indexed-tail')
+            self.assertEqual(result['proof']['word_leaf']['profile'],'word-leaf')
+            self.assertEqual(result['proof']['byte_flag_leaf']['profile'],'byte-flag-leaf')
+            self.assertEqual(guard.call_count,11)
+
     def test_word_leaf_profile(self):
         self.assertEqual(p.profile_fields('word-leaf'),(0x82B7CCD0,8,'bbf1454f181f2d9d96316fad7d3c753d45df4678c1bafd0fe0217f84fa9b906f'))
 

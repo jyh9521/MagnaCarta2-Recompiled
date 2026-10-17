@@ -81,3 +81,8 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 22根两次真实到82E078C0未登记fatal；并未恢复该函数或到首帧。21根回退恢复原WoodSword panic；先前更早critical-section坏指针AV未修复，本次未重现。
 [阶段19结果](PHASE19_RESULTS.md)。
+
+## 第二十阶段 — 2026-10-17
+
+原byte flag恢复后当前22根在原panic写guest3，实际文件名PreF_VJuto_Base2.xxx，原ISO包有效但未部署。早期CS AV新增只读observer后未重现，未修复上游。仍无首帧/可玩性。
+[阶段20结果](PHASE20_RESULTS.md)。

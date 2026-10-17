@@ -148,3 +148,8 @@ unsigned byte bounds检查之前已有r9/r5变化；非法full64错误返回，�
 
 受控21→22→21→22→21把WoodSword部署与原panic可逆关联，下一fatal82E078C0。早期AV独立定位SDK CS+18，原对象字段+8再加4；未捕获对象来源/写入历史，不下唯一根因结论。
 [阶段19结果](docs/PHASE19_RESULTS.md)。
+
+## 第二十阶段 — 2026-10-17
+
+原82E078C0先LBZ写r11=zext8，再r3=bit0全64，CR不改；EA wrap和physical bias分开。原body3072差分通过，22根推进PreF_VJuto_Base2.xxx原panic，未证明标题实际bit或新缺包唯一因果。
+[阶段20结果](docs/PHASE20_RESULTS.md)。

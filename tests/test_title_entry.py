@@ -24,6 +24,42 @@ TITLE_NATIVES guard=1 bound=4096 fallback=3794 int_const=82508E60 add=8250BAF0
 
 
 class TitleEntryTests(unittest.TestCase):
+    def test_observation_profile_inherits_original_guards(self):
+        for profile in ['word-leaf-82B7CCD0','byte-flag-leaf-82E078C0']:
+            p.validate_capture_profile(profile,True,True)
+        p.validate_capture_profile('old-profile',False,False)
+
+    def test_observation_rejects_unknown_profiles(self):
+        for panic,critical in [(True,False),(False,True),(True,True)]:
+            with self.assertRaisesRegex(ValueError,'verified'):
+                p.validate_capture_profile('unknown',panic,critical)
+
+    def test_optional_critical_absence_not_title_failure(self):
+        self._critical_cli_status('not_observed',0)
+
+    def test_invalid_critical_protocol_fails_diagnostic(self):
+        self._critical_cli_status('invalid_capture',1)
+
+    def _critical_cli_status(self,status,expected):
+        from types import SimpleNamespace
+        args=[]
+        for name in ['build-dir','generated','sdk','compiler','vcvars','xex','output']:args+=['--'+name,'fixture']
+        args+=['--capture-critical-section']
+        report={'diagnostic_success':True,'bounded_observation':False,'critical_section_capture':{'status':status}}
+        with patch.object(p,'os',SimpleNamespace(name='nt')),patch.object(p,'execute',return_value=report):
+            self.assertEqual(p.main(args),expected)
+
+    def test_byte_flag_profile_identity(self):
+        with patch.object(p,'BYTE_FLAG_GENERATED_TREE','verified-byte-fixture',create=True):
+            self.assertEqual(p.validate_title_profile({'tree_sha256':'verified-byte-fixture'}),'byte-flag-leaf-82E078C0')
+
+    def test_byte_flag_fp_requires_strict(self):
+        with self.assertRaisesRegex(ValueError,'strict FP'):
+            p.validate_fp_contract('byte-flag-leaf-82E078C0',{},[])
+        with self.assertRaisesRegex(ValueError,'strict FP'):
+            p.validate_fp_contract('byte-flag-leaf-82E078C0',{'floating_point_contract':'strict'},[{'command':['/fp:fast']}])
+        p.validate_fp_contract('byte-flag-leaf-82E078C0',{'floating_point_contract':'strict'},[{'command':['/fp:strict']}])
+
     def test_presentation_requires_every_positive_marker(self):
         lines=['PRESENTATION_CONTEXT initialized=1 ui_thread=1',
                'PRESENTATION_SETUP status=00000000 has_presentation=1 presenter=1',

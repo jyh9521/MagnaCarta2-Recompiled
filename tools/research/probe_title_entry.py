@@ -15,6 +15,7 @@ import sys
 from tools.research import link_module
 from tools.research.event_trace_report import parse_event_trace
 from tools.research.panic_capture_report import parse_panic_capture
+from tools.research.critical_section_capture_report import parse_critical_section_capture
 from tools.research.compile_module import digest, inventory, vc_environment
 
 GPU_PLUGIN_SHA256 = '0c23cfa23fc4fa5638dc8a3dc0de87b1041d97705d4677774083f1f350cd8d89'
@@ -179,6 +180,7 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
 VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 COMPARE_GENERATED_TREE = '14c27505807e3381f5d9f4b20ab84a1b6f3404ea95204c134d5957260fbc2148'
+BYTE_FLAG_GENERATED_TREE = '9f5eda2bd7aa3934a32187063b2365864f502927ed67984f3cc02fa740d8fee6'
 WORD_LEAF_GENERATED_TREE = '628b54be3f51aa9f6ac198818102330a2e896a81765055f55a592c4144177f60'
 INDEXED_TAIL_GENERATED_TREE = 'd8336966f006a40c572f70585fbf4c3880554eca6669385d24605fde5a86ffd4'
 CONDITIONAL_TAIL_GENERATED_TREE = '641f44328a77585a8d263988f24d6044dfb39f14cd9b2d57f0522fb717c4699f'
@@ -192,6 +194,8 @@ NATIVE_GATEWAY_GENERATED_TREE = '994d2db123de56faf27f0560d872bb2481e6fa9f9c9e812
 
 def validate_title_profile(identity):
     """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == BYTE_FLAG_GENERATED_TREE:
+        return 'byte-flag-leaf-82E078C0'
     if identity.get('tree_sha256') == WORD_LEAF_GENERATED_TREE:
         return 'word-leaf-82B7CCD0'
     if identity.get('tree_sha256') == INDEXED_TAIL_GENERATED_TREE:
@@ -220,9 +224,14 @@ def validate_title_profile(identity):
     return 'phase5-missing-callback-baseline'
 
 
+def validate_capture_profile(profile, panic=False, critical=False):
+    if (panic or critical) and profile not in ('word-leaf-82B7CCD0','byte-flag-leaf-82E078C0'):
+        raise ValueError('capture requires an independently verified original caller discovery profile')
+
+
 def validate_fp_contract(profile, inputs, records):
     """Profiles containing the restored float leaf require strict FP; old rollback profiles stay valid."""
-    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8','indexed-tail-82A3DEA0','word-leaf-82B7CCD0'):return
+    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8','indexed-tail-82A3DEA0','word-leaf-82B7CCD0','byte-flag-leaf-82E078C0'):return
     if inputs.get('floating_point_contract') != 'strict' or not records:
         raise ValueError('discovery profile requires a strict FP module build')
     for row in records:
@@ -236,6 +245,7 @@ def execute(args):
     if not 20<=seconds<=60:raise ValueError('observation must be 20..60 seconds')
     trace=getattr(args,'trace_events',False)
     capture_panic=getattr(args,'capture_panic',False)
+    capture_critical=getattr(args,'capture_critical_section',False)
     present=getattr(args,'present',False)
     if present and not args.gpu:raise ValueError('presentation requires the real GPU plugin')
     sdk_runtime=args.sdk/'bin/rexruntime.dll'
@@ -244,7 +254,7 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
-    if capture_panic and profile!='word-leaf-82B7CCD0':raise ValueError('panic capture requires the independently verified original word-leaf profile')
+    validate_capture_profile(profile,capture_panic,capture_critical)
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
@@ -257,11 +267,13 @@ def execute(args):
     overrides['MC2_OBSERVE_SECONDS']=str(seconds)
     overrides['MC2_EVENT_TRACE']='1' if trace else '0'
     overrides['MC2_CAPTURE_PANIC']='1' if capture_panic else '0'
+    overrides['MC2_CAPTURE_CRITICAL_SECTION']='1' if capture_critical else '0'
     overrides['MC2_PRESENTATION']='1' if present else '0'
     overrides['MC2_WAIT_SDK_SHA256']=WAIT_SDK_SHA256
     dependencies=[args.source.parent/name for name in ('presentation_probe.h','wait_observation.h','event_import_trace.h')]
     has_panic_header='#include "panic_observation.h"' in args.source.read_text(encoding='utf-8-sig')
     if capture_panic and not has_panic_header:raise ValueError('capture requires the read-only observation host header')
+    if capture_critical and 'void ObserveCriticalSectionFault(' not in args.source.read_text(encoding='utf-8-sig'):raise ValueError('critical capture requires the read-only observer host source')
     if has_panic_header:dependencies.append(args.source.parent/'panic_observation.h')
     assets=[]
     if args.gpu:
@@ -301,6 +313,8 @@ def execute(args):
     report['runtime_assets_unchanged']=result.get('runtime_assets_unchanged',True)
     report['panic_capture_requested']=capture_panic
     report['panic_capture']=parse_panic_capture(run_text)
+    report['critical_section_capture_requested']=capture_critical
+    report['critical_section_capture']=parse_critical_section_capture(run_text,requested=capture_critical)
     guarded = diagnostic_input_guards(result,report)
     report['diagnostic_success'] &= guarded
     report['bounded_observation'] &= guarded
@@ -323,6 +337,7 @@ def main(argv=None):
     parser.add_argument('--game-root',type=Path)
     parser.add_argument('--source',type=Path,default=Path('src/host/title_probe.cpp'))
     parser.add_argument('--observe-seconds',type=int,default=20,help='bounded diagnostic window, 20..60 seconds')
+    parser.add_argument('--capture-critical-section',action='store_true',help='optional bounded read-only observation of the exact original SDK AV; absence is not failure')
     parser.add_argument('--capture-panic',action='store_true',help='opt-in bounded original-panic read-only observation; never resumes a fault')
     parser.add_argument('--trace-events',action='store_true',help='transparent scoped host IAT trace of four original SDK event imports')
     parser.add_argument('--present',action='store_true',help='bind a real hidden SDK window/presenter and pump the official UI loop')
@@ -331,6 +346,7 @@ def main(argv=None):
     try:
         if os.name!='nt':raise ValueError('title entry requires Windows SDK host')
         report=execute(args)
+        if args.capture_critical_section and report['critical_section_capture']['status']=='invalid_capture':return 1
         if args.capture_panic and not report['panic_capture']['success']:return 1
         return 0 if report['diagnostic_success'] or report['bounded_observation'] else 1
     except (OSError,ValueError,KeyError) as error:

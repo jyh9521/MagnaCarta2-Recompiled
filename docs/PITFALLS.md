@@ -141,3 +141,8 @@ word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而
 
 部署A/B必须使用完全相同EXE/SDK/GPU和单成员hash差异，保留每次native失败与实际资源回退；timeout/任意AV不是正向越过指定加载的证明。Windows设备名路径负例先red再补guard。坏CS指针类似UTF16字节仅指纹，不能当对象错用字符串的实证。
 [阶段19结果](PHASE19_RESULTS.md)。
+
+## 第二十阶段 — 2026-10-17
+
+clrlwi生成可能优化为u32&1，严格body提取器若预期通用rotate必须fail-closed后独立核验再改测试模板，不改生成体。byte邻居after起点+12不是+8；byte无需word对齐。SDK导出定位合成fixture不等于真实AV复现；其它AV/LR必须早筛以免消耗目标观察预算。
+[阶段20结果](PHASE20_RESULTS.md)。

@@ -38,6 +38,8 @@ def profile_fields(profile):
         return 0x82A3DEA0, 0x48, 'da78cc530445e6be3717bc6cec9e6cf949e163d65dc481ee5d6f63d4648b708a'
     if profile == 'word-leaf':
         return 0x82B7CCD0, 0x8, 'bbf1454f181f2d9d96316fad7d3c753d45df4678c1bafd0fe0217f84fa9b906f'
+    if profile == 'byte-flag-leaf':
+        return 0x82E078C0, 0xC, '647f0e9b625de7198c3695d9dc3bda6707c347a543408d0d1f510d4baed5fa1c'
     raise ValueError('unknown entry discovery profile')
 
 
@@ -74,29 +76,31 @@ def execute(args):
     hints = [ROOT/'research/xex/disc1-control-flow.toml', ROOT/'research/xex/disc1-callback-entry.toml']
     profile = getattr(args, 'entry_profile', 'callback')
     profile_fields(profile)
-    if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-virtual-thunk.toml')
-    if profile in ('compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-compare-callback.toml')
-    if profile in ('native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-native-gateway.toml')
-    if profile in ('extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-extended-native.toml')
-    if profile in ('float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-float-leaf.toml')
-    if profile in ('bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-bitfield-leaf.toml')
-    if profile in ('conditional-tail','indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-conditional-tail.toml')
-    if profile in ('indexed-tail','word-leaf'):hints.append(ROOT/'research/xex/disc1-indexed-tail.toml')
-    if profile == 'word-leaf':hints.append(ROOT/'research/xex/disc1-word-leaf.toml')
+    if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-virtual-thunk.toml')
+    if profile in ('compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-compare-callback.toml')
+    if profile in ('native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-native-gateway.toml')
+    if profile in ('extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-extended-native.toml')
+    if profile in ('float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-float-leaf.toml')
+    if profile in ('bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-bitfield-leaf.toml')
+    if profile in ('conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-conditional-tail.toml')
+    if profile in ('indexed-tail','word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-indexed-tail.toml')
+    if profile in ('word-leaf','byte-flag-leaf'):hints.append(ROOT/'research/xex/disc1-word-leaf.toml')
+    if profile == 'byte-flag-leaf':hints.append(ROOT/'research/xex/disc1-byte-flag-leaf.toml')
     before = {str(p): digest(p) for p in [xex, exe, args.loader_source.resolve(), *hints]}
     if before[str(xex)] != XEX_SHA256 or before[str(exe)] != SDK_EXE_SHA256:
         raise ValueError('unsupported XEX or SDK executable')
     image = image_from_xex(xex.read_bytes(), args.loader_source)
     proof = verify_hint(image, hints[1].read_text(encoding='utf-8'))
-    if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['virtual_thunk'] = verify_hint(image,hints[2].read_text(encoding='utf-8'),'virtual-thunk')
-    if profile in ('compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['compare'] = verify_hint(image,hints[3].read_text(encoding='utf-8'),'compare')
-    if profile in ('native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['native_gateway'] = verify_hint(image,hints[4].read_text(encoding='utf-8'),'native-gateway')
-    if profile in ('extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['extended_native'] = verify_hint(image,hints[5].read_text(encoding='utf-8'),'extended-native')
-    if profile in ('float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['float_leaf'] = verify_hint(image,hints[6].read_text(encoding='utf-8'),'float-leaf')
-    if profile in ('bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['bitfield_leaf'] = verify_hint(image,hints[7].read_text(encoding='utf-8'),'bitfield-leaf')
-    if profile in ('conditional-tail','indexed-tail','word-leaf'):proof['conditional_tail'] = verify_hint(image,hints[8].read_text(encoding='utf-8'),'conditional-tail')
-    if profile in ('indexed-tail','word-leaf'):proof['indexed_tail'] = verify_hint(image,hints[9].read_text(encoding='utf-8'),'indexed-tail')
-    if profile == 'word-leaf':proof['word_leaf'] = verify_hint(image,hints[10].read_text(encoding='utf-8'),profile)
+    if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['virtual_thunk'] = verify_hint(image,hints[2].read_text(encoding='utf-8'),'virtual-thunk')
+    if profile in ('compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['compare'] = verify_hint(image,hints[3].read_text(encoding='utf-8'),'compare')
+    if profile in ('native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['native_gateway'] = verify_hint(image,hints[4].read_text(encoding='utf-8'),'native-gateway')
+    if profile in ('extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['extended_native'] = verify_hint(image,hints[5].read_text(encoding='utf-8'),'extended-native')
+    if profile in ('float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['float_leaf'] = verify_hint(image,hints[6].read_text(encoding='utf-8'),'float-leaf')
+    if profile in ('bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['bitfield_leaf'] = verify_hint(image,hints[7].read_text(encoding='utf-8'),'bitfield-leaf')
+    if profile in ('conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['conditional_tail'] = verify_hint(image,hints[8].read_text(encoding='utf-8'),'conditional-tail')
+    if profile in ('indexed-tail','word-leaf','byte-flag-leaf'):proof['indexed_tail'] = verify_hint(image,hints[9].read_text(encoding='utf-8'),'indexed-tail')
+    if profile in ('word-leaf','byte-flag-leaf'):proof['word_leaf'] = verify_hint(image,hints[10].read_text(encoding='utf-8'),'word-leaf')
+    if profile == 'byte-flag-leaf':proof['byte_flag_leaf'] = verify_hint(image,hints[11].read_text(encoding='utf-8'),'byte-flag-leaf')
     for p in [xex, exe, args.loader_source.resolve(), *hints]:
         if output == p or output in p.parents or p.parent == output or p.parent in output.parents:
             raise ValueError('output overlaps an input')
@@ -117,15 +121,16 @@ def execute(args):
         if steps[-1]['returncode'] == 0:
             proof.update(verify_generated(project/'generated/default-disc1'))
             proof['callback'] = verify_entry(project/'generated/default-disc1')
-            if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['virtual_thunk']['generated'] = verify_entry(project/'generated/default-disc1',0x823C2740)
-            if profile in ('compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['compare']['generated'] = verify_entry(project/'generated/default-disc1',0x82C1C1A0)
-            if profile in ('native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['native_gateway']['generated'] = verify_entry(project/'generated/default-disc1',0x82509380)
-            if profile in ('extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['extended_native']['generated'] = verify_entry(project/'generated/default-disc1',0x82517D70)
-            if profile in ('float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['float_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82AC1DE8)
-            if profile in ('bitfield-leaf','conditional-tail','indexed-tail','word-leaf'):proof['bitfield_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82AC2810)
-            if profile in ('conditional-tail','indexed-tail','word-leaf'):proof['conditional_tail']['generated'] = verify_entry(project/'generated/default-disc1',0x826A9EC8)
-            if profile in ('indexed-tail','word-leaf'):proof['indexed_tail']['generated'] = verify_entry(project/'generated/default-disc1',0x82A3DEA0)
-            if profile == 'word-leaf':proof['word_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82B7CCD0)
+            if profile in ('virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['virtual_thunk']['generated'] = verify_entry(project/'generated/default-disc1',0x823C2740)
+            if profile in ('compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['compare']['generated'] = verify_entry(project/'generated/default-disc1',0x82C1C1A0)
+            if profile in ('native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['native_gateway']['generated'] = verify_entry(project/'generated/default-disc1',0x82509380)
+            if profile in ('extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['extended_native']['generated'] = verify_entry(project/'generated/default-disc1',0x82517D70)
+            if profile in ('float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['float_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82AC1DE8)
+            if profile in ('bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['bitfield_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82AC2810)
+            if profile in ('conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'):proof['conditional_tail']['generated'] = verify_entry(project/'generated/default-disc1',0x826A9EC8)
+            if profile in ('indexed-tail','word-leaf','byte-flag-leaf'):proof['indexed_tail']['generated'] = verify_entry(project/'generated/default-disc1',0x82A3DEA0)
+            if profile in ('word-leaf','byte-flag-leaf'):proof['word_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82B7CCD0)
+            if profile == 'byte-flag-leaf':proof['byte_flag_leaf']['generated'] = verify_entry(project/'generated/default-disc1',0x82E078C0)
     stable = before == {p:digest(Path(p)) for p in before} and digest(output/'default-disc1.xex') == XEX_SHA256
     report = dict(profile=profile,proof=proof,steps=steps,input_hashes=before,inputs_unchanged=stable,
                   success=stable and steps[-1]['returncode']==0,game_execution='NOT TESTED')
@@ -137,7 +142,7 @@ def execute(args):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('xex','sdk-exe','loader-source','output'):p.add_argument('--'+name,required=True,type=Path)
-    p.add_argument('--entry-profile',choices=('callback','virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf'),default='callback')
+    p.add_argument('--entry-profile',choices=('callback','virtual-thunk','compare','native-gateway','extended-native','float-leaf','bitfield-leaf','conditional-tail','indexed-tail','word-leaf','byte-flag-leaf'),default='callback')
     args=p.parse_args(argv)
     return 0 if execute(args)['success'] else 1
 
