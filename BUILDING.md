@@ -211,3 +211,8 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 
 24根只追加voc；23/24交错保持同EXE，host exit26表示45秒有限观察，非成功启动或父进程timeout。重新核验197 strict对象/全链接，不为资源变化重编游戏。
 [阶段22结果](docs/PHASE22_RESULTS.md)。
+
+## 第二十三阶段 — 2026-10-17
+
+--trace-schedule默认关闭，原SDK/profile/full body守卫，新增两个host header均进inputs/hash/snapshot。仅重编host并显式链接原197 strict对象，不改SDK/生成体。
+[阶段23结果](docs/PHASE23_RESULTS.md)。

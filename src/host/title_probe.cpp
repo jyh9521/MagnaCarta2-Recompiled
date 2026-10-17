@@ -3,6 +3,7 @@
 #include "presentation_probe.h"
 #include "wait_observation.h"
 #include "event_import_trace.h"
+#include "schedule_observation.h"
 #include "panic_observation.h"
 #include <thread>
 #include <rex/cvar.h>
@@ -29,6 +30,15 @@ volatile LONG launch_phase = 0;
 rex::system::KernelState* kernel_state = nullptr;
 bool wait_sdk_verified = false;
 bool event_trace_requested = false;
+bool schedule_trace_requested = false;
+std::atomic<unsigned> schedule_dump_index{0};
+void WriteScheduleTrace(const char* reason) {
+  const auto index=schedule_dump_index.fetch_add(1);if(index>=4)return;
+  char name[64]{};std::snprintf(name,sizeof(name),"schedule-trace-%u.txt",index);
+  auto* file=std::fopen(name,"wb");bool okay=file && std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;
+  if(file){mc2::host::DumpScheduleImportTrace(file);okay=std::ferror(file)==0 && okay;okay=std::fclose(file)==0 && okay;}
+  std::printf("SCHEDULE_TRACE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
+}
 thread_local bool critical_capture_active = false;
 std::atomic<unsigned> critical_capture_count{0};
 std::atomic<unsigned> event_dump_index{0};
@@ -80,6 +90,7 @@ class FatalDiagnosticSink final : public spdlog::sinks::base_sink<std::mutex> {
     }
     NativeState();
     if(event_trace_requested)WriteEventTrace("fault");
+    if(schedule_trace_requested)WriteScheduleTrace("fault");
   }
   void flush_() override {std::fflush(stdout);}
 };
@@ -282,6 +293,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
   }
   NativeState();
   if(event_trace_requested)WriteEventTrace("fault");
+    if(schedule_trace_requested)WriteScheduleTrace("fault");
   std::fflush(stdout);
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
 }
@@ -306,6 +318,7 @@ int main(int argc,char** argv) {
     const auto game_root=root?std::filesystem::absolute(root):xex.parent_path();
     std::printf("TITLE_ROOT %s\n",game_root.string().c_str());
     event_trace_requested=std::getenv("MC2_EVENT_TRACE") && std::strcmp(std::getenv("MC2_EVENT_TRACE"),"1")==0;
+    schedule_trace_requested=std::getenv("MC2_SCHEDULE_TRACE") && std::strcmp(std::getenv("MC2_SCHEDULE_TRACE"),"1")==0;
     const bool present=std::getenv("MC2_PRESENTATION") && std::strcmp(std::getenv("MC2_PRESENTATION"),"1")==0;
     if(present) {
       rex::cvar::Init(argc,argv);rex::cvar::ApplyEnvironment();
@@ -359,6 +372,13 @@ int main(int argc,char** argv) {
     status=runtime.LoadXexImage("game:\\"+xex.filename().string());
     std::printf("TITLE_LOAD status=%08X\n",unsigned(status));if(status)return 23;
     std::puts("TITLE_STAGE image_loaded_no_probe_data_writes");
+    if(schedule_trace_requested) {
+      const bool code=mc2::host::schedule_observation::OriginalBytes({guest_base,0x100001000ULL});
+      const bool installed=code && mc2::host::SetScheduleSampleHook(&mc2::host::schedule_observation::Sample) &&
+        mc2::host::InstallScheduleImportTrace(GetModuleHandleW(nullptr),dll,wait_sdk_verified);
+      std::printf("TITLE_SCHEDULE_TRACE installed=%u code_guard=%u\n",unsigned(installed),unsigned(code));
+      if(!installed){WriteScheduleTrace("install");return 36;}
+    }
     for(auto ordinal:{0x193,0x59}) {
       auto* exp=runtime.export_resolver()->GetExportByOrdinal("xboxkrnl.exe",uint16_t(ordinal));
       if(exp) std::printf("TITLE_EXPORT ordinal=%04X name=%s type=%u implemented=%u variable=%08X\n",
@@ -407,6 +427,11 @@ int main(int argc,char** argv) {
       std::printf("TITLE_EVENT_TRACE restored=%u\n",unsigned(restored));
       WriteEventTrace("boundary");
       if(!restored){std::fflush(stdout);std::_Exit(34);}
+    }
+    if(schedule_trace_requested) {
+      const bool restored=mc2::host::RestoreScheduleImportTrace();
+      std::printf("TITLE_SCHEDULE_TRACE restored=%u\n",unsigned(restored));WriteScheduleTrace("boundary");
+      if(!restored){std::fflush(stdout);std::_Exit(37);}
     }
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();

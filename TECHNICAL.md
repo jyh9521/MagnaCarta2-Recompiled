@@ -163,3 +163,8 @@ unsigned byte bounds检查之前已有r9/r5变化；非法full64错误返回，�
 
 voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入82869850→82E8DF4C/KeDelayExecutionThread。bounded observation与新fatal分开，未证死锁/首帧。
 [阶段22结果](docs/PHASE22_RESULTS.md)。
+
+## 第二十三阶段 — 2026-10-17
+
+原main轮询83265218，真实晚期2>threshold1，interval0/alert0；潜在减计数82399738静态定位，当前dispatch/上游未释放原因未证。
+[阶段23结果](docs/PHASE23_RESULTS.md)。

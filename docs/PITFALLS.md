@@ -156,3 +156,10 @@ clrlwi生成可能优化为u32&1，严格body提取器若预期通用rotate必�
 
 exit26是既有host有限观察终止，不能当guest正常结束或任意timeout推进。原panic可逆消失不等于下一fatal已定位；故障分类器仍unknown，不为了结果放宽守卫。
 [阶段22结果](PHASE22_RESULTS.md)。
+
+## 第二十三阶段 — 2026-10-17
+
+零delay调用持续返回不等于死锁；CS owner是guest KTHREAD pointer非thread ID，+10 atomic为native LE。稀疏桶/非原子字段/槽溢出/weak freeze不得夸大覆盖。parser矛盾标记实际RED3fail后GREEN，旧报告字段别名演进明确留证，不静默覆盖。
+[阶段23结果](PHASE23_RESULTS.md)。
+
+最终独立审计发现claimed桶全部截断、flags超宽/未知bits与post原参数矛盾可能误报capture；实际24tests/5fail RED保留，补每key已报告桶计数、低8flags和不可变参数配对守卫后24tests GREEN。首轮812测试事务及已恢复227源副本保留，最终817测试源码事务另存verification-final；既有真实raw重解析不得放宽。

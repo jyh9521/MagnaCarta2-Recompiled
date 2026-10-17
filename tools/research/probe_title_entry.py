@@ -14,6 +14,7 @@ import sys
 
 from tools.research import link_module
 from tools.research.event_trace_report import parse_event_trace
+from tools.research.schedule_trace_report import parse_schedule_trace
 from tools.research.panic_capture_report import parse_panic_capture
 from tools.research.critical_section_capture_report import parse_critical_section_capture
 from tools.research.compile_module import digest, inventory, vc_environment
@@ -244,6 +245,7 @@ def execute(args):
     seconds=getattr(args,'observe_seconds',20)
     if not 20<=seconds<=60:raise ValueError('observation must be 20..60 seconds')
     trace=getattr(args,'trace_events',False)
+    schedule=getattr(args,'trace_schedule',False)
     capture_panic=getattr(args,'capture_panic',False)
     capture_critical=getattr(args,'capture_critical_section',False)
     present=getattr(args,'present',False)
@@ -254,7 +256,7 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
-    validate_capture_profile(profile,capture_panic,capture_critical)
+    validate_capture_profile(profile,capture_panic or schedule,capture_critical)
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
@@ -266,6 +268,7 @@ def execute(args):
     overrides={'MC2_XEX_PATH':image['source'],'MC2_GAME_ROOT':str((args.game_root or args.xex.parent).resolve())}
     overrides['MC2_OBSERVE_SECONDS']=str(seconds)
     overrides['MC2_EVENT_TRACE']='1' if trace else '0'
+    overrides['MC2_SCHEDULE_TRACE']='1' if schedule else '0'
     overrides['MC2_CAPTURE_PANIC']='1' if capture_panic else '0'
     overrides['MC2_CAPTURE_CRITICAL_SECTION']='1' if capture_critical else '0'
     overrides['MC2_PRESENTATION']='1' if present else '0'
@@ -275,6 +278,9 @@ def execute(args):
     if capture_panic and not has_panic_header:raise ValueError('capture requires the read-only observation host header')
     if capture_critical and 'void ObserveCriticalSectionFault(' not in args.source.read_text(encoding='utf-8-sig'):raise ValueError('critical capture requires the read-only observer host source')
     if has_panic_header:dependencies.append(args.source.parent/'panic_observation.h')
+    has_schedule_header='#include "schedule_observation.h"' in args.source.read_text(encoding='utf-8-sig')
+    if schedule and not has_schedule_header:raise ValueError('schedule trace requires original-caller-gated observation header')
+    if has_schedule_header:dependencies.extend(args.source.parent/name for name in ('schedule_import_trace.h','schedule_observation.h'))
     assets=[]
     if args.gpu:
         overrides['MC2_GPU_PLUGIN']='xenos';assets=[args.sdk/'bin/rexgpu-xenos.dll']
@@ -302,6 +308,14 @@ def execute(args):
         parsed.update(reason=reason,path=str(path),sha256=digest(path))
         report['event_traces'].append(parsed)
     report['event_trace']=report['event_traces'][-1] if report['event_traces'] else parse_event_trace(run_text)
+    report['schedule_trace_requested']=schedule
+    report['schedule_traces']=[]
+    for reason,name,success in re.findall(r'^SCHEDULE_TRACE_FILE reason=(\w+) path=(schedule-trace-\d+\.txt) success=([01])$',run_text,re.M):
+        path=output/name
+        if success!='1' or not path.is_file():continue
+        parsed=parse_schedule_trace(run_text+'\n'+path.read_text(encoding='utf-8',errors='replace'),requested=schedule)
+        parsed.update(reason=reason,path=str(path),sha256=digest(path));report['schedule_traces'].append(parsed)
+    report['schedule_trace']=report['schedule_traces'][-1] if report['schedule_traces'] else parse_schedule_trace(run_text,requested=schedule)
     report['game_input_before']=root_before
     report['game_input_after']=inventory(root)
     report['game_input_unchanged']=report['game_input_before']==report['game_input_after'] and digest(args.xex)==XEX_SHA256
@@ -325,6 +339,8 @@ def execute(args):
         report['diagnostic_success']=False
         report['bounded_observation']=False
     if trace and not report['event_trace']['capture_verified']:report['bounded_observation']=False
+    if schedule and not report['schedule_trace']['capture_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
     (output/'title-entry.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(f"TITLE_ENTRY resumed={report['guest_entrypoint_launched']} located={report['diagnostic_success']} game_boot=False",flush=True)
     return report
@@ -339,6 +355,7 @@ def main(argv=None):
     parser.add_argument('--observe-seconds',type=int,default=20,help='bounded diagnostic window, 20..60 seconds')
     parser.add_argument('--capture-critical-section',action='store_true',help='optional bounded read-only observation of the exact original SDK AV; absence is not failure')
     parser.add_argument('--capture-panic',action='store_true',help='opt-in bounded original-panic read-only observation; never resumes a fault')
+    parser.add_argument('--trace-schedule',action='store_true',help='bounded transparent original delay/critical-section host-IAT observation')
     parser.add_argument('--trace-events',action='store_true',help='transparent scoped host IAT trace of four original SDK event imports')
     parser.add_argument('--present',action='store_true',help='bind a real hidden SDK window/presenter and pump the official UI loop')
     parser.add_argument('--gpu',action='store_true',help='request the unmodified SDK xenos plugin, no presentation')
