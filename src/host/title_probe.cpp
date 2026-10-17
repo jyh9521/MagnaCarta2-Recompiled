@@ -8,6 +8,7 @@
 #include "counter_queue_watch.h"
 #include "counter_worker_sample.h"
 #include "frame_timeline_observation.h"
+#include "movie_observation.h"
 #include "guest_output_capture.h"
 #include "scripted_controller_probe.h"
 #include "start_input_observation.h"
@@ -41,6 +42,7 @@ bool event_trace_requested = false;
 bool schedule_trace_requested = false;
 bool counter_trace_requested = false;
 bool timeline_requested = false;
+bool movie_trace_requested=false;
 bool capture_guest_output_requested = false;
 bool input_trace_requested=false;
 bool scripted_start_requested=false;
@@ -71,6 +73,9 @@ void WriteFrameTimeline(const char* reason) {
  if(file){mc2::host::DumpFrameTimeline(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}
  std::printf("FRAME_TIMELINE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));
 }
+
+std::atomic<unsigned> movie_dump_index{0};
+void WriteMovieTrace(const char* reason){const auto index=movie_dump_index.fetch_add(1);if(index>=4)return;mc2::host::FreezeMovieTrace();char name[64]{};std::snprintf(name,sizeof(name),"movie-trace-%u.txt",index);auto* file=std::fopen(name,"wb");bool okay=file&&std::setvbuf(file,nullptr,_IOFBF,64*1024)==0;if(file){mc2::host::DumpMovieTrace(file);okay=std::ferror(file)==0&&okay;okay=std::fclose(file)==0&&okay;}std::printf("MOVIE_TRACE_FILE reason=%s path=%s success=%u\n",reason,name,unsigned(okay));}
 
 std::atomic<unsigned> queue_dump_index{0};
 void WriteQueueWatch(const char* reason) {
@@ -150,6 +155,7 @@ class FatalDiagnosticSink final : public spdlog::sinks::base_sink<std::mutex> {
     if(schedule_trace_requested)WriteScheduleTrace("fault");
     if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
     if(timeline_requested)WriteFrameTimeline("fault");
+    if(movie_trace_requested)WriteMovieTrace("fault");
     if(input_trace_requested)WriteInputTrace("fault");
   }
   void flush_() override {std::fflush(stdout);}
@@ -356,6 +362,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
     if(schedule_trace_requested)WriteScheduleTrace("fault");
     if(counter_trace_requested){WriteCounterTrace("fault");WriteQueueWatch("fault");}
     if(timeline_requested)WriteFrameTimeline("fault");
+    if(movie_trace_requested)WriteMovieTrace("fault");
     if(input_trace_requested)WriteInputTrace("fault");
   std::fflush(stdout);
   return EXCEPTION_CONTINUE_SEARCH; // Record only: do not repair or resume guest faults.
@@ -384,6 +391,7 @@ int main(int argc,char** argv) {
     schedule_trace_requested=std::getenv("MC2_SCHEDULE_TRACE") && std::strcmp(std::getenv("MC2_SCHEDULE_TRACE"),"1")==0;
     counter_trace_requested=std::getenv("MC2_COUNTER_TRACE") && std::strcmp(std::getenv("MC2_COUNTER_TRACE"),"1")==0;
     timeline_requested=std::getenv("MC2_FRAME_TIMELINE") && std::strcmp(std::getenv("MC2_FRAME_TIMELINE"),"1")==0;
+    movie_trace_requested=std::getenv("MC2_MOVIE_TRACE") && std::strcmp(std::getenv("MC2_MOVIE_TRACE"),"1")==0;
     capture_guest_output_requested=std::getenv("MC2_CAPTURE_GUEST_OUTPUT") && std::strcmp(std::getenv("MC2_CAPTURE_GUEST_OUTPUT"),"1")==0;
     scripted_start_requested=std::getenv("MC2_SCRIPTED_START") && std::strcmp(std::getenv("MC2_SCRIPTED_START"),"1")==0;
     scripted_neutral_requested=std::getenv("MC2_SCRIPTED_NEUTRAL") && std::strcmp(std::getenv("MC2_SCRIPTED_NEUTRAL"),"1")==0;
@@ -496,6 +504,17 @@ int main(int argc,char** argv) {
       std::printf("TITLE_GUEST_OUTPUT_CAPTURE enabled=%u sdk_guard=%u configured=%u\n",unsigned(capture_guest_output_requested),unsigned(wait_sdk_verified),unsigned(capture_ready));
       if(!capture_ready)return 42;
     }
+      {
+        bool code=false,binding=false;
+        if(movie_trace_requested){code=wait_sdk_verified && mc2::host::movie_observation::OriginalBytes({guest_base,0x100001000ULL});binding=true;
+const uint32_t targets[]={0x8248FED8,0x82490CF0,0x827B6148,0x82490708,0x824909B8,0x82490C78,0x82491630,0x82491930,0x82491BD8};
+PPCFunc* hooks[]={&sub_8248FED8,&sub_82490CF0,&sub_827B6148,&sub_82490708,&sub_824909B8,&sub_82490C78,&sub_82491630,&sub_82491930,&sub_82491BD8};
+PPCFunc* originals[]={&__imp__sub_8248FED8,&__imp__sub_82490CF0,&__imp__sub_827B6148,&__imp__sub_82490708,&__imp__sub_824909B8,&__imp__sub_82490C78,&__imp__sub_82491630,&__imp__sub_82491930,&__imp__sub_82491BD8};
+for(unsigned i=0;i<9;++i){const bool bound=runtime.function_dispatcher()->GetFunction(targets[i])==hooks[i];const bool distinct=hooks[i]!=originals[i];binding=binding&&bound&&distinct;std::printf("MOVIE_BIND target=%08X dispatcher_hook=%u distinct_original=%u\n",targets[i],unsigned(bound),unsigned(distinct));}}
+        const bool configured=mc2::host::ConfigureMovieTrace(code&&binding,movie_trace_requested);
+        std::printf("TITLE_MOVIE_TRACE enabled=%u code_guard=%u binding_guard=%u configured=%u\n",unsigned(movie_trace_requested),unsigned(code),unsigned(binding),unsigned(configured));
+        if(!configured){WriteMovieTrace("install");return 44;}
+      }
     {
       bool code=false,binding=false;
       if(input_trace_requested){
@@ -554,6 +573,7 @@ int main(int argc,char** argv) {
       if(wait!=rex::thread::WaitResult::kSuccess)SampleThread(thread.get());
       if(capture_guest_output_requested){
         if(input_trace_requested)WriteInputTrace("pre_readback");
+        if(movie_trace_requested)WriteMovieTrace("pre_readback");
         if(timeline_requested)WriteFrameTimeline("pre_readback"); // Keep completed evidence if the SDK fence wait never returns.
         const auto start=GetTickCount64();mc2::host::CaptureGuestOutput(runtime.graphics_system()->presenter(),"guest-output.ppm");
         std::printf("GUEST_OUTPUT_CAPTURE_TIMING elapsed_ms=%llu scheduling_perturbed=1 visible_present_proof=0\n",(unsigned long long)(GetTickCount64()-start));
@@ -578,6 +598,7 @@ int main(int argc,char** argv) {
       if(!restored){std::fflush(stdout);std::_Exit(37);}
     }
     if(counter_trace_requested){queue_monitor.request_stop();queue_monitor.join();const bool paired=mc2::host::SampleCounterWorkers(guest_base);WriteCounterTrace("boundary");WriteQueueWatch("boundary");if(!paired){std::fflush(stdout);std::_Exit(40);}}
+    if(movie_trace_requested && movie_dump_index.load()==0)WriteMovieTrace("boundary");
     if(timeline_requested && timeline_dump_index.load()==0)WriteFrameTimeline("boundary");
     if(input_trace_requested && input_dump_index.load()==0)WriteInputTrace("boundary");
     // The parent runner confines this diagnostic process. No forced guest continuation.

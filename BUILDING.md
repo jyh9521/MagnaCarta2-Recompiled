@@ -236,3 +236,10 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 
 ## 阶段28：对象flag叶strict发现
 新增object-flag-leaf entry profile（8233D3D8/0xC），继承全部原hint；strict重生58172体/58418双表并全197TU编译/链接。历史278源码+旧生成树/197对象才是实际旧fatal回退，不只恢复源码。 见[阶段28](docs/PHASE28_RESULTS.md)。
+
+
+## 阶段29：电影/伴随字幕加载的可逆实验
+[阶段29结果](docs/PHASE29_RESULTS.md)与[原加载状态研究](docs/RESEARCH_MOVIE_LOAD_STATE.md)分开记录原静态范围、动态结果与未验证部分。
+`--trace-movie`默认关闭，仅接收固定object-flag-leaf profile；继承原XEX、SDK及197个strict对象守卫。9个原PDATA完整范围6764字节逐word核验、dispatcher强wrapper/原delegate分离核验后才启用。仅重编host、全197对象链接；不改原生成体/SDK/游戏返回值。
+observer记录worker/start、伴随文本容器、三open、tick、cleanup/playlist；有限RAM读取保留unknown，不补页或写guest。原r3参数、r3返回与字段快照不混同；827B6148为FString路径且无稳定布尔返回。
+`movie_trace_report.py`严格验证固定文件/九目标、配对/父子调用、已知位、UTF16和弱快照；饱和/未结束可验证采集但不是完整执行证据。可重用API为`read_movie_traces(run_text, output, requested=True)`。

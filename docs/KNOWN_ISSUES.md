@@ -121,3 +121,7 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 ## 阶段28：确认后状态尚未验收
 8233D3D8缺登记已通过strict发现恢复；新真实入口45秒native26边界、SDK输出全黑。当前未正常进入可玩流程，movie资源缺失/流程状态仍待因果定位；旧早期CS AV未重现/未修复。 见[阶段28](PHASE28_RESULTS.md)。
+
+
+## 阶段29：电影加载因果已拆分，地图加载仍失败
+同EXE单变量/删除回退证明bik缺失可逆控制原open失败/成功及电影tick；txt是伴随字幕时间轴，其容器0→1但单独恢复仍黑场。bik恢复后实际推进到缺02_Village_Persistent.xxx原panic，未部署该地图包，未验收序章视频画面/完整结束或可玩性。第一份未进入New Game的trace与所有失败保留，后续使用串行实际prologue证据。见[阶段29](PHASE29_RESULTS.md)。

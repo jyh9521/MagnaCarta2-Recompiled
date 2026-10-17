@@ -18,6 +18,7 @@ from tools.research.schedule_trace_report import parse_schedule_trace
 from tools.research.counter_trace_report import parse_counter_trace
 from tools.research.queue_watch_report import read_queue_watches
 from tools.research.frame_timeline_report import read_frame_timelines
+from tools.research.movie_trace_report import read_movie_traces
 from tools.research.guest_output_capture_report import parse_guest_output_capture
 from tools.research.input_trace_report import read_input_traces,parse_scripted_controller
 from tools.research.panic_capture_report import parse_panic_capture
@@ -260,6 +261,7 @@ def input_observer_headers(source):
 
 
 def execute(args):
+    movie=getattr(args,'trace_movie',False)
     seconds=getattr(args,'observe_seconds',20)
     if not 20<=seconds<=60:raise ValueError('observation must be 20..60 seconds')
     trace=getattr(args,'trace_events',False)
@@ -287,8 +289,9 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
-    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest or input_trace,capture_critical)
+    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest or input_trace or movie,capture_critical)
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
+    if movie and profile!='object-flag-leaf-8233D3D8':raise ValueError('movie trace requires the fixed object-flag-leaf profile')
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
     if args.output.resolve()==root or root in args.output.resolve().parents:
@@ -306,6 +309,7 @@ def execute(args):
     overrides['MC2_SCRIPTED_CONFIRM_NEUTRAL']='1' if scripted_confirm_neutral else '0'
     overrides['MC2_SCRIPTED_CONFIRM']='1' if scripted_confirm else '0'
     overrides['MC2_SCRIPTED_NEUTRAL']='1' if scripted_neutral else '0'
+    overrides['MC2_MOVIE_TRACE']='1' if movie else '0'
     overrides['MC2_FRAME_TIMELINE']='1' if timeline else '0'
     overrides['MC2_CAPTURE_GUEST_OUTPUT']='1' if capture_guest else '0'
     overrides['MC2_CAPTURE_PANIC']='1' if capture_panic else '0'
@@ -329,6 +333,9 @@ def execute(args):
     has_capture_header='#include "guest_output_capture.h"' in args.source.read_text(encoding='utf-8-sig')
     if capture_guest and not has_capture_header:raise ValueError('guest output capture requires the SDK readback observer')
     if has_capture_header:dependencies.append(args.source.parent/'guest_output_capture.h')
+    has_movie_header='#include "movie_observation.h"' in args.source.read_text(encoding='utf-8-sig')
+    if movie and not has_movie_header:raise ValueError('movie trace requires original-body-gated observation headers')
+    if has_movie_header:dependencies.extend(args.source.parent/name for name in ('movie_trace.h','movie_observation.h'))
     input_headers,has_confirm_header=input_observer_headers(args.source)
     has_input_header=bool(input_headers)
     if input_trace and not has_input_header:raise ValueError('input tracing requires the verified original state/consumer observer')
@@ -379,6 +386,8 @@ def execute(args):
     report['counter_trace']=report['counter_traces'][-1] if report['counter_traces'] else parse_counter_trace(run_text,requested=counter)
     report['queue_watch'],report['queue_watches']=read_queue_watches(run_text,output,requested=counter)
     report['frame_timeline'],report['frame_timelines']=read_frame_timelines(run_text,output,requested=timeline)
+    report['movie_trace'],report['movie_traces']=read_movie_traces(run_text,output,requested=movie)
+    report['movie_trace_requested']=movie
     report['guest_output_capture']=parse_guest_output_capture(run_text,output,requested=capture_guest)
     report['input_traces']=read_input_traces(run_text,output,requested=input_trace,confirm_requested=input_trace and has_confirm_header)
     report['scripted_controller']=parse_scripted_controller(run_text,requested=scripted_start,confirm_requested=scripted_confirm,confirm_neutral=scripted_confirm_neutral)
@@ -418,6 +427,8 @@ def execute(args):
         report['bounded_observation']=False;report['diagnostic_success']=False
     if timeline and not report['frame_timeline']['capture_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
+    if movie and not report['movie_trace']['capture_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
     if capture_guest and not report['guest_output_capture']['attempt_verified']:
         report['bounded_observation']=False;report['diagnostic_success']=False
     if counter and not report['queue_watch']['capture_verified']:
@@ -443,6 +454,7 @@ def main(argv=None):
     parser.add_argument('--scripted-controller-neutral',action='store_true',help='same synthetic device and capabilities, but keep all controls neutral for causal comparison')
     parser.add_argument('--scripted-start',action='store_true',help='opt-in finite synthetic controller START pulse; original game input consumer stays unchanged')
     parser.add_argument('--trace-input',action='store_true',help='transparent original SDK state adapter and START consumer observation')
+    parser.add_argument('--trace-movie',action='store_true',help='default-off original movie and companion-text load state observation')
     parser.add_argument('--trace-frame-timeline',action='store_true',help='transparent original tick/poll/render-candidate call intervals; never frame acceptance')
     parser.add_argument('--capture-guest-output',action='store_true',help='one bounded-process public SDK guest-output GPU readback; not visible presentation proof')
     parser.add_argument('--trace-counter',action='store_true',help='transparent strong RAW hooks of original increment/reservation/decrement bodies')

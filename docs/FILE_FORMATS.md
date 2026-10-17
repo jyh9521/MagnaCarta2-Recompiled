@@ -57,3 +57,9 @@ PE声明的`.reloc`只有458,240bytes位于security映像内，本轮核验不�
 原CRT的pre-C、pre-C++、C++表分别包含2、2、3873个非零函数指针；第三表864,937slots包括大量零/FFFFFFFF，
 应按原扫描器顺序而非只调用299个indexed-native子集。静态表恢复与真实标题执行分别验收。
 最新运行效果匹配299项静态indexed-native目标，不据此声称逐构造函数调用均已跟踪。
+
+
+## 阶段29：电影伴随文本与Bink成员（Verified）
+固定Disc1的`MC2Game/Movies/csm_prologue.txt`为3474字节，SHA256 `67d51e3d797e4a391aa6281055add39cdde5bedca3ceb30bb570faac67ffe099`；BOM FFFE，严格UTF-16LE解码再编码与BOM后原字节完全一致。观察到36个`<SYNC Start=数字>`记录及`<P Class=KRCC>`结构，首/末Start为3906/228770；不由此推定所有文本格式或时间单位。该文件应按电影伴随字幕时间轴处理，不当作已证明的主剧情脚本。
+原`csm_prologue.bik`为515361412字节，SHA256 `05fa63b4a66763514d594ba05fff2e698774662a4d7501cf44b1744458f437b9`，头4字节BIKi。未在本阶段重新定义Bink格式、转码或替换视频。
+原成员offset和整ISO/member hash由stage_runtime_files重新提取验证，原文件保持本地ignored；只提交格式与工具证据。

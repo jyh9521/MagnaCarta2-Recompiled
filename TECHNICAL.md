@@ -188,3 +188,10 @@ voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入8
 
 ## 阶段28：原读取叶与确认后黑场
 原BE32[obj+1BC]零扩展至r11，r3=最高位，完整12字节/邻域/无PDATA已核；3072真实生成体差分通过。旧fatal消失，原SDK1280×720黑帧与45秒仍运行已观察，尚不证明电影缺失根因或可玩性。 见[阶段28](docs/PHASE28_RESULTS.md)。
+
+
+## 阶段29：电影/伴随字幕加载的可逆实验
+[阶段29结果](docs/PHASE29_RESULTS.md)与[原加载状态研究](docs/RESEARCH_MOVIE_LOAD_STATE.md)分开记录原静态范围、动态结果与未验证部分。
+`--trace-movie`默认关闭，仅接收固定object-flag-leaf profile；继承原XEX、SDK及197个strict对象守卫。9个原PDATA完整范围6764字节逐word核验、dispatcher强wrapper/原delegate分离核验后才启用。仅重编host、全197对象链接；不改原生成体/SDK/游戏返回值。
+observer记录worker/start、伴随文本容器、三open、tick、cleanup/playlist；有限RAM读取保留unknown，不补页或写guest。原r3参数、r3返回与字段快照不混同；827B6148为FString路径且无稳定布尔返回。
+`movie_trace_report.py`严格验证固定文件/九目标、配对/父子调用、已知位、UTF16和弱快照；饱和/未结束可验证采集但不是完整执行证据。可重用API为`read_movie_traces(run_text, output, requested=True)`。

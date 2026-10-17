@@ -185,3 +185,10 @@ exit26是既有host有限观察终止，不能当guest正常结束或任意timeo
 
 ## 阶段28：黑帧与原资源缺失分开
 确认后SDK实际黑帧不等于没有原render返回或固定死锁；csm_prologue.txt/.bik缺失仅并存证据，须先核原加载条件和独立资源因果。合成r3/r11全ctx验证不是标题对象实际字段值日志。保留初次size元数据误记与私有runner语法失败。 见[阶段28](PHASE28_RESULTS.md)。
+
+
+## 阶段29：不要把两个缺失成员或黑帧混成一个根因
+原827B6148接收FString路径（不是直接UTF16指针），返回r3也不是成功布尔。原电影启动失败返回0，但命令worker仍返回36；缺字幕和缺视频必须分别干预。
+第一次透明trace与另一游戏诊断并行，固定时刻输入未达到New Game：SDK捕获仍Press START，movie日志只有logo/opening，没有prologue。保留为无效New Game样本，之后所有trace按串行实跑；有A轮询记录不等于原菜单已经确认。单纯添加observer也会扰动时序，不把此失败包装成目标场景采集。
+保留staging首轮junction祖先拒绝（改用resolve规范路径，未放宽guard）、私有矩阵reader列表/dict误用、首版movie parser将FILE误纳TRACE header、原生夹具误保护低RAM而非代码页、isolated测试相对日志路径错误与rollback目录守卫过严失败。所有失败日志/实际运行留local/analysis/phase29，不靠删除失败获得绿色。
+详细动态边界与下一独立资源失败见[阶段29](PHASE29_RESULTS.md)。
