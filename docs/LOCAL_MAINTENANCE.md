@@ -60,3 +60,6 @@ python -m tools.maintenance.cleanup_workspace restore --report local/maintenance
 
 
 阶段31收尾追加保护`local/analysis/phase31/root-pathnode`；退休23份精确重复二进制，累计删除字节数730131704（含恢复验证后再次退休的131072字节，不等同于净节省）；删除139份可重建字节码缓存，释放2170262字节。历史EXE选择性恢复1份并核验活动hash；本轮清理后另恢复1份原成员并核验SHA256，再退休其重复副本。原始ISO、活动EXE、修改根、唯一研究及失败日志保留，修改根仍部署Test_PathNode；实际删除回退恢复原Test_PathNode panic。计划、恢复与两次清理报告保留于ignored `local/analysis/phase31/`。
+
+
+阶段32收尾追加保护`local/analysis/phase32/root-collision`；退休24份哈希核验重复二进制，累计删除731049208字节（含恢复验证后再次退休的524288字节，不等同于净节省）；删除137份可重建字节码缓存，释放2176985字节。历史EXE按报告选择性恢复并核验与活动EXE同hash；清理后选择性恢复原Collision成员，完整hash一致，再退休重复副本。原始ISO、活动EXE、当前修改根、唯一研究及全部失败日志保留，junction未移除；实际删除回退恢复Collision原panic。新计划、清理报告及恢复证据位于ignored `local/analysis/phase32/`。

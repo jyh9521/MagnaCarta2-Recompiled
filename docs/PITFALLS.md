@@ -202,3 +202,8 @@ exit26是既有host有限观察终止，不能当guest正常结束或任意timeo
 ## 阶段31：Test_PathNode独立隔离
 
 原包单成员干预、串行交叉与实际删除回退见[阶段31研究](RESEARCH_PATHNODE_DEPLOYMENT.md)。指定包panic的可逆变化与加载完成分别记账；保留原生失败、无有效readback及弱快照，后续明确失败为`02_Village_Collision.xxx`，未作为已验证根因或可玩性证据。
+
+
+## 阶段32：缺包不等于包损坏
+
+`02_Village_Collision.xxx`的原包验证、两轮单成员交叉及实际删除回退见[阶段32研究](RESEARCH_COLLISION_DEPLOYMENT.md)。补回后推进到`CinookIsland_CompTuto_01.xxx`原panic；仅支持固定输入下的有限因果贡献，不代表下一包已验证、地图完成或可玩性。原生失败、无有效readback和历史失败记录保留。
