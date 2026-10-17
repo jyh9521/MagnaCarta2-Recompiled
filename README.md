@@ -1,88 +1,48 @@
 # MagnaCarta2-Recompiled
 
-Xbox 360《MagnaCarta 2》原生重编译、Windows x64 移植研究与可复用本地化工程。
-原名 `Magna-Carta-2-CN`；简体中文本地化保留为子项目，不改变现有 locale/数据格式。
-运行以本地原版数据与本项目工具/兼容运行时为基础；不是 Xenia 启动器。
+## 项目简介
 
-## 当前状态（2026-10-18，阶段33）
+Xbox 360《MagnaCarta 2》原生重编译与 Windows x64 移植研究项目，同时维护可复用的本地化工具链，简体中文为当前本地化目标。
 
-`CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](docs/RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。 尚无玩家发布包、地图完成或可玩性验收。
+项目基于原版游戏数据和重编译代码开展研究，不是 Xenia 启动器。仓库原名为 `Magna-Carta-2-CN`。
 
-## 历史技术总览（截至2026-10-17，第十七阶段）
-- 已实现：只读清单、双盘 XEX 身份/可选头、Coalesced 原文候选与字节往返、UE3 446/25 包表/引用图、基础校验。
-- 可选 LZX 依赖：固定 libmspack 源码构建；两盘全部 4145 个 UE3 候选已通过表级解析。
-- 已勘测：本地提供的两张 ISO，详见 `docs/RESEARCH_GAME_STRUCTURE.md`。
-- 已修复三处 REX_FATAL 条件分支及五组 SEH 边界；真实生成模块 **197/197 TU 全量 Clang 编译通过**，两叶函数 27 组合成输入与独立 PPC oracle 一致。
-- 已解析七定义包 **12901 UFunction** 的 native index/flags 与字节码 framing，量化 3056 项 native 声明；未恢复兼容 native 实现。
-- 全部 197 对象已显式链接为 Windows x64 宿主；SDK 初始化、58,408 项函数映射复核、内存分配读写释放与关闭通过。
-- 已解析 312 个原生名称表、2,676 项非零实现配对及 299 个注册函数模板；203 个有 index 声明均交叉匹配。
-- 已执行两个原注册函数、真实 `Object.Add_IntInt` 与真实四字节操作数解码器，8 组输入通过；阶段四的静态数据夹具现已由原像装载替代。
-- 原 XEX 已通过官方 SDK 装载，20,119,552 bytes 严格比较仅有 13 个正常变量导入槽变化；已移除 vtable/GNatives 输入夹具。
-- 正式 kernel/audio/input 与真实 GPU 插件配置后，实际执行原入口、CRT 链和 main 路径；原 `0x8234FF10` 缺口已由入口元数据严格重生解决，197TU重新编译/链接通过，原回调5组差分通过。
-- 823C2740、82C1C1A0、52/61入口已恢复，58,412映射/58,166生成函数。事件原导入透明观测已捕获worker Set与main Wait成功返回；原21成员根和无hook对照均实际推进至 `82AC1DE8` 原叶入口缺登记。见 `docs/PHASE12_RESULTS.md`；不把20秒等待、IAT观测、隐藏窗口或零error当死锁/首帧/可玩性验收。
-- 第13阶段：原82AC1DE8浮点叶已严格恢复，58,413映射/58,167函数；rawO2的160差异保留，通用/fp:strict全量197TU重建后，同21原成员根推进82AC2810原fatal。[结果](docs/PHASE13_RESULTS.md)。
-- 第14阶段：原82AC2810双return已恢复；原512模型差异经独立64bit ISA纠正，2048差分通过，197TU严格重建后同21根到826A9EC8原fatal。[结果](docs/PHASE14_RESULTS.md)。
-- 第15阶段：原826A9EC8写入/条件tail严格恢复，2560差分明确区分null完整返回与非null ABI边界；197TU严格重建后同21根到82A3DEA0原fatal。[结果](docs/PHASE15_RESULTS.md)。
-- 第17阶段：原82B7CCD0完整word-load叶严格恢复，1536实际差分完整返回；197TU全量strict编译链接后同21根到原82390A70显式panic写guest3/C0000005。[结果](docs/PHASE17_RESULTS.md)。
-- 未实现：本游戏可用的 Windows 原生运行时、游戏资源部署回写、中文字体与正式译文。
-- 当前没有玩家安装包；仅标题初始化路径已实测，可玩性、可见首帧、分辨率与帧率支持均为 NOT TESTED。
+## 当前状态
 
-## 工具入口
-基础工具要求 Python 3.12+（当前验证为 3.14.2），使用标准库；完整 LZX 包表解析需要可选本地解码库，构建见 BUILDING.md。
+**目前处于开发研究阶段，尚无可玩的 Windows 版本或中文补丁发布。**
+
+已验证标题与主菜单的部分运行路径，自动输入可触发 New Game 流程；后续资源加载仍有阻塞，尚未完成地图、战斗、存档、换盘及完整游戏验收。中文字体、排版与正式译文仍待推进。
+
+详细开发进展、测试边界和阶段记录见[开发与测试进展](docs/STATUS.md)，运行限制见[已知问题](docs/KNOWN_ISSUES.md)。
+
+## 下载与使用
+
+当前仓库提供研究工具、测试与文档，不提供玩家安装包。研究输入采用已记录指纹的韩版 Xbox 360 双盘数据；版本信息见[原版勘测](docs/RESEARCH_GAME_STRUCTURE.md)。
+
+原版镜像、程序和资源须在本地单独准备，不随仓库分发。
+
+## 开发与验证
+
+基础工具要求 Python 3.12+ 和 Git；可选解压库、Windows 重编译工具链及原版数据要求见[构建与复现](BUILDING.md)。
+
 ```powershell
 python -m unittest discover -s tests -v
-python tools/inventory/scan.py local/disc1 --disc disc1 --output local/analysis/disc1.json
-python tools/inventory/scan.py local/disc1.iso --disc disc1 --xdvdfs --output local/analysis/disc1.json
-python tools/inventory/compare.py local/analysis/disc1.json local/analysis/disc2.json --output local/analysis/comparison.json
 python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
+python -m tools.validators.validate_markdown_style
 ```
-输出应放在输入目录之外；根目录 ISO 可直接显式传入，不需要复制或移动镜像。
 
-## 工程结构
-- `tools/inventory/`：语言无关的扫描与比较工具。
-- `tools/validators/`：语言无关的数据校验。
-- `localization/source/`：本地提取源文，默认忽略；`zh-Hans/`：简体中文工作记录；`review/`：审核流程。
-- `locales/zh-CN/`：原模板保留目录，不存第二份翻译；数据主目录为 `localization/zh-Hans/`。
-- `docs/`：原版勘测、双路线评估、构建与测试；`local/`：不提交的输入与证据。
-- `src/host/`：SDK 初始化、真实 XEX 装载、native 实验和有界标题诊断，不含游戏生成代码或完整兼容引擎。
+这些命令验证工具与数据规则，不代表游戏可玩性验收。实际研究构建、资源提取和运行诊断按构建文档执行。
 
-## 开发入口
-[构建](BUILDING.md) · [翻译](TRANSLATING.md) · [技术记录](TECHNICAL.md) · [许可边界](LICENSING.md)
-[Coalesced](docs/RESEARCH_COALESCED.md) · [阶段二](docs/PHASE2_RESULTS.md) · [阶段三](docs/PHASE3_RESULTS.md) · [阶段四](docs/PHASE4_RESULTS.md) · [阶段五](docs/PHASE5_RESULTS.md) · [可行性](docs/PORTING_FEASIBILITY.md) · [架构](docs/PORTING_ARCHITECTURE.md) · [下一步](docs/NEXT_STEPS.md)
-[仓库](https://github.com/jyh9521/MagnaCarta2-Recompiled) · [问题反馈](https://github.com/jyh9521/MagnaCarta2-Recompiled/issues)
+## 文档导航
 
-## 贡献与发布
-提交只包含自编工具、文档和经授权的数据；原版资源不进入仓库。
-原始模板改写前已在本地证据目录保留逐文件哈希和副本。
-后续发布将验证原版数据的版本，构建可复现的补丁，不分发完整商业游戏。
+| 内容 | 入口 |
+|---|---|
+| 开发进展与研究记录 | [状态与阶段索引](docs/STATUS.md) |
+| 构建环境与复现流程 | [BUILDING.md](BUILDING.md) |
+| 翻译数据与术语 | [翻译规范](TRANSLATING.md) · [术语表](GLOSSARY.md) |
+| 技术实现与架构 | [技术记录](TECHNICAL.md) · [移植架构](docs/PORTING_ARCHITECTURE.md) |
+| 参与开发 | [贡献指南](CONTRIBUTING.md) |
+| 问题反馈 | [GitHub Issues](https://github.com/jyh9521/MagnaCarta2-Recompiled/issues) |
 
-## 第十六阶段 — 2026-10-17
+## 许可与致谢
 
-原82A3DEA0完整索引尾分派恢复，旧DEC4合并，197TU严格重建实际推进82B7CCD0原fatal；fixture合法路径只证明tail ABI，不证明原callee/首帧。
-[阶段16结果](docs/PHASE16_RESULTS.md)。
-
-## 项目名称与路径迁移
-
-新仓库和本地目录统一为 `MagnaCarta2-Recompiled`。旧路径兼容、历史证据保护与复现见[迁移记录](docs/PROJECT_RENAME.md)。
-
-
-## 阶段29：New Game电影/伴随文本因果隔离
-[结果与验收边界](docs/PHASE29_RESULTS.md)｜[原电影加载状态](docs/RESEARCH_MOVIE_LOAD_STATE.md)。新增默认关闭、完整原范围守卫的电影observer；资源干预与实际回退分开验证，未把原地图包panic或黑场等同可玩性。
-
-
-阶段30：[`02_Village_Persistent.xxx`单成员部署与原panic隔离](docs/RESEARCH_VILLAGE_DEPLOYMENT.md)。
-
-
-## 阶段31：Test_PathNode独立隔离
-
-原包单成员干预、串行交叉与实际删除回退见[阶段31研究](docs/RESEARCH_PATHNODE_DEPLOYMENT.md)。指定包panic的可逆变化与加载完成分别记账；保留原生失败、无有效readback及弱快照，后续明确失败为`02_Village_Collision.xxx`，未作为已验证根因或可玩性证据。
-
-
-## 阶段32：Collision单成员部署
-
-`02_Village_Collision.xxx`的原包验证、两轮单成员交叉及实际删除回退见[阶段32研究](docs/RESEARCH_COLLISION_DEPLOYMENT.md)。补回后推进到`CinookIsland_CompTuto_01.xxx`原panic；仅支持固定输入下的有限因果贡献，不代表下一包已验证、地图完成或可玩性。原生失败、无有效readback和历史失败记录保留。
-
-
-## 阶段33：Cinook单成员与混合失败
-
-`CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](docs/RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。
+自编工具采用 [MIT 许可](LICENSE)，翻译文本采用[翻译许可](LICENSE-translations.md)。原版游戏代码、资源、字体及第三方组件的许可分别处理，详见[许可与分发边界](LICENSING.md)和[致谢](CREDITS.md)。
