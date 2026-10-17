@@ -201,3 +201,8 @@ word-leaf固定原8-byte入口与全hint守卫链，197对象全部继承strict 
 
 byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象strict FP；197TU新全量编译。CLI --capture-critical-section可选，not_observed不是失败；--capture-panic也仅允许word/byte这两个已核验原caller profiles，未知树仍拒绝。
 [阶段20结果](docs/PHASE20_RESULTS.md)。
+
+## 第二十一阶段 — 2026-10-17
+
+23根仅新增PreF，五次配对复用同一已核验阶段20 EXE/SDK/GPU；游戏代码未改，不重复生成/编译未变模块。保留parent输入、actual loaded DLL路径及run前后inventory；只改变MC2_GAME_ROOT。
+[阶段21结果](docs/PHASE21_RESULTS.md)。

@@ -86,3 +86,8 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 原byte flag恢复后当前22根在原panic写guest3，实际文件名PreF_VJuto_Base2.xxx，原ISO包有效但未部署。早期CS AV新增只读observer后未重现，未修复上游。仍无首帧/可玩性。
 [阶段20结果](PHASE20_RESULTS.md)。
+
+## 第二十一阶段 — 2026-10-17
+
+23根两次停于voc_bt_juto_0.xxx原BinaryFormat panic；其原ISO成员有效但缺部署，尚未做该成员因果干预。早期CS AV五次not_observed，无根因/修复证据。无可玩性。
+[阶段21结果](PHASE21_RESULTS.md)。

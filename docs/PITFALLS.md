@@ -146,3 +146,8 @@ word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而
 
 clrlwi生成可能优化为u32&1，严格body提取器若预期通用rotate必须fail-closed后独立核验再改测试模板，不改生成体。byte邻居after起点+12不是+8；byte无需word对齐。SDK导出定位合成fixture不等于真实AV复现；其它AV/LR必须早筛以免消耗目标观察预算。
 [阶段20结果](PHASE20_RESULTS.md)。
+
+## 第二十一阶段 — 2026-10-17
+
+残留unregistered target/success不能压过timeout、任意AV或矛盾退出码；消息text必须与原UTF16 hex/count及完整filename一致。22/23原生exit均C0000005，但错误文件可逆改变才是本次干预证据。所有不一致记录保持unknown，不伪装推进。
+[阶段21结果](PHASE21_RESULTS.md)。

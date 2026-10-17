@@ -1,4 +1,4 @@
-# 第二十阶段之后的实验门槛
+# 第二十一阶段之后的实验门槛
 
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
@@ -7,8 +7,8 @@
 真实XEX装载后已移除vtable夹具；正式kernel/audio/input/GPU配置与小型原资源部署使标题进入main，8234FF10已由原版本入口hint严格重生并全量验证；823C2740已strict重生，比较回调C1A0完整恢复，C214保留内部label；52/61入口已严格恢复；同一20成员根接入真实presenter/隐藏窗口；等待元数据已观测为Event，旧61 fatal消失。
 
 ## P0：路线A宿主链接与运行时初始化
-- 82E078C0原12-byte读取/bit0返回与r3/r11副作用已恢复，3072原body完整差分、197TU新strict编译/58417映射通过。同22根实际推进原panic，捕获PreF_VJuto_Base2.xxx；原ISO成员hash/UE3有效、22根缺部署已核验。先新独立资源根单成员部署A/B/实际回退，不改22根、不跳过fatal，不将postfault零头当已证唯一成因。见[阶段20](PHASE20_RESULTS.md)。
-- 另保留早期AV：SDK RtlEnterCriticalSection_entry精确读CS+18，原入口对象字段+8再加4产生坏参数；原对象/写入历史未捕获。阶段20精确只读observer已接线，两次新真实运行not_observed；未宣称修复或资源唯一因果；若重现，限定记录原r29对象/r11/r30，不伪造CS。
+- PreF原包单成员部署已完成：同EXE22→23→22→23→22三次PreFpanic/两次voc_bt_juto_0.xxx原panic，资源实际回退均恢复PreF。23根保持部署态，下一项先独立原voc成员身份/加载条件，再新资源根单成员A/B及实际回退；本次已核验其原SHA/strict summary和23根缺失，不直接改23根或跳过原panic。见[阶段21](PHASE21_RESULTS.md)。
+- 另保留早期AV：SDK RtlEnterCriticalSection_entry精确读CS+18，原入口对象字段+8再加4产生坏参数；原对象/写入历史未捕获。阶段21精确只读observer持续开启，五次真实运行not_observed；未宣称修复或资源唯一因果；若重现，限定记录原r29对象/r11/r30，不伪造CS。
 - 82B7CCD0完整8-byte BE32读取/零扩展已strict恢复，1536实际body完整正常返回通过（8页/fullcontext/MXCSR，EA wrap与physical bias分开验证），58169共同body不改，197TU全量strict编译/58416映射链接完成；字段/标题实际返回值未知。
 - 82A3DEA0完整72-byte已恢复，65536 oracle/1008实际body通过；432合法case仅tail ABI边界。旧DEC4并入parent，58169函数/58415映射保持不变，197TU严格重建实际推进82B7CCD0 fatal。另有原WoodSword包部署缺失，尚无其与fatal的因果证据。
 - 826A9EC8原32-byte写入和条件尾调用已strict恢复，2560差分通过（512null完整返回，2048仅外部tail ABI）；197TU/58415映射实际推进82A3DEA0原fatal。当前真实栈不含826C9920，不能宣称其当次进入/完成；fixture也未执行原callee。

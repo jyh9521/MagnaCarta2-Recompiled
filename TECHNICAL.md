@@ -153,3 +153,8 @@ unsigned byte bounds检查之前已有r9/r5变化；非法full64错误返回，�
 
 原82E078C0先LBZ写r11=zext8，再r3=bit0全64，CR不改；EA wrap和physical bias分开。原body3072差分通过，22根推进PreF_VJuto_Base2.xxx原panic，未证明标题实际bit或新缺包唯一因果。
 [阶段20结果](docs/PHASE20_RESULTS.md)。
+
+## 第二十一阶段 — 2026-10-17
+
+同EXE22-23-22-23-22把PreF部署与指定原panic可逆关联，下一文件为voc_bt_juto_0.xxx。原生退出码都C0000005，必须核验message/filename/原caller和跨字段一致性，不只看exit。
+[阶段21结果](docs/PHASE21_RESULTS.md)。

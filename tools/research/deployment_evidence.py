@@ -81,6 +81,59 @@ def _filename_matches(text, member):
     return text==member
 
 
+def _uint(value, bits=32):
+    return type(value) is int and 0 <= value < (1 << bits)
+
+
+def _utf16_text(row):
+    """Accept only internally consistent complete bounded parser observations."""
+    if not isinstance(row,dict) or row.get('status')!='ok': return None
+    if row.get('terminated') is not True or row.get('truncated') is not False: return None
+    if row.get('word_known') is not False or type(row.get('word')) is not int or row['word']!=0: return None
+    if not _uint(row.get('guest')) or row['guest']==0 or 'decode_error' in row: return None
+    text=row.get('text'); count=row.get('captured'); raw=row.get('hex')
+    if not isinstance(text,str) or '\0' in text or type(count) is not int or not 2<=count<=8192 or count%2: return None
+    if not isinstance(raw,str) or re.fullmatch(r'[0-9A-F]+',raw) is None or len(raw)!=count*2: return None
+    try:
+        expected=(text+'\0').encode('utf-16be').hex().upper()
+    except UnicodeError: return None
+    return text if raw==expected else None
+
+
+def _exit_matches(report, expected):
+    if report.get('timed_out') is not False or report.get('diagnostic_success') is not True: return False
+    if report.get('bounded_observation',False) is not False: return False
+    status=report.get('exit_status')
+    if type(status) is not int or status!=expected: return False
+    if 'run_record' in report:
+        record=report['run_record']
+        if not isinstance(record,dict) or type(record.get('exit_status')) is not int or record['exit_status']!=status: return False
+    return True
+
+
+def _panic_failure(report):
+    if not _exit_matches(report,3221225477) or report.get('unregistered_guest_target') is not None: return False
+    exception=report.get('exception');fault=report.get('fault_memory');sdk=report.get('sdk_guest_faults')
+    if not isinstance(exception,dict) or exception.get('code')!='C0000005': return False
+    if not isinstance(fault,dict) or type(fault.get('operation')) is not int or fault['operation']!=1 or type(fault.get('guest_offset')) is not int or fault['guest_offset']!=3: return False
+    if not isinstance(sdk,list) or len(sdk)!=1 or not isinstance(sdk[0],dict): return False
+    return sdk[0].get('operation')=='write' and type(sdk[0].get('guest_address')) is int and sdk[0]['guest_address']==3 and report.get('sdk_fatal_corroborated',False) is False
+
+
+def _native_failure(report, panic):
+    if 'panic_capture' in report and not isinstance(report['panic_capture'],dict): return False
+    native=report.get('unregistered_guest_target')
+    if not _uint(native) or not native or not _exit_matches(report,3221226505): return False
+    if report.get('sdk_fatal_corroborated') is not True or report.get('sdk_guest_faults')!=[]: return False
+    frames=report.get('fatal_stack')
+    if not isinstance(frames,list) or not frames or any(not isinstance(f,dict) for f in frames): return False
+    exception=report.get('exception')
+    if exception is not None and (not isinstance(exception,dict) or exception.get('code')!='C0000409'): return False
+    if report.get('fault_memory') is not None: return False
+    # Never combine stale positive panic fields with a separate fail-fast event.
+    return (panic.get('requested',False) is False and panic.get('success',False) is False and panic.get('reads',{})=={} and panic.get('errors',[])==[])
+
+
 def _trial(report, member):
     guards=report.get('inputs_unchanged') is True and report.get('game_input_unchanged') is True
     launched=report.get('image_loaded') is True and report.get('guest_entrypoint_launched') is True
@@ -88,22 +141,18 @@ def _trial(report, member):
     if not isinstance(panic,dict):panic={}
     reads=panic.get('reads',{})
     if not isinstance(reads,dict):reads={}
-    filename=reads.get('filename',{})
-    message=reads.get('message',{})
+    filename=_utf16_text(reads.get('filename'))
+    message=_utf16_text(reads.get('message'))
     caller=panic.get('caller',{})
-    valid_panic=(panic.get('success') is True and panic.get('errors')==[] and
+    valid_panic=(_panic_failure(report) and panic.get('requested') is True and
+                 panic.get('success') is True and panic.get('errors')==[] and
                  isinstance(caller,dict) and caller.get('known') is True and
-                 caller.get('saved_lr')==0x824844F4 and isinstance(message,dict) and
-                 isinstance(message.get('text'),str) and 'decode_error' not in message)
-    valid_filename=(isinstance(filename,dict) and filename.get('status')=='ok' and
-                    filename.get('terminated') is True and filename.get('truncated') is False and
-                    'decode_error' not in filename)
-    target=valid_panic and valid_filename and _filename_matches(filename.get('text'),member)
-    other_panic=valid_panic and valid_filename and isinstance(filename.get('text'),str) and not target
-    native=report.get('unregistered_guest_target')
-    native_fatal=isinstance(native,int) and not isinstance(native,bool) and 0<native<=0xFFFFFFFF
-    # A timeout or arbitrary AV is not proof the target access was passed.
-    positive_other=(other_panic or native_fatal) and report.get('diagnostic_success') is True
+                 type(caller.get('saved_lr')) is int and caller['saved_lr']==0x824844F4 and
+                 isinstance(reads.get('message'),dict) and reads['message'].get('guest')==0x8327C318 and
+                 filename is not None and message=="The file '"+filename+"' contains unrecognizable data")
+    target=bool(valid_panic and _filename_matches(filename,member))
+    other_panic=bool(valid_panic and not target)
+    positive_other=bool(other_panic or _native_failure(report,panic))
     if not guards: observation='invalid_input_identity'
     elif not launched: observation='not_launched'
     elif target: observation='specified_member_panic'
