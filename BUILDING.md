@@ -232,3 +232,7 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 
 ## 阶段27：A确认诊断
 固定输入与197strict对象下显式--scripted-start --scripted-confirm，控制用--scripted-confirm-neutral；后者保留同capabilities及START，仅抑制A。当前确认分支遇原8233D3D8缺登记fatal/C0000409；wrapper预期失败验证0不等于游戏正常退出。 见[阶段27](docs/PHASE27_RESULTS.md)。
+
+
+## 阶段28：对象flag叶strict发现
+新增object-flag-leaf entry profile（8233D3D8/0xC），继承全部原hint；strict重生58172体/58418双表并全197TU编译/链接。历史278源码+旧生成树/197对象才是实际旧fatal回退，不只恢复源码。 见[阶段28](docs/PHASE28_RESULTS.md)。

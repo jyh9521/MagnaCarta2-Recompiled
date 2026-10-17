@@ -181,3 +181,7 @@ exit26是既有host有限观察终止，不能当guest正常结束或任意timeo
 全neutral会一并阻止START，不能代替同caps START-only的A因果对照。历史273源码无confirm header，新工具按实际include能力判断，不能强制新增依赖。fatal前无readback不等于黑屏；缺资源警告也不是当前未登记目标的既定因果。 见[阶段27](PHASE27_RESULTS.md)。
 
 阶段27实际A-on2原fatal未执行正常清理，schedule parser保留`IAT restoration not verified`/capture_verified=false；私有对照runner沿用正常45秒退出的全诊断断言因此失败。失败原日志不改，不重跑已完成的A-on2；修正私有runner的适用条件后只续最后A-off2。该窗口A/state/helper/fatal身份独立核验；不能声称其IAT恢复或完整schedule验证通过，进程结束与源码隔离/原宿主重编回退分别记账。
+
+
+## 阶段28：黑帧与原资源缺失分开
+确认后SDK实际黑帧不等于没有原render返回或固定死锁；csm_prologue.txt/.bik缺失仅并存证据，须先核原加载条件和独立资源因果。合成r3/r11全ctx验证不是标题对象实际字段值日志。保留初次size元数据误记与私有runner语法失败。 见[阶段28](PHASE28_RESULTS.md)。

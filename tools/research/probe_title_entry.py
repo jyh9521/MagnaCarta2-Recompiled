@@ -186,6 +186,7 @@ def analyze(run_text, sdk_text, symbols, exit_status):
 CALLBACK_GENERATED_TREE = '1328d2c4799d39cafe2f14787ea9625a84b9ef874fc63cd494f7543f217790fc'
 VIRTUAL_THUNK_GENERATED_TREE = 'f79198eb4739d0939cf10f7aece3d11d06d56950076696428a7845a84a4fca74'
 COMPARE_GENERATED_TREE = '14c27505807e3381f5d9f4b20ab84a1b6f3404ea95204c134d5957260fbc2148'
+OBJECT_FLAG_GENERATED_TREE = '72a58849cd4872c8457b16fe36da86a1026327b764c40d1fdfa405895cbaacff'
 BYTE_FLAG_GENERATED_TREE = '9f5eda2bd7aa3934a32187063b2365864f502927ed67984f3cc02fa740d8fee6'
 WORD_LEAF_GENERATED_TREE = '628b54be3f51aa9f6ac198818102330a2e896a81765055f55a592c4144177f60'
 INDEXED_TAIL_GENERATED_TREE = 'd8336966f006a40c572f70585fbf4c3880554eca6669385d24605fde5a86ffd4'
@@ -200,6 +201,8 @@ NATIVE_GATEWAY_GENERATED_TREE = '994d2db123de56faf27f0560d872bb2481e6fa9f9c9e812
 
 def validate_title_profile(identity):
     """Only independently audited original-game discovery profiles."""
+    if identity.get('tree_sha256') == OBJECT_FLAG_GENERATED_TREE:
+        return 'object-flag-leaf-8233D3D8'
     if identity.get('tree_sha256') == BYTE_FLAG_GENERATED_TREE:
         return 'byte-flag-leaf-82E078C0'
     if identity.get('tree_sha256') == WORD_LEAF_GENERATED_TREE:
@@ -231,13 +234,13 @@ def validate_title_profile(identity):
 
 
 def validate_capture_profile(profile, panic=False, critical=False):
-    if (panic or critical) and profile not in ('word-leaf-82B7CCD0','byte-flag-leaf-82E078C0'):
+    if (panic or critical) and profile not in ('word-leaf-82B7CCD0','byte-flag-leaf-82E078C0','object-flag-leaf-8233D3D8'):
         raise ValueError('capture requires an independently verified original caller discovery profile')
 
 
 def validate_fp_contract(profile, inputs, records):
     """Profiles containing the restored float leaf require strict FP; old rollback profiles stay valid."""
-    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8','indexed-tail-82A3DEA0','word-leaf-82B7CCD0','byte-flag-leaf-82E078C0'):return
+    if profile not in ('float-leaf-82AC1DE8','bitfield-leaf-82AC2810','conditional-tail-826A9EC8','indexed-tail-82A3DEA0','word-leaf-82B7CCD0','byte-flag-leaf-82E078C0','object-flag-leaf-8233D3D8'):return
     if inputs.get('floating_point_contract') != 'strict' or not records:
         raise ValueError('discovery profile requires a strict FP module build')
     for row in records:
