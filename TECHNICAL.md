@@ -195,3 +195,8 @@ voc单成员干预使原指定panic在45秒内可逆消失；精确采样进入8
 `--trace-movie`默认关闭，仅接收固定object-flag-leaf profile；继承原XEX、SDK及197个strict对象守卫。9个原PDATA完整范围6764字节逐word核验、dispatcher强wrapper/原delegate分离核验后才启用。仅重编host、全197对象链接；不改原生成体/SDK/游戏返回值。
 observer记录worker/start、伴随文本容器、三open、tick、cleanup/playlist；有限RAM读取保留unknown，不补页或写guest。原r3参数、r3返回与字段快照不混同；827B6148为FString路径且无稳定布尔返回。
 `movie_trace_report.py`严格验证固定文件/九目标、配对/父子调用、已知位、UTF16和弱快照；饱和/未结束可验证采集但不是完整执行证据。可重用API为`read_movie_traces(run_text, output, requested=True)`。
+
+
+## 阶段30单成员地图包隔离
+
+`02_Village_Persistent.xxx`的原包校验、单成员部署、串行交叉实验及实际行为回退见[独立研究](docs/RESEARCH_VILLAGE_DEPLOYMENT.md)。原panic文件名变化与正常加载完成分别记账；原生失败和无有效readback的样本保留，不以缺失日志消失作为可玩性证据。

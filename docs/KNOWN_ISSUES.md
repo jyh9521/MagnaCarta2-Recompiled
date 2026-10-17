@@ -125,3 +125,8 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 
 ## 阶段29：电影加载因果已拆分，地图加载仍失败
 同EXE单变量/删除回退证明bik缺失可逆控制原open失败/成功及电影tick；txt是伴随字幕时间轴，其容器0→1但单独恢复仍黑场。bik恢复后实际推进到缺02_Village_Persistent.xxx原panic，未部署该地图包，未验收序章视频画面/完整结束或可玩性。第一份未进入New Game的trace与所有失败保留，后续使用串行实际prologue证据。见[阶段29](PHASE29_RESULTS.md)。
+
+
+## 阶段30加载边界
+
+`02_Village_Persistent.xxx`的原包校验、单成员部署、串行交叉实验及实际行为回退见[独立研究](RESEARCH_VILLAGE_DEPLOYMENT.md)。原panic文件名变化与正常加载完成分别记账；原生失败和无有效readback的样本保留，不以缺失日志消失作为可玩性证据。

@@ -192,3 +192,8 @@ exit26是既有host有限观察终止，不能当guest正常结束或任意timeo
 第一次透明trace与另一游戏诊断并行，固定时刻输入未达到New Game：SDK捕获仍Press START，movie日志只有logo/opening，没有prologue。保留为无效New Game样本，之后所有trace按串行实跑；有A轮询记录不等于原菜单已经确认。单纯添加observer也会扰动时序，不把此失败包装成目标场景采集。
 保留staging首轮junction祖先拒绝（改用resolve规范路径，未放宽guard）、私有矩阵reader列表/dict误用、首版movie parser将FILE误纳TRACE header、原生夹具误保护低RAM而非代码页、isolated测试相对日志路径错误与rollback目录守卫过严失败。所有失败日志/实际运行留local/analysis/phase29，不靠删除失败获得绿色。
 详细动态边界与下一独立资源失败见[阶段29](PHASE29_RESULTS.md)。
+
+
+## 阶段30失败样本与结论边界
+
+`02_Village_Persistent.xxx`的原包校验、单成员部署、串行交叉实验及实际行为回退见[独立研究](RESEARCH_VILLAGE_DEPLOYMENT.md)。原panic文件名变化与正常加载完成分别记账；原生失败和无有效readback的样本保留，不以缺失日志消失作为可玩性证据。

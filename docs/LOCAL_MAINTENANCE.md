@@ -53,4 +53,7 @@ python -m tools.maintenance.cleanup_workspace restore --report local/maintenance
 
 本机恢复报告为`local/analysis/maintenance-20261018/cleanup-report.json`和`local/analysis/maintenance-20261018/closeout-report.json`。所有唯一研究文件、两张原始ISO、上游依赖、当前生成树与197对象、当前资源根及运行程序保留；原始ISO完整SHA256与当前依赖清理前后一致。原失败日志保持原文。
 
-清理前、清理后与隔离恢复副本均执行同一原诊断程序，保持`02_Village_Persistent.xxx`缺失引发的原panic，native退出码均为3221225477；恢复验证不代表游戏故障已修复。隔离夹具完成真实二进制删除、哈希恢复与执行后，移除其可重建的额外二进制副本，保留计划、报告、命令和日志。
+清理前、清理后与隔离恢复副本均执行同一原诊断程序，保持`02_Village_Persistent.xxx`缺失时观察到的原panic，native退出码均为3221225477；恢复验证不代表游戏故障已修复。隔离夹具完成真实二进制删除、哈希恢复与执行后，移除其可重建的额外二进制副本，保留计划、报告、命令和日志。
+
+
+阶段30收尾按原报告选择性恢复1份历史EXE并核验与活动EXE完整SHA256相等；实验完成后追加保护当前`phase30/root-village`。本次退休21份精确重复二进制，释放729869560字节；删除1份可重建字节码缓存，释放4452字节。报告位于`local/analysis/phase30/cleanup-report.json`；活动程序、修改根及两张原ISO校验保持不变。实际删除新增地图包的回退运行保留原地图包panic，当前修改根仍保留新增包。

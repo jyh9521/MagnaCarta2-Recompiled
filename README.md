@@ -64,3 +64,6 @@ python tools/validators/validate_catalog.py localization/zh-Hans/catalog.json
 
 ## 阶段29：New Game电影/伴随文本因果隔离
 [结果与验收边界](docs/PHASE29_RESULTS.md)｜[原电影加载状态](docs/RESEARCH_MOVIE_LOAD_STATE.md)。新增默认关闭、完整原范围守卫的电影observer；资源干预与实际回退分开验证，未把原地图包panic或黑场等同可玩性。
+
+
+阶段30：[`02_Village_Persistent.xxx`单成员部署与原panic隔离](docs/RESEARCH_VILLAGE_DEPLOYMENT.md)。
