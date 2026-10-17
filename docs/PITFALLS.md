@@ -136,3 +136,8 @@ word-leaf继承indexed-tail hint时必须向原字节守卫传indexed-tail，而
 [阶段18结果](PHASE18_RESULTS.md)。
 
 阶段18协议解析必须在全部UTF16校验后赋text；decode_error与text同时存在会造成false-success，interior-NUL实际red已保留。相同原21根/旧host的首次rollback也出现更早read0043004E/LR823BF2B8；必须保留独立故障，不能只挑panic运行宣称确定性。
+
+## 第十九阶段 — 2026-10-17
+
+部署A/B必须使用完全相同EXE/SDK/GPU和单成员hash差异，保留每次native失败与实际资源回退；timeout/任意AV不是正向越过指定加载的证明。Windows设备名路径负例先red再补guard。坏CS指针类似UTF16字节仅指纹，不能当对象错用字符串的实证。
+[阶段19结果](PHASE19_RESULTS.md)。

@@ -191,3 +191,8 @@ word-leaf固定原8-byte入口与全hint守卫链，197对象全部继承strict 
 
 复用阶段17精确strict生成树与197对象须重新核验hash和/fp:strict记录；本阶段只重新编译host并显式全量链接。`python -m tools.research.probe_title_entry --help`中的`--capture-panic`仅接受word-leaf固定profile，默认关闭。捕获请求不成功CLI exit1；成功捕获后原panic仍C0000005，诊断CLI exit0不是游戏成功。
 [阶段18结果](docs/PHASE18_RESULTS.md)。
+
+## 第十九阶段 — 2026-10-17
+
+独立根22只新增原WoodSword；同一完整EXE在21/22根交错运行，不靠重新链接改变失败位置。新deployment_evidence CLI仅只读比较，不运行标题；真实执行仍沿probe_title_entry完整hash/strict合同。
+[阶段19结果](docs/PHASE19_RESULTS.md)。
