@@ -63,4 +63,3 @@ A2缺失基线另以`C0000005`在`rexruntime.dll+0x117F11`读取host地址`FFFFF
 按活动构建输入追加保护`local/analysis/phase34/root-terrain`；本轮及恢复后再次清理共退休47份哈希一致重复输出，累计删除1163250948字节，含恢复后再次退休的4915200字节，不等同净节省。清除143份可重建Python字节码，释放2204261字节；后续测试产生的缓存另在最终完整性报告记录。
 
 清理后选择性恢复原terrain成员并核验完整SHA256一致，再退休该重复副本。两张原ISO完整hash、活动EXE、SDK、生成树、197对象与当前资源根保持身份；全部唯一研究、原生失败日志与恢复keeper保留，兼容junction不移除。精确计划、报告、选择性恢复和最终Git/CI验证留在ignored `local/analysis/phase34/`。
-
