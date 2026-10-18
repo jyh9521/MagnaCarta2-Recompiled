@@ -15,6 +15,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('sdk', 'compiler', 'vcvars', 'output'):
         p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--watch', action='store_true', help='also build the pinned-SDK hardware write watcher')
     args = p.parse_args()
     sdk, compiler, output = args.sdk.resolve(), args.compiler.resolve(), args.output.resolve()
     if digest(sdk / 'bin/rexruntime.dll') != SDK_SHA256:
@@ -28,6 +29,8 @@ def main():
     root = Path(__file__).resolve().parents[2]
     sources = [root / 'src/host' / name for name in ('input_refresh_probe.cpp',
                'input_probe_capture.cpp', 'input_probe_trace.h', 'input_call_gate.h')]
+    if args.watch:
+        sources.append(root / 'src/host/input_metadata_watch.cpp')
     env = vc_environment(args.vcvars.resolve())
     linker = shutil.which('link.exe', path=next(v for k, v in env.items() if k.lower() == 'path'))
     if not linker:
@@ -39,8 +42,11 @@ def main():
     for path in sources:
         (snapshots / path.name).write_bytes(path.read_bytes())
     records = []
-    for source, name, libraries in [(sources[0], 'probe', [str(sdk / 'lib/rexruntime.lib'), 'kernel32.lib']),
-                                    (sources[1], 'capture', ['kernel32.lib', 'dbghelp.lib'])]:
+    targets = [(sources[0], 'probe', [str(sdk / 'lib/rexruntime.lib'), 'kernel32.lib']),
+               (sources[1], 'capture', ['kernel32.lib', 'dbghelp.lib'])]
+    if args.watch:
+        targets.append((sources[-1], 'watch', ['kernel32.lib', 'dbghelp.lib']))
+    for source, name, libraries in targets:
         command = [str(compiler), '/nologo', '/c', '/std:c++latest', '/MD', '/EHsc', '/Zi',
                    '/DNOMINMAX', '/DWIN32_LEAN_AND_MEAN', '/DSPDLOG_FMT_EXTERNAL', '/DSPDLOG_COMPILED_LIB',
                    '/I' + str(sdk / 'include'), '/I' + str(snapshots), str(snapshots / source.name),
@@ -57,7 +63,7 @@ def main():
     if inventory(sdk) != sdk_before:
         raise ValueError('SDK input changed during build')
     with (output / 'identity.json').open('x', encoding='utf-8') as stream:
-        json.dump(dict(inputs=inputs, sdk=sdk_before, outputs={name: digest(output / name) for name in ('probe.exe', 'capture.exe')},
+        json.dump(dict(inputs=inputs, sdk=sdk_before, outputs={name + '.exe': digest(output / (name + '.exe')) for _, name, _ in targets},
                        records=records), stream, indent=2)
     print('INPUT_PROBE_BUILD compile=0 link=0 game_loaded=0 SDK_modified=0')
 

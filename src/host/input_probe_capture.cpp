@@ -57,7 +57,7 @@ int main(int argc,char** argv) {
     process=OpenProcess(PROCESS_ALL_ACCESS,FALSE,e.dwProcessId);
     if(!process)process=e.u.CreateProcessInfo.hProcess;else CloseHandle(e.u.CreateProcessInfo.hProcess);
     threads.push_back({e.dwThreadId,e.u.CreateProcessInfo.hThread});
-
+    
     if(e.u.CreateProcessInfo.hFile)CloseHandle(e.u.CreateProcessInfo.hFile);
     std::printf("MODULE main base=%p\n",e.u.CreateProcessInfo.lpBaseOfImage);AddModule(process,e.u.CreateProcessInfo.lpBaseOfImage);break;
    }
