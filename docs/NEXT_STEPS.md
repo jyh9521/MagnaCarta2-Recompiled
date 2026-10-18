@@ -1,5 +1,7 @@
 # 第二十八阶段之后的实验门槛
 
+> 2026-10-18：Windows x64 原生重编译研发无限期暂停。本页原生路线步骤与待办仅作历史复现记录，不作为近期交付任务；现行方向为原版 Xbox 360 资源汉化和 Xenia 验证。参见[技术归档](NATIVE_RECOMPILATION_ARCHIVE_2026-10-18.md)。
+
 ## 已完成
 三处条件分支、五组SEH边界均经PPC/PDATA证据修复；严格生成、独立静态审计、197TU全量Clang编译与两叶函数27输入差分通过。
 七包12901个UFunction完成字段/native index/flags和token framing；缺口统计不等于native实现恢复。

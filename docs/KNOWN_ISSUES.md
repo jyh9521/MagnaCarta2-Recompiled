@@ -1,5 +1,7 @@
 # 已知问题与限制
 
+> 2026-10-18：Windows x64 原生重编译研发无限期暂停。本页原生路线步骤与待办仅作历史复现记录，不作为近期交付任务；现行方向为原版 Xbox 360 资源汉化和 Xenia 验证。参见[技术归档](NATIVE_RECOMPILATION_ARCHIVE_2026-10-18.md)。
+
 |项目|状态|原因/下一验收|
 |---|---|---|
 |Windows 原生运行|标题初始化部分通过|8234FF10/823C2740已严格重生；C1A0完整比较回调已恢复；52网关已恢复；61扩展入口已恢复；82AC1DE8原浮点叶已恢复；82AC2810双return已恢复；826A9EC8条件tail已恢复；82A3DEA0索引tail已恢复；82B7CCD0原word-load叶已恢复；当前有效terrain补回样本到sizesmpl_structures原panic/guest3；A2/B3另有SDK读host FFFFFFFFFFFFFFF8异常及历史C0000374未决，详见阶段34，尚不可玩|
@@ -150,6 +152,11 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 ## 阶段34：terrain部署与加载边界
 
 `02_village_ter01.xxx`已完成原ISO/member hash、12段完整LZX解压、严格包表、单成员串行交叉与实际删除回退；修改根后续明确包为`sizesmpl_structures.xxx`。全样本有限部署关联分类为`false`，不代表场景加载、移动或战斗通过。全部原生失败及历史堆终止继续保留，下一包因果未验证。 见[阶段34研究](RESEARCH_TERRAIN_DEPLOYMENT.md)。
+
+
+## 阶段36：输入并发缓解不等于全局修复
+
+原SDK同一InputSystem的并发GetState/SetState在独立探针中出现AV、堆终止或timeout；默认关闭的host共享调用门锁在固定串行样本完成读写，但只覆盖当前EXE三项必需输入导入及存在时的Keystroke。历史负八读取的破坏写入来源仍未直接采集，早期critical-section AV及历史堆终止继续保留。ABI布局夹具和45秒运行边界不证明可见呈现、首场景或玩法通过。详见[输入并发研究](RESEARCH_INPUT_SERIALIZATION.md)。
 
 ## 阶段37：负八复现不等于历史写入闭环
 

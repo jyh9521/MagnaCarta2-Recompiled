@@ -1,5 +1,7 @@
 # 技术记录
 
+> 2026-10-18：Windows x64 原生重编译研发无限期暂停。本页原生路线步骤与待办仅作历史复现记录，不作为近期交付任务；现行方向为原版 Xbox 360 资源汉化和 Xenia 验证。参见[技术归档](docs/NATIVE_RECOMPILATION_ARCHIVE_2026-10-18.md)。
+
 ## 证据级别
 Verified：实际文件字节、工具输出与测试；High-confidence deduction：由格式资料支持的推断；Unverified hypothesis：待实验。
 本轮没有运行游戏，不把资源签名和工具测试解释成原生移植成功。
@@ -220,3 +222,8 @@ observer记录worker/start、伴随文本容器、三open、tick、cleanup/playl
 ## 阶段34：terrain部署与加载边界
 
 `02_village_ter01.xxx`已完成原ISO/member hash、12段完整LZX解压、严格包表、单成员串行交叉与实际删除回退；修改根后续明确包为`sizesmpl_structures.xxx`。全样本有限部署关联分类为`false`，不代表场景加载、移动或战斗通过。全部原生失败及历史堆终止继续保留，下一包因果未验证。 见[阶段34研究](docs/RESEARCH_TERRAIN_DEPLOYMENT.md)。
+
+
+## 阶段36：输入兼容调用边界
+
+[共享门锁与ABI复核](docs/RESEARCH_INPUT_SERIALIZATION.md)记录固定SDK的独立并发失败、host输入IAT最小缓解、完整PPCContext透传、BE输入结构大小/偏移检查、真实页保护恢复及新进程回退。门锁默认关闭，不改SDK或生成体，仅约束当前host输入导入调用。历史故障写入来源和SDK其他调用者仍待验证，不能以有限串行通过宣称全局内存安全。

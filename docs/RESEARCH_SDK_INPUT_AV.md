@@ -2,7 +2,7 @@
 
 ## 与资源线分离
 
-本页只调查阶段34 A2、B3的host读取`FFFFFFFFFFFFFFF8`。两次旧样本完整保留：A2原生exit3221225477，B3为exit26，均无指定panic。它们不是guest偏移3写入，也不因资源线补回包而视为修复。资源部署与实际删除回退另见资源线独立研究记录。
+本页只调查阶段34 A2、B3的host读取`FFFFFFFFFFFFFFF8`。两次旧样本完整保留：A2原生exit3221225477，B3为exit26，均无指定panic。它们不是guest偏移3写入，也不因资源线补回包而视为修复。资源部署与实际删除回退另见[structures研究](RESEARCH_STRUCTURES_DEPLOYMENT.md)。
 
 ## 二进制事实（Verified）
 

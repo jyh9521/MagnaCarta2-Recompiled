@@ -1,5 +1,7 @@
 # 构建与复现
 
+> 2026-10-18：Windows x64 原生重编译研发无限期暂停。本页原生路线步骤与待办仅作历史复现记录，不作为近期交付任务；现行方向为原版 Xbox 360 资源汉化和 Xenia 验证。参见[技术归档](docs/NATIVE_RECOMPILATION_ARCHIVE_2026-10-18.md)。
+
 任务收尾包含[本地维护](docs/LOCAL_MAINTENANCE.md)：保留当前依赖、原始输入和唯一证据，按哈希清理重复输出；历史输出在复跑前按清理清单恢复。
 
 ## 当前可执行成果
@@ -245,3 +247,7 @@ byte-flag-leaf新增固定原12byte入口，继承完整hint链与每对象stric
 `--trace-movie`默认关闭，仅接收固定object-flag-leaf profile；继承原XEX、SDK及197个strict对象守卫。9个原PDATA完整范围6764字节逐word核验、dispatcher强wrapper/原delegate分离核验后才启用。仅重编host、全197对象链接；不改原生成体/SDK/游戏返回值。
 observer记录worker/start、伴随文本容器、三open、tick、cleanup/playlist；有限RAM读取保留unknown，不补页或写guest。原r3参数、r3返回与字段快照不混同；827B6148为FString路径且无稳定布尔返回。
 `movie_trace_report.py`严格验证固定文件/九目标、配对/父子调用、已知位、UTF16和弱快照；饱和/未结束可验证采集但不是完整执行证据。可重用API为`read_movie_traces(run_text, output, requested=True)`。
+
+## SDK输入并发诊断与默认关闭修复
+
+独立SDK诊断与原生失败见[输入非法读取研究](docs/RESEARCH_SDK_INPUT_AV.md)；host调用门锁、固定资源交叉与进程回退见[输入串行修复](docs/RESEARCH_INPUT_SERIALIZATION.md)。在阶段29相同完整构建参数上追加`--serialize-input`启用，撤销该参数恢复默认关闭；`input_serialization.h`与`input_call_gate.h`自动纳入输入hash和源码快照。旧SDK/未知生成profile仍拒绝启用，游戏生成体及SDK DLL保持不变。
