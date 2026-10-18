@@ -3,6 +3,7 @@
 #include "presentation_probe.h"
 #include "wait_observation.h"
 #include "event_import_trace.h"
+#include "input_serialization.h"
 #include "schedule_observation.h"
 #include "counter_observation.h"
 #include "counter_queue_watch.h"
@@ -38,6 +39,7 @@ uint8_t* guest_base = nullptr;
 volatile LONG launch_phase = 0;
 rex::system::KernelState* kernel_state = nullptr;
 bool wait_sdk_verified = false;
+bool input_serialization_requested=false;
 bool event_trace_requested = false;
 bool schedule_trace_requested = false;
 bool counter_trace_requested = false;
@@ -332,6 +334,7 @@ LONG CALLBACK RecordException(EXCEPTION_POINTERS* pointers) {
   if (!launch_phase || (record->ExceptionCode != EXCEPTION_ACCESS_VIOLATION &&
       record->ExceptionCode != EXCEPTION_BREAKPOINT && record->ExceptionCode != EXCEPTION_ILLEGAL_INSTRUCTION))
     return EXCEPTION_CONTINUE_SEARCH;
+  mc2::host::DumpInputSerialization();
   std::printf("TITLE_EXCEPTION code=%08lX ip=%p phase=%ld thread=%lu\n",
       record->ExceptionCode, record->ExceptionAddress, launch_phase, GetCurrentThreadId());
   if(record->NumberParameters >= 2) {
@@ -387,6 +390,7 @@ int main(int argc,char** argv) {
     auto* root=std::getenv("MC2_GAME_ROOT");
     const auto game_root=root?std::filesystem::absolute(root):xex.parent_path();
     std::printf("TITLE_ROOT %s\n",game_root.string().c_str());
+    input_serialization_requested=std::getenv("MC2_SERIALIZE_INPUT") && std::strcmp(std::getenv("MC2_SERIALIZE_INPUT"),"1")==0;
     event_trace_requested=std::getenv("MC2_EVENT_TRACE") && std::strcmp(std::getenv("MC2_EVENT_TRACE"),"1")==0;
     schedule_trace_requested=std::getenv("MC2_SCHEDULE_TRACE") && std::strcmp(std::getenv("MC2_SCHEDULE_TRACE"),"1")==0;
     counter_trace_requested=std::getenv("MC2_COUNTER_TRACE") && std::strcmp(std::getenv("MC2_COUNTER_TRACE"),"1")==0;
@@ -447,6 +451,11 @@ int main(int argc,char** argv) {
     std::printf("SETUP status=%08X\n",unsigned(status));if(status)return 22;
     std::printf("TITLE_SUBSYSTEMS graphics=%u audio=%u input=%u\n",unsigned(runtime.graphics_system()!=nullptr),
       unsigned(runtime.audio_system()!=nullptr),unsigned(runtime.input_system()!=nullptr));
+    if(input_serialization_requested) {
+      const bool installed=mc2::host::InstallInputSerialization(GetModuleHandleW(nullptr),dll,wait_sdk_verified);
+      std::printf("TITLE_INPUT_SERIALIZATION requested=1 installed=%u sdk_guard=%u\n",unsigned(installed),unsigned(wait_sdk_verified));
+      if(!installed){mc2::host::DumpInputSerialization();return 47;}
+    }else std::puts("TITLE_INPUT_SERIALIZATION requested=0 installed=0");
     if(event_trace_requested) {
       const bool installed=mc2::host::InstallEventImportTrace(GetModuleHandleW(nullptr),dll,wait_sdk_verified);
       std::printf("TITLE_EVENT_TRACE installed=%u\n",unsigned(installed));
@@ -601,6 +610,7 @@ for(unsigned i=0;i<9;++i){const bool bound=runtime.function_dispatcher()->GetFun
     if(movie_trace_requested && movie_dump_index.load()==0)WriteMovieTrace("boundary");
     if(timeline_requested && timeline_dump_index.load()==0)WriteFrameTimeline("boundary");
     if(input_trace_requested && input_dump_index.load()==0)WriteInputTrace("boundary");
+    mc2::host::DumpInputSerialization();
     // The parent runner confines this diagnostic process. No forced guest continuation.
     std::fflush(stdout);rex::FlushLogging();
     std::_Exit(wait==rex::thread::WaitResult::kSuccess?0:26);

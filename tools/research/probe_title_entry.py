@@ -261,6 +261,7 @@ def input_observer_headers(source):
 
 
 def execute(args):
+    serialize_input=getattr(args,'serialize_input',False)
     movie=getattr(args,'trace_movie',False)
     seconds=getattr(args,'observe_seconds',20)
     if not 20<=seconds<=60:raise ValueError('observation must be 20..60 seconds')
@@ -289,8 +290,9 @@ def execute(args):
         raise ValueError('unsupported GPU plugin identity')
     previous=json.loads((args.build_dir/'inputs.json').read_text(encoding='utf-8'))
     profile = validate_title_profile(previous['generated'])
-    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest or input_trace or movie,capture_critical)
+    validate_capture_profile(profile,capture_panic or schedule or counter or timeline or capture_guest or input_trace or movie or serialize_input,capture_critical)
     validate_fp_contract(profile,previous,json.loads((args.build_dir/'module-build.json').read_text(encoding='utf-8'))['records'])
+    if serialize_input and profile!='object-flag-leaf-8233D3D8':raise ValueError('input serialization requires the fixed object-flag-leaf profile')
     if movie and profile!='object-flag-leaf-8233D3D8':raise ValueError('movie trace requires the fixed object-flag-leaf profile')
     image=validate_image(args.xex,args.game_root or args.xex.parent)
     root=(args.game_root or args.xex.parent).resolve()
@@ -300,6 +302,7 @@ def execute(args):
     env=vc_environment(args.vcvars.resolve())
     linker=Path(env['VCToolsInstallDir'])/'bin/Hostx64/x64/link.exe'
     overrides={'MC2_XEX_PATH':image['source'],'MC2_GAME_ROOT':str((args.game_root or args.xex.parent).resolve())}
+    overrides['MC2_SERIALIZE_INPUT']='1' if serialize_input else '0'
     overrides['MC2_OBSERVE_SECONDS']=str(seconds)
     overrides['MC2_EVENT_TRACE']='1' if trace else '0'
     overrides['MC2_SCHEDULE_TRACE']='1' if schedule else '0'
@@ -317,6 +320,9 @@ def execute(args):
     overrides['MC2_PRESENTATION']='1' if present else '0'
     overrides['MC2_WAIT_SDK_SHA256']=WAIT_SDK_SHA256
     dependencies=[args.source.parent/name for name in ('presentation_probe.h','wait_observation.h','event_import_trace.h')]
+    has_input_gate='#include "input_serialization.h"' in args.source.read_text(encoding='utf-8-sig')
+    if serialize_input and not has_input_gate:raise ValueError('input serialization requires the guarded input host')
+    if has_input_gate:dependencies.extend(args.source.parent/name for name in ('input_serialization.h','input_call_gate.h'))
     has_panic_header='#include "panic_observation.h"' in args.source.read_text(encoding='utf-8-sig')
     if capture_panic and not has_panic_header:raise ValueError('capture requires the read-only observation host header')
     if capture_critical and 'void ObserveCriticalSectionFault(' not in args.source.read_text(encoding='utf-8-sig'):raise ValueError('critical capture requires the read-only observer host source')
@@ -358,6 +364,10 @@ def execute(args):
     report=analyze(run_text,sdk_text,symbols,run.get('exit_status',127))
     report.update(image=image,generated_profile=profile,inputs_unchanged=result['inputs_unchanged'],object_count=result['object_count'],
                   host_build_success=result['success'],gpu_requested=args.gpu,presentation_requested=present,event_trace_requested=trace)
+    report['input_serialization_requested']=serialize_input
+    report['input_serialization_install_verified']=bool(re.search(r'^TITLE_INPUT_SERIALIZATION requested=1 installed=1 sdk_guard=1$',run_text,re.M)) if serialize_input else None
+    if serialize_input and not report['input_serialization_install_verified']:
+        report['bounded_observation']=False;report['diagnostic_success']=False
     report['observation_seconds']=seconds
     report['event_traces']=[]
     trace_resolver=make_symbol_resolver(symbols)
@@ -442,6 +452,7 @@ def execute(args):
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--serialize-input',action='store_true',help='serialize four pinned SDK input imports; default off')
     for name in ('build-dir','generated','sdk','compiler','vcvars','xex','output'):
         parser.add_argument('--'+name,required=True,type=Path)
     parser.add_argument('--game-root',type=Path)

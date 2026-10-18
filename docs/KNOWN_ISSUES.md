@@ -150,3 +150,7 @@ Od与O2strict768夹具通过不证明完整PPC FPSCR/异常/NaN硬件语义，�
 ## 阶段34：terrain部署与加载边界
 
 `02_village_ter01.xxx`已完成原ISO/member hash、12段完整LZX解压、严格包表、单成员串行交叉与实际删除回退；修改根后续明确包为`sizesmpl_structures.xxx`。全样本有限部署关联分类为`false`，不代表场景加载、移动或战斗通过。全部原生失败及历史堆终止继续保留，下一包因果未验证。 见[阶段34研究](RESEARCH_TERRAIN_DEPLOYMENT.md)。
+
+## 阶段37：负八复现不等于历史写入闭环
+
+独立SDK同对象两线程已直接捕获RCX=0的117F11负八读取，以及另一进程的C0000374刷新释放栈；原始故障、线程、边界trace与minidump分别保留。尚未捕获首次破坏写入指令，不把历史游戏AV/堆终止合并归因，也未证实新的host门锁遗漏。固定游戏OFF首轮出现117F93的C000001D，ON/OFF/ON其余样本为45秒exit26；不是正常游戏退出或可玩性证据。没有新增生产修复。见[阶段37输入并发调查](RESEARCH_INPUT_CONCURRENCY.md)。

@@ -75,3 +75,9 @@ README作为项目首页，只保留项目定位、可用状态、使用入口�
 按活动构建输入追加保护`local/analysis/phase34/root-terrain`；本轮及恢复后再次清理共退休47份哈希一致重复输出，累计删除1163250948字节，含恢复后再次退休的4915200字节，不等同净节省。清除143份可重建Python字节码，释放2204261字节；后续测试产生的缓存另在最终完整性报告记录。
 
 清理后选择性恢复原terrain成员并核验完整SHA256一致，再退休该重复副本。两张原ISO完整hash、活动EXE、SDK、生成树、197对象与当前资源根保持身份；全部唯一研究、原生失败日志与恢复keeper保留，兼容junction不移除。精确计划、报告、选择性恢复和最终Git/CI验证留在ignored `local/analysis/phase34/`。
+
+## 阶段37输入并发收尾
+
+本轮明确保留全部`local/analysis/phase37`及当前游戏EXE、SDK探针、原XEX、生成树、197对象和phase35资源根。退休2份哈希一致可重建二进制，净删除291958字节；计入隔离fixture恢复后再次退休，累计删除491638字节。清除416份Python字节码、6578480字节；测试后新增缓存另行核对。
+
+静态运行库门锁fixture实际删除副本、按报告恢复并核对完整hash，再运行得到ABI偏移验证及`actual_restore=1`、exit0，随后重新退休重复副本。两张原ISO完整hash、固定输入7项及兼容junction保持。全部新增失败日志、trace、dump和恢复keeper保留；计划、清理、恢复、原文输出与retention身份记录在ignored `local/analysis/phase37/`。
