@@ -215,3 +215,8 @@ observer记录worker/start、伴随文本容器、三open、tick、cleanup/playl
 ## 阶段33：有条件的加载推进
 
 `CinookIsland_CompTuto_01.xxx`独立原包验证、单成员交叉及实际删除回退见[阶段33研究](docs/RESEARCH_CINOOK_DEPLOYMENT.md)。有效补回样本推进到`02_village_ter01.xxx`原panic；B1的`C0000374`无有效捕获且保持未决，全样本因果汇总不判通过。条件性因果贡献、混合失败与可玩性分别记账，下一包未部署。
+
+
+## 阶段34：terrain部署与加载边界
+
+`02_village_ter01.xxx`已完成原ISO/member hash、12段完整LZX解压、严格包表、单成员串行交叉与实际删除回退；修改根后续明确包为`sizesmpl_structures.xxx`。全样本有限部署关联分类为`false`，不代表场景加载、移动或战斗通过。全部原生失败及历史堆终止继续保留，下一包因果未验证。 见[阶段34研究](docs/RESEARCH_TERRAIN_DEPLOYMENT.md)。

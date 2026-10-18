@@ -8,15 +8,16 @@
 
 - 原版 XEX 装载、原入口与部分初始化链已执行；全模块严格构建和多项原函数差分已有独立证据。
 - 原 SDK 输出曾读回标题和主菜单；有限自动 START/A 输入已触发 New Game。SDK 读回、可见呈现、物理输入和可玩性分别验收。
-- 阶段33的 Cinook 单成员补回在三个有效样本中推进到 `02_village_ter01.xxx` 原panic；缺失基线与实际删除回退恢复原 Cinook panic。另一次 `C0000374` 无有效捕获，保持未决，全样本因果汇总不判通过。
+- 阶段34独立校验并完整解压`02_village_ter01.xxx`，完成单成员串行交叉与实际删除回退；补回样本后续明确包为`sizesmpl_structures.xxx`。全样本有限部署关联分类为`false`，不等同地图或玩法通过。历史`C0000374`及早期AV继续保留未决。
+- A2基线与B3补回均记录SDK读取host `FFFFFFFFFFFFFFF8`的AV，分别exit3221225477/26，没有指定panic；全样本因果汇总不判通过，补充样本不替换失败。
 - 序章视频/字幕渲染、电影正常结束、地图加载完成、战斗、存档、换盘及完整通关尚未验收。
 - 本地化正式译文、中文字形及界面排版尚未完成游戏内验证；仍需最小可回写本地化验证。
 
-最新实验的完整输入、原包验证、交叉测试、失败与回退见[Cinook 单成员研究](RESEARCH_CINOOK_DEPLOYMENT.md)。没有玩家发布包；单元测试、编译和静态解析通过不改变上述验收边界。
+最新实验的完整输入、原包验证、交叉测试、失败与回退见[terrain 单成员研究](RESEARCH_TERRAIN_DEPLOYMENT.md)。没有玩家发布包；单元测试、编译和静态解析通过不改变上述验收边界。
 
 ## 后续研究入口
 
-下一资源候选为 `02_village_ter01.xxx`，目前只记录库存身份，尚未独立验证部署因果。新实验应先核验原版成员和固定构建身份，再进行单变量交叉及实际行为回退；堆终止与早期异常继续单独保留，不以无panic或缺少捕获认定加载完成。
+当前优先级依次为进入首个场景、实际移动、完成一场战斗，汉化后置。下一资源观察为`sizesmpl_structures.xxx`，尚未独立验证部署因果。沿固定构建与单变量交叉、实际行为回退推进；堆终止与早期异常单独记账，缺少捕获不算加载完成。
 
 [已知问题](KNOWN_ISSUES.md)记录运行限制；[技术记录](../TECHNICAL.md)维护实现依据；[实验门槛记录](NEXT_STEPS.md)保留历史路线和前置条件，其旧阶段待办须结合对应结果阅读。
 
@@ -59,6 +60,7 @@
 | 31 | [Test_PathNode：单成员因果隔离与加载边界](RESEARCH_PATHNODE_DEPLOYMENT.md) |
 | 32 | [02_Village_Collision：单成员部署与可逆失败边界](RESEARCH_COLLISION_DEPLOYMENT.md) |
 | 33 | [CinookIsland_CompTuto_01：单成员干预、混合失败与加载边界](RESEARCH_CINOOK_DEPLOYMENT.md) |
+| 34 | [02_village_ter01：独立部署、完整解压与实际回退](RESEARCH_TERRAIN_DEPLOYMENT.md) |
 
 ## 首页迁移与历史保留
 
